@@ -58,16 +58,33 @@ if (isset($_POST["updateMerchant"])) {
 <!-- 商品編輯 -->
 
 <?php
+// 顯示錯誤訊息（避免 HTTP 500 問題時無法顯示原因）
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 if (isset($_POST['updateProduct'])) {
     include("dbh.php");
+
     $pid = $_POST['pid'];
     $mid = $_POST['mid'];
     $pName = mysqli_real_escape_string($conn, $_POST['pName']);
     $pDescription = mysqli_real_escape_string($conn, $_POST['pDescription']);
     $price = mysqli_real_escape_string($conn, $_POST['price']);
+    $productCategoriesId = $_POST['productCategoryId'];  // 這是來自 ProductCategoryList 的 foreign key
     $pPicture = '';
+    $deleteMessage = ''; // 用來儲存刪除圖片的訊息
 
-    // 圖片處理
+    // 檢查選擇的 category 是否有效
+    $checkCategorySql = "SELECT productCategoriesId FROM ProductCategoryList WHERE productCategoriesId = '$productCategoriesId' AND mid = '$mid'";
+    $categoryResult = mysqli_query($conn, $checkCategorySql);
+
+    if (mysqli_num_rows($categoryResult) == 0) {
+        echo "選擇的類別無效。";
+        exit;
+    }
+
+    // 處理圖片上傳
     if (!empty($_FILES['ImageUpload']['name'])) {
         $file = $_FILES['ImageUpload']['name'];
         $tempname = $_FILES['ImageUpload']['tmp_name'];
@@ -79,7 +96,7 @@ if (isset($_POST['updateProduct'])) {
             $upload_folder = "upload_images/" . $new_filename;
 
             if (move_uploaded_file($tempname, $upload_folder)) {
-                $pPicture = "upload_images/" . $new_filename;
+                $pPicture = $upload_folder;
             } else {
                 echo "圖片上傳失敗，可能是權限問題或檔案過大。";
                 exit;
@@ -88,25 +105,74 @@ if (isset($_POST['updateProduct'])) {
             echo "檔案格式錯誤，只允許 JPG、JPEG、PNG。";
             exit;
         }
+    } elseif ($_POST['deleteImage'] === 'yes') {
+        // 如果刪除圖片，將圖片欄位設為空並刪除原圖片
+        $sqlCurrentImage = "SELECT pPicture FROM Product WHERE pid = $pid";
+        $resultCurrentImage = mysqli_query($conn, $sqlCurrentImage);
+        $currentImage = mysqli_fetch_assoc($resultCurrentImage)['pPicture'];
+
+        // 刪除伺服器上的圖片文件
+        if (!empty($currentImage) && file_exists($currentImage)) {
+            if (unlink($currentImage)) {
+                $deleteMessage = "圖片已成功刪除。"; // 儲存刪除訊息
+            } else {
+                $deleteMessage = "圖片刪除失敗，可能是權限問題。"; // 儲存刪除失敗訊息
+            }
+        }
+
+        // 清除資料庫中的圖片欄位
+        $pPicture = ''; // 設為空字符串
     }
 
-    // 更新資料庫
-    $sql = "UPDATE Product SET pName = '$pName', price = '$price'";
-
+    // 更新 Product 資料
+    $sql = "UPDATE Product SET pName = '$pName', price = '$price', pDescription = '$pDescription'";
     if (!empty($pPicture)) {
-        $sql .= ", pPicture = '$pPicture'";
+        $sql .= ", pPicture = '$pPicture'"; // 更新圖片欄位
+    } else {
+        $sql .= ", pPicture = NULL"; // 如果刪除圖片，設為 NULL
     }
-
     $sql .= " WHERE pid = $pid AND mid = $mid";
 
-    if (mysqli_query($conn, $sql)) {
-        header("Location: merchant/menu.php?mid=$mid");
-        exit();
-    } else {
-        echo "更新錯誤：" . mysqli_error($conn);
+    // 執行更新資料庫
+    if (!mysqli_query($conn, $sql)) {
+        echo "更新商品錯誤：" . mysqli_error($conn);
+        exit;
     }
+
+    // 更新或新增 ProductCategories 關聯
+    $checkSql = "SELECT * FROM ProductCategories WHERE pid = $pid";
+    $checkResult = mysqli_query($conn, $checkSql);
+
+    if (mysqli_num_rows($checkResult) > 0) {
+        // 更新現有的類別
+        $sqlCategory = "UPDATE ProductCategories SET productCategoriesId = '$productCategoriesId' WHERE pid = $pid";
+    } else {
+        // 插入新類別
+        $sqlCategory = "INSERT INTO ProductCategories (productCategoriesId, pid, mid) VALUES ('$productCategoriesId', '$pid', '$mid')";
+    }
+
+    // 執行類別更新
+    if (!mysqli_query($conn, $sqlCategory)) {
+        echo "更新類別錯誤：" . mysqli_error($conn);
+        exit;
+    }
+
+    // 顯示刪除訊息
+    if (!empty($deleteMessage)) {
+        echo $deleteMessage; // 顯示刪除訊息
+    }
+
+    // 如果成功，重新導向到菜單頁面
+    header("Location: merchant/menu.php?mid=$mid");
+    exit();
 }
 ?>
+
+
+
+
+
+
 
 
 <!-- 更改商品類別 -->

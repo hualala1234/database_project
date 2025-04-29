@@ -1131,7 +1131,7 @@
         <div class="row">
           
           <div class="col-md-6">
-            <div class="banner-ad bg-danger mb-3" style="background: url('images/ad-image-3.png');background-repeat: no-repeat;background-position: right bottom;">
+            <div class="banner-ad bg-danger mb-3" style="background: url('../images/ad-image-3.png');background-repeat: no-repeat;background-position: right bottom;">
               <div class="banner-content p-5">
 
                 <div class="categories text-primary fs-3 fw-bold">Upto 25% Off</div>
@@ -1144,7 +1144,7 @@
             </div>
           </div>
           <div class="col-md-6">
-            <div class="banner-ad bg-info" style="background: url('images/ad-image-4.png');background-repeat: no-repeat;background-position: right bottom;">
+            <div class="banner-ad bg-info" style="background: url('../images/ad-image-4.png');background-repeat: no-repeat;background-position: right bottom;">
               <div class="banner-content p-5">
 
                 <div class="categories text-primary fs-3 fw-bold">Upto 25% Off</div>
@@ -1426,7 +1426,7 @@
     <section class="py-5">
       <div class="container-fluid">
 
-        <div class="bg-secondary py-5 my-5 rounded-5" style="background: url('images/bg-leaves-img-pattern.png') no-repeat;">
+        <div class="bg-secondary py-5 my-5 rounded-5" style="background: url('../images/bg-leaves-img-pattern.png') no-repeat;">
           <div class="container my-5">
             <div class="row">
               <div class="col-md-6 p-5">
