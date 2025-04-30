@@ -225,52 +225,60 @@ if (isset($_POST['productCategoryName'])) {
 <?php
 include('dbh.php'); // 連接資料庫
 
-if (isset($_POST['pName'], $_POST['price'], $_FILES['productImage'], $_POST['productCategoryId'], $_POST['pDescription'])) {
+if (isset($_POST['pName'], $_POST['price'], $_POST['productCategoryId'], $_POST['pDescription'])) {
     $mid = mysqli_real_escape_string($conn, $_POST['mid']);
     $pName = mysqli_real_escape_string($conn, $_POST['pName']);
     $pDescription = mysqli_real_escape_string($conn, $_POST['pDescription']);
     $price = mysqli_real_escape_string($conn, $_POST['price']);
     $productCategoryId = mysqli_real_escape_string($conn, $_POST['productCategoryId']);
+    $pPicture = '';
 
-    // 處理圖片上傳
-    $targetDir = "upload_images/";
-    $targetFile = $targetDir . basename($_FILES["productImage"]["name"]);
-    $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
-    
+    // 有上傳圖片才處理
+    if (!empty($_FILES["productImage"]["name"])) {
+        $targetDir = "upload_images/";
+        $fileName = basename($_FILES["productImage"]["name"]);
+        $targetFile = $targetDir . $fileName;
+        $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
 
-    // 只允許圖片格式
-    $allowedTypes = ["jpg", "jpeg", "png", "gif"];
-    if (in_array($imageFileType, $allowedTypes)) {
-        if (move_uploaded_file($_FILES["productImage"]["tmp_name"], $targetFile)) {
-            // 插入產品資料到 Product 表
-            $sqlInsertProduct = "INSERT INTO Product (mid, pName, pDescription, price, pPicture) 
-                     VALUES ('$mid', '$pName', '$pDescription', '$price', '$targetFile')";
-
-            if (mysqli_query($conn, $sqlInsertProduct)) {
-                // 獲取剛插入的 pid
-                $pid = mysqli_insert_id($conn);
-
-                // 插入產品分類資料到 ProductCategories 表
-                $sqlInsertCategory = "INSERT INTO ProductCategories (pid, productCategoriesId) 
-                                      VALUES ('$pid', '$productCategoryId')";
-                if (mysqli_query($conn, $sqlInsertCategory)) {
-                    // 成功後，重定向回商店頁面
-                    header("Location: merchant/menu.php?mid=$mid");
-                    exit();
-                } else {
-                    echo "錯誤: " . mysqli_error($conn);
-                }
+        // 只允許圖片格式
+        $allowedTypes = ["jpg", "jpeg", "png", "gif"];
+        if (in_array($imageFileType, $allowedTypes)) {
+            if (move_uploaded_file($_FILES["productImage"]["tmp_name"], $targetFile)) {
+                $pPicture = $targetFile;
             } else {
-                echo "錯誤: " . mysqli_error($conn);
+                echo "圖片上傳失敗";
+                exit();
             }
         } else {
-            echo "圖片上傳失敗";
+            echo "只允許上傳圖片文件（JPG, JPEG, PNG, GIF）";
+            exit();
+        }
+    }
+
+    // 插入產品資料到 Product 表
+    $sqlInsertProduct = "INSERT INTO Product (mid, pName, pDescription, price, pPicture) 
+                         VALUES ('$mid', '$pName', '$pDescription', '$price', '$pPicture')";
+
+    if (mysqli_query($conn, $sqlInsertProduct)) {
+        // 獲取剛插入的 pid
+        $pid = mysqli_insert_id($conn);
+
+        // 插入產品分類資料到 ProductCategories 表
+        $sqlInsertCategory = "INSERT INTO ProductCategories (pid, productCategoriesId) 
+                              VALUES ('$pid', '$productCategoryId')";
+        if (mysqli_query($conn, $sqlInsertCategory)) {
+            // 成功後，重定向回商店頁面
+            header("Location: merchant/menu.php?mid=$mid");
+            exit();
+        } else {
+            echo "錯誤: " . mysqli_error($conn);
         }
     } else {
-        echo "只允許上傳圖片文件（JPG, JPEG, PNG, GIF）";
+        echo "錯誤: " . mysqli_error($conn);
     }
 }
 ?>
+
 
 <!-- 刪除商品 -->
 <?php
