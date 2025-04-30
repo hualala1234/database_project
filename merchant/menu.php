@@ -39,6 +39,9 @@
         <!-- Jquery 連結 -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
         <script src="search.js" type ="text/javascript"></script>
+        <!-- 加入 jQuery UI -->
+        <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+
     </head>
 
     <body>
@@ -139,8 +142,9 @@
                             </form>              
                         </div>
                         <div style="display:flex;">
-                            <button style="margin-right: 0.5rem;" type="button" class="btn btn-secondary border-2 border-secondary py-3 px-3  text-white h-100" data-bs-toggle="modal" data-bs-target="#addCategoryModal"><i class="fa-solid fa-plus"></i> 新增類別</button>
+                            <button type="button" class="btn btn-secondary border-2 border-secondary py-3 px-3  text-white h-100" data-bs-toggle="modal" data-bs-target="#addCategoryModal"><i class="fa-solid fa-plus"></i> 新增類別</button>
                             <button style="margin-left:0.7rem; background-color: #ff5d6d;" type="button" class="btn border-2 border-secondary py-3 px-3  text-white h-100" data-bs-toggle="modal" data-bs-target="#addProductModal"><i style="margin-right:0.2rem;" class="fa-solid fa-plus"></i>新增商品</button>
+                            <button style="margin-left:0.7rem; background-color: #ff5d6d;" type="button" class="btn border-2 border-secondary py-3 px-3  text-white h-100" data-bs-toggle="modal" data-bs-target="#editCategoryOrderModal"><i style="margin-right:0.2rem;" class="fa-solid fa-list"></i>編輯類別順序</button>
 
                         </div>
                         <div id="addp" style="display:none;"></div>
@@ -247,6 +251,33 @@
                             </div>
                         </div>
 
+                        <!-- 更改類順序表單 -->
+                        <div class="modal fade" id="editCategoryOrderModal" tabindex="-1" aria-labelledby="editCategoryOrderModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">編輯類別順序</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <ul id="sortableCategoryList" class="list-group">
+                                            <?php
+                                            // 載入分類列表 (排序後)
+                                            $sql = "SELECT productCategoriesId, productCategoryName FROM ProductCategoryList WHERE mid = $mid ORDER BY sort_order ASC";
+                                            $result = mysqli_query($conn, $sql);
+                                            while ($row = mysqli_fetch_assoc($result)) {
+                                                echo '<li class="list-group-item" data-id="' . $row['productCategoriesId'] . '">'
+                                                    . htmlspecialchars($row['productCategoryName']) . '</li>';
+                                            }
+                                            ?>
+                                        </ul>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" id="saveCategoryOrder" class="btn btn-primary">儲存排序</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
                     
                     <?php
@@ -254,9 +285,10 @@
                             $mid = $_GET["mid"];
                             
                             // 查詢 ProductCategoryList 表中符合 mid 的所有 productCategoryName 和 productCategoriesId
-                            $sqlCategoryList = "SELECT productCategoryName, productCategoriesId 
+                            $sqlCategoryList = "SELECT *
                                                 FROM ProductCategoryList 
-                                                WHERE mid = $mid";
+                                                WHERE mid = $mid
+                                                ORDER BY sort_order ASC";
                             $resultCategoryList = mysqli_query($conn, $sqlCategoryList);
 
                             if ($resultCategoryList && mysqli_num_rows($resultCategoryList) > 0) {
@@ -354,7 +386,8 @@
 
                                             echo '<div class="product-title">
                                                     <div style="display:flex; justify-content: space-between;" >
-                                                        <h4 style="margin:0; text-align:left; text-decoration:underline; cursor:pointer;" data-bs-toggle="modal" data-bs-target="#editProductModal_' . $productDetail['pid'] . '"><i style="margin-right:0.4rem" class="fa-solid fa-bag-shopping"></i>'
+                                                        <h4 style="margin:0; text-align:left; text-decoration:underline; cursor:pointer;" data-bs-toggle="modal" data-bs-target="#editProductModal_' . $productDetail['pid'] . '">
+                                                            <i style="margin-right:0.4rem" class="fa-solid fa-bag-shopping"></i>'
                                                             . htmlspecialchars($productDetail['pName']) .  ' - $' . htmlspecialchars($productDetail['price']) . 
                                                         '</h4>
                                                         <h4>
@@ -587,6 +620,39 @@
 
     <!-- Template Javascript -->
     <script src="../js/main.js"></script>
+    <!-- 引入 jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- 引入 jQuery UI -->
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+    <!-- 引入 jQuery UI CSS（使得排序元素顯示為拖曳狀態） -->
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+
+    <script>
+        $(function () {
+            // 啟用拖曳排序
+            $("#sortableCategoryList").sortable();
+
+            // 儲存排序
+            $("#saveCategoryOrder").click(function () {
+                var orderedIDs = [];
+                $("#sortableCategoryList li").each(function () {
+                    orderedIDs.push($(this).data("id"));
+                });
+
+                // 發送到後端更新
+                $.post("../process.php", { order: orderedIDs })
+                .done(function () {
+                    location.reload(); // 成功後直接重新整理
+                })
+                .fail(function (xhr, status, error) {
+                    alert("發生錯誤：" + error); // 只有錯誤才提示
+                });
+
+            });
+
+        });
+    </script>
+
 
 
 

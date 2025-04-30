@@ -119,13 +119,59 @@
                             <form action="../process.php" method="post" enctype="multipart/form-data">
                                 <input  type="hidden" name="mid" value="<?= $row['mid'] ?>">
 
+                                <?php
+                                // 抓目前這間餐廳的類別ID（可能多筆）
+                                $currentCategories = [];
+                                $sqlCurrent = "SELECT categoryId FROM RestaurantCategories WHERE mid = $mid";
+                                $resultCurrent = mysqli_query($conn, $sqlCurrent);
+                                while ($rowCurrent = mysqli_fetch_assoc($resultCurrent)) {
+                                    $currentCategories[] = $rowCurrent['categoryId'];
+                                }
+
+                                // 顯示所有選項
+                                $sqlCategories = "SELECT categoryId, categoryName FROM RestaurantCategoryList"; // 這裡改成從 RestaurantCategoryList 顯示
+                                $resultCategories = mysqli_query($conn, $sqlCategories);
+                                ?>
+
+                                <div class="form-group py-3">
+                                    <div class="text-center mb-2">
+                                        <label class="form-label" style="font-size: 1.2rem;">選擇類別</label>
+                                        <span style="color: red;">*</span>
+                                    </div>
+
+                                    <div style="display:flex; justify-content: center;">
+                                    <?php
+                                        // 抓所有可用的類別
+                                        while ($category = mysqli_fetch_assoc($resultCategories)):
+                                            $categoryId = $category['categoryId'];
+                                            $categoryName = $category['categoryName'];
+                                            $checked = in_array($categoryId, $currentCategories) ? "checked" : "";
+                                    ?>
+                                        <div class="col-md-2 form-check" style=" display:flex; flex-wrap: wrap; gap:0.3rem; justify-content: center;">
+                                            <input class="form-check-input"  type="checkbox" name="restaurantCategories[]" value="<?= $categoryId ?>" id="cat_<?= $categoryId ?>" <?= $checked ?>>
+                                            <label class="form-check-label" for="cat_<?= $categoryId ?>"><?= $categoryName ?></label>
+                                        </div>
+                                    <?php endwhile; ?>
+                                    </div>
+                                </div>
+
+
+
                                 <div class="py-3">
-                                    <h3>店面名稱</h3>
+                                    <div style="display:flex; justify-content: center;">
+                                        <h3>商店名稱</h3>
+                                        <h3 style="color:red; margin:0;">*</h3>
+                                    </div>
+                                    
                                     <input style="font-size: 1.5rem; font-weight: bold;" type="text" class="form-control" name="mName" value="<?= $row['mName'] ?>" placeholder="輸入店面名稱">
                                 </div>
 
                                 <div class="py-3">
-                                    <h3>住址</h3>
+                                    <div style="display:flex; justify-content: center;">
+                                        <h3>住址</h3>
+                                        <h3 style="color:red; margin:0;">*</h3>
+                                    </div>
+                                    
                                     <input style="font-size: 1.5em; font-weight: bold;" type="text" class="form-control" name="mAddress" value="<?= $row['mAddress'] ?>" placeholder="輸入店面地址">
                                 </div>
 
@@ -146,7 +192,11 @@
                                 </div>
 
                                 <div class="py-3">
-                                    <h3>營業時間</h3>
+                                    <div style="display:flex; justify-content: center;">
+                                        <h3>營業時間</h3>
+                                        <h3 style="color:red; margin:0;">*</h3>
+                                    </div>
+                                    
                                     <input style="font-size: 1.5em; font-weight: bold;" type="text" class="form-control" name="businessHours" value="<?= $row['businessHours'] ?>" placeholder="輸入營業時間">
                                 </div>
 
@@ -185,42 +235,54 @@
     <!-- Template Javascript -->
     <script src="../js/main.js"></script>
     <script>
-        window.onload = function() {
-            // 取得原始的資料
-            var originalName = "<?php echo $row['mName']; ?>";
-            var originalAddress = "<?php echo $row['mAddress']; ?>";
-            var originalBusinessHours = "<?php echo $row['businessHours']; ?>";
-            var originalPicture = "<?php echo $row['mPicture']; ?>";  // 原始圖片路徑
+    window.onload = function() {
+        var originalName = "<?php echo $row['mName']; ?>";
+        var originalAddress = "<?php echo $row['mAddress']; ?>";
+        var originalBusinessHours = "<?php echo $row['businessHours']; ?>";
+        var originalPicture = "<?php echo $row['mPicture']; ?>";
 
-            // 取得元素
-            var saveButton = document.getElementById("saveButton");
-            var mNameInput = document.querySelector("[name='mName']");
-            var mAddressInput = document.querySelector("[name='mAddress']");
-            var businessHoursInput = document.querySelector("[name='businessHours']");
-            var imageInput = document.querySelector("[name='ImageUpload']"); // 圖片欄位
+        // 從 PHP 傳入原始類別
+        var originalCategories = <?php echo json_encode($currentCategories); ?>;
 
-            // 比對輸入框是否有更動
-            function checkIfChanged() {
-                var nameChanged = mNameInput.value !== originalName;
-                var addressChanged = mAddressInput.value !== originalAddress;
-                var businessHoursChanged = businessHoursInput.value !== originalBusinessHours;
-                var imageChanged = imageInput.files.length > 0; // 如果有選擇新圖片，視為圖片有改變
+        var saveButton = document.getElementById("saveButton");
+        var mNameInput = document.querySelector("[name='mName']");
+        var mAddressInput = document.querySelector("[name='mAddress']");
+        var businessHoursInput = document.querySelector("[name='businessHours']");
+        var imageInput = document.querySelector("[name='ImageUpload']");
+        var categoryCheckboxes = document.querySelectorAll("input[name='restaurantCategories[]']");
 
-                // 如果有任何欄位更動，啟用 "Save" 按鈕；否則禁用
-                if (nameChanged || addressChanged || businessHoursChanged || imageChanged) {
-                    saveButton.disabled = false;
-                } else {
-                    saveButton.disabled = true;
-                }
+        function checkIfChanged() {
+            var nameChanged = mNameInput.value !== originalName;
+            var addressChanged = mAddressInput.value !== originalAddress;
+            var businessHoursChanged = businessHoursInput.value !== originalBusinessHours;
+            var imageChanged = imageInput.files.length > 0;
+
+            // 類別變更偵測
+            var currentSelected = [];
+            categoryCheckboxes.forEach(function(checkbox) {
+                if (checkbox.checked) currentSelected.push(checkbox.value);
+            });
+
+            // 比較是否與原始類別相同（順序不重要）
+            var categoriesChanged = originalCategories.length !== currentSelected.length ||
+                originalCategories.some(cat => !currentSelected.includes(cat));
+
+            if (nameChanged || addressChanged || businessHoursChanged || imageChanged || categoriesChanged) {
+                saveButton.disabled = false;
+            } else {
+                saveButton.disabled = true;
             }
-
-            // 監聽輸入框的變動
-            mNameInput.addEventListener("input", checkIfChanged);
-            mAddressInput.addEventListener("input", checkIfChanged);
-            businessHoursInput.addEventListener("input", checkIfChanged);
-            imageInput.addEventListener("change", checkIfChanged);  // 監聽圖片選擇的變動
         }
+
+        // 監聽欄位變更
+        mNameInput.addEventListener("input", checkIfChanged);
+        mAddressInput.addEventListener("input", checkIfChanged);
+        businessHoursInput.addEventListener("input", checkIfChanged);
+        imageInput.addEventListener("change", checkIfChanged);
+        categoryCheckboxes.forEach(cb => cb.addEventListener("change", checkIfChanged));
+    };
     </script>
+
 
 
     </body>
