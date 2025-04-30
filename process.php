@@ -12,18 +12,16 @@ if (isset($_POST["updateMerchant"])) {
     // 圖片處理
     $file = $_FILES['ImageUpload']['name'];
     $tempname = $_FILES['ImageUpload']['tmp_name'];
-    $upload_folder = "upload_images/" . $file;
     $allowed_extensions = ['jpg', 'jpeg', 'png'];
     $file_extension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
 
-    // 生成唯一檔案名稱，避免重名
-    $new_filename = time() . '-' . uniqid() . '.' . $file_extension;
-    $upload_folder = "upload_images/" . $new_filename;
-
     if (!empty($file)) {
+        $new_filename = time() . '-' . uniqid() . '.' . $file_extension;
+        $upload_folder = "upload_images/" . $new_filename;
+
         if (in_array($file_extension, $allowed_extensions)) {
             if (move_uploaded_file($tempname, $upload_folder)) {
-                $mPicture = "upload_images/" .$new_filename; // 儲存圖片檔名
+                $mPicture = $upload_folder;
             } else {
                 echo "圖片上傳失敗，可能是權限問題或檔案過大。";
                 exit;
@@ -34,26 +32,28 @@ if (isset($_POST["updateMerchant"])) {
         }
     }
 
-    // 更新資料庫
-    $sql = "UPDATE Merchant 
-        SET mName = '$mName', mAddress = '$mAddress', businessHours = '$businessHours'";
+    // 更新餐廳分類
+    if (isset($_POST['restaurantCategories'])) {
+        $newCategories = $_POST['restaurantCategories'];
 
-    // 只有在有新圖片的情況下才更新 mPicture
-    if (!empty($mPicture)) {
-        $sql .= ", mPicture = '$mPicture'";
+        // 先清除餐廳的所有類別
+        mysqli_query($conn, "DELETE FROM RestaurantCategories WHERE mid = $mid");
+
+        // 再新增新的類別
+        foreach ($newCategories as $categoryId) {
+            $categoryId = mysqli_real_escape_string($conn, $categoryId);
+            $sqlInsert = "INSERT INTO RestaurantCategories (mid, categoryId) 
+                          VALUES ('$mid', '$categoryId')";
+            mysqli_query($conn, $sqlInsert);
+        }
     }
 
-    $sql .= " WHERE mid = $mid";
-
-    if (mysqli_query($conn, $sql)) {
-        echo "店家資料更新成功！";
-        header("Location: merchant/merchant_shop.php?mid=$mid");
-        exit();
-    } else {
-        echo "更新錯誤：" . mysqli_error($conn);
-    }
+    // 成功跳轉
+    header("Location: merchant/merchant_shop.php?mid=$mid");
+    exit();
 }
 ?>
+
 
 <!-- 商品編輯 -->
 
@@ -203,13 +203,21 @@ if (isset($_POST['updateCategory'])) {
 <?php
 include('dbh.php'); // 連接資料庫
 
-if (isset($_POST['productCategoryName'])) {
+if (isset($_POST['productCategoryName']) && isset($_POST['mid'])) {
     $mid = mysqli_real_escape_string($conn, $_POST['mid']);
     $productCategoryName = mysqli_real_escape_string($conn, $_POST['productCategoryName']);
-    
-    // 插入新的分類名稱到 ProductCategoryList 表
-    $sql = "INSERT INTO ProductCategoryList (productCategoryName, mid) 
-            VALUES ('$productCategoryName', '$mid')";
+
+    // 查詢該 mid 下目前最大 sort_order
+    $query = "SELECT IFNULL(MAX(sort_order), 0) AS max_order 
+              FROM ProductCategoryList 
+              WHERE mid = '$mid'";
+    $result = mysqli_query($conn, $query);
+    $row = mysqli_fetch_assoc($result);
+    $newSortOrder = $row['max_order'] + 1;
+
+    // 插入新的分類名稱，同時加入新的 sort_order
+    $sql = "INSERT INTO ProductCategoryList (productCategoryName, mid, sort_order) 
+            VALUES ('$productCategoryName', '$mid', $newSortOrder)";
 
     if (mysqli_query($conn, $sql)) {
         // 插入成功後返回商店頁面
@@ -220,6 +228,8 @@ if (isset($_POST['productCategoryName'])) {
     }
 }
 ?>
+
+
 
 <!-- 新增商品 -->
 <?php
@@ -336,5 +346,33 @@ if (isset($_POST['deleteCategory'])) {
     // 最後回到原本的頁面
     header("Location: merchant/menu.php?mid=$mid");
     exit();
+}
+?>
+
+<!-- 更改商品類別排序 -->
+<?php
+include "dbh.php"; // 你的資料庫連線
+
+if (isset($_POST['productCategoryName']) && isset($_POST['mid'])) {
+    $name = mysqli_real_escape_string($conn, $_POST['productCategoryName']);
+    $mid = intval($_POST['mid']);
+
+    // 查詢該 mid 下的最大 sort_order
+    $query = "SELECT IFNULL(MAX(sort_order), 0) AS max_order FROM ProductCategoryList WHERE mid = $mid";
+    $result = mysqli_query($conn, $query);
+    $row = mysqli_fetch_assoc($result);
+    $newSortOrder = $row['max_order'] + 1;
+
+    // 新增資料
+    $insertSql = "INSERT INTO ProductCategoryList (productCategoryName, mid, sort_order) 
+                  VALUES ('$name', $mid, $newSortOrder)";
+    
+    if (mysqli_query($conn, $insertSql)) {
+        echo "新增成功，sort_order = $newSortOrder";
+    } else {
+        echo "錯誤：" . mysqli_error($conn);
+    }
+} else {
+    echo "缺少必要參數。";
 }
 ?>

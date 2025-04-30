@@ -1,4 +1,6 @@
-
+<?php
+    include ('../dbh.php');  
+?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -7,7 +9,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="format-detection" content="telephone=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+
     <meta name="author" content="">
     <meta name="keywords" content="">
     <meta name="description" content="">
@@ -152,53 +155,73 @@
 
     <!-- Navbar start -->
     <div class="container-fluid fixed-top">
-            <div class="container topbar bg-primary d-none d-lg-block">
-                <div class="d-flex justify-content-between">
-                    <div class="top-info ps-2">
-                    <i class="fas fa-map-marker-alt me-2 text-secondary"></i> <a href="#" class="text-white">客戶住址</a>
-                        <!-- <small class="me-3"><i class="fas fa-envelope me-2 text-secondary"></i><a href="#" class="text-white">Email@Example.com</a></small> -->
-                    </div>
-                    <!-- <div class="top-link pe-2">
-                        <a href="#" class="text-white"><small class="text-white mx-2">Privacy Policy</small>/</a>
-                        <a href="#" class="text-white"><small class="text-white mx-2">Terms of Use</small>/</a>
-                        <a href="#" class="text-white"><small class="text-white ms-2">Sales and Refunds</small></a>
-                    </div> -->
-                </div>
-            </div>
-            <div class="container px-0">
-                <nav class="navbar navbar-light bg-white navbar-expand-xl">
-                    <a href="index.html" class="navbar-brand"><h1 class="text-primary display-6">Junglebite</h1></a>
-                    <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
-                        <span class="fa fa-bars text-primary"></span>
-                    </button>
-                    <div class="collapse navbar-collapse bg-white" id="navbarCollapse">
-                        <div class="navbar-nav mx-auto">
-                            <div class="position-relative mx-auto">
-                                <input class="form-control border-2 border-secondary  py-3 px-4 rounded-pill" style="width: 40rem;" type="number" placeholder="Search">
-                                <button type="submit" class="btn btn-primary border-2 border-secondary py-3 px-4 position-absolute rounded-pill text-white h-100" style="top: 0; left: 86.8%;">搜尋</button>
-                            </div>
-                            
-                        </div>
-                        <div class="d-flex m-3 me-0">
-                            
-                            <a href="#" class="position-relative me-4 my-auto">
-                                <i class="fa-solid fa-cart-shopping fa-2x"></i>
-                                <span class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 22px; height: 20px; min-width: 20px;">3</span>
-                            </a>
-                            <a href="#" class="my-auto">
-                                <i class="fas fa-user fa-2x"></i>
-                            </a>
-                        </div>
-                    </div>
-                </nav>
-            </div>
+      <div class="container topbar bg-primary d-none d-lg-block">
+        <div class="d-flex justify-content-between">
+          <div class="top-info ps-2">
+            <i class="fas fa-map-marker-alt me-2 text-secondary"></i> <a href="#" class="text-white">客戶住址</a>
+            <!-- <small class="me-3"><i class="fas fa-envelope me-2 text-secondary"></i><a href="#" class="text-white">Email@Example.com</a></small> -->
+          </div>
+          <!-- <div class="top-link pe-2">
+            <a href="#" class="text-white"><small class="text-white mx-2">Privacy Policy</small>/</a>
+            <a href="#" class="text-white"><small class="text-white mx-2">Terms of Use</small>/</a>
+            <a href="#" class="text-white"><small class="text-white ms-2">Sales and Refunds</small></a>
+          </div> -->
         </div>
-        <!-- Navbar End -->
+      </div>
+      <div class="container px-0">
+        <nav class="navbar navbar-light bg-white navbar-expand-xl">
+          <a href="index.html" class="navbar-brand"><h1 class="text-primary display-6">Junglebite</h1></a>
+          <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+            <span class="fa fa-bars text-primary"></span>
+          </button>
+          <div class="collapse navbar-collapse bg-white" id="navbarCollapse">
+            <div class="navbar-nav mx-auto">
+              <div class="position-relative mx-auto">
+                <input class="form-control border-2 border-secondary  py-3 px-4 rounded-pill" style="width: 30rem;" type="number" placeholder="Search">
+                <button type="submit" class="btn btn-primary border-2 border-secondary py-3 px-4 position-absolute rounded-pill text-white h-100" style="top: 0; left: 82.5%;">搜尋</button>
+              </div>
+                            
+            </div>
+            <div class="d-flex m-3 me-0">
+                            
+              <a href="#" class="position-relative me-4 my-auto">
+                <i class="fa-solid fa-cart-shopping fa-2x"></i>
+                <span class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 22px; height: 20px; min-width: 20px;">3</span>
+              </a>
+              <a href="#" class="my-auto">
+                <i class="fas fa-user fa-2x"></i>
+              </a>
+            </div>
+          </div>
+        </nav>
+      </div>
+    </div>
+    <!-- Navbar End -->
+    <?php
+    // 取得網址參數中的 mid
+    $mid = isset($_GET['mid']) ? intval($_GET['mid']) : 0;
+
+    // 初始化圖片路徑變數
+    $bgImage = '';
+
+    // 查詢該商家的圖片
+    if ($mid > 0) {
+        $sql = "SELECT mPicture FROM Merchant WHERE mid = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $mid);
+        $stmt->execute();
+        $stmt->bind_result($mPicture);
+        if ($stmt->fetch()) {
+            $bgImage = "../" . $mPicture;  // 加上相對路徑
+        }
+        $stmt->close();
+    }
+    ?>
     
      <!-- Hero Start -->
-     <div class="container-fluid mb-5 hero-header" style="padding:18rem 0;">
+    <div class="container-fluid mb-5 hero-header" style="padding:18rem 0; background-image: url('<?= htmlspecialchars($bgImage) ?>'); background-size: cover; background-position: center;">   
            
-      </div>
+    </div>
         <!-- Hero End -->
 
     <section class="py-5 overflow-hidden">
@@ -210,7 +233,7 @@
               <h2 class="section-title">Category</h2>
 
               <div class="d-flex align-items-center">
-                <a href="#" class="btn-link text-decoration-none">View All Categories →</a>
+                <!-- <a href="#" class="btn-link text-decoration-none">View All Categories →</a> -->
                 <div class="swiper-buttons">
                   <button class="swiper-prev category-carousel-prev btn btn-yellow">❮</button>
                   <button class="swiper-next category-carousel-next btn btn-yellow">❯</button>
@@ -220,65 +243,44 @@
             
           </div>
         </div>
-        <div class="row">
-          <div class="col-md-12">
+        <?php
+        if (isset($_GET["mid"])) {
+            $mid = $_GET["mid"];
 
+            // 取得店家資訊
+            $sql = "SELECT * FROM Merchant WHERE mid = $mid";
+            $result = mysqli_query($conn, $sql);
+            $row = mysqli_fetch_array($result);
+
+            // 取得類別列表（依照 sort_order 排序）
+            $sql = "SELECT productCategoriesId, productCategoryName FROM ProductCategoryList WHERE mid = $mid ORDER BY sort_order ASC";
+            $result = mysqli_query($conn, $sql);
+        }
+        ?>
+
+        <!-- Swiper 類別輪播 -->
+        <div class="row">
+          <div>
             <div class="category-carousel swiper">
-              <div class="swiper-wrapper">
-                <a href="index.html" class="nav-link category-item swiper-slide">
-                  <img src="../images/icon-vegetables-broccoli.png" alt="Category Thumbnail">
-                  <h3 class="category-title">Fruits & Veges</h3>
-                </a>
-                <a href="index.html" class="nav-link category-item swiper-slide">
-                  <img src="../images/icon-bread-baguette.png" alt="Category Thumbnail">
-                  <h3 class="category-title">Breads & Sweets</h3>
-                </a>
-                <a href="index.html" class="nav-link category-item swiper-slide">
-                  <img src="../images/icon-soft-drinks-bottle.png" alt="Category Thumbnail">
-                  <h3 class="category-title">Fruits & Veges</h3>
-                </a>
-                <a href="index.html" class="nav-link category-item swiper-slide">
-                  <img src="../images/icon-wine-glass-bottle.png" alt="Category Thumbnail">
-                  <h3 class="category-title">Fruits & Veges</h3>
-                </a>
-                <a href="index.html" class="nav-link category-item swiper-slide">
-                  <img src="../images/icon-animal-products-drumsticks.png" alt="Category Thumbnail">
-                  <h3 class="category-title">Fruits & Veges</h3>
-                </a>
-                <a href="index.html" class="nav-link category-item swiper-slide">
-                  <img src="../images/icon-bread-herb-flour.png" alt="Category Thumbnail">
-                  <h3 class="category-title">Fruits & Veges</h3>
-                </a>
-                <a href="index.html" class="nav-link category-item swiper-slide">
-                  <img src="../images/icon-vegetables-broccoli.png" alt="Category Thumbnail">
-                  <h3 class="category-title">Fruits & Veges</h3>
-                </a>
-                <a href="index.html" class="nav-link category-item swiper-slide">
-                  <img src="../images/icon-vegetables-broccoli.png" alt="Category Thumbnail">
-                  <h3 class="category-title">Fruits & Veges</h3>
-                </a>
-                <a href="index.html" class="nav-link category-item swiper-slide">
-                  <img src="../images/icon-vegetables-broccoli.png" alt="Category Thumbnail">
-                  <h3 class="category-title">Fruits & Veges</h3>
-                </a>
-                <a href="index.html" class="nav-link category-item swiper-slide">
-                  <img src="../images/icon-vegetables-broccoli.png" alt="Category Thumbnail">
-                  <h3 class="category-title">Fruits & Veges</h3>
-                </a>
-                <a href="index.html" class="nav-link category-item swiper-slide">
-                  <img src="../images/icon-vegetables-broccoli.png" alt="Category Thumbnail">
-                  <h3 class="category-title">Fruits & Veges</h3>
-                </a>
-                <a href="index.html" class="nav-link category-item swiper-slide">
-                  <img src="../images/icon-vegetables-broccoli.png" alt="Category Thumbnail">
-                  <h3 class="category-title">Fruits & Veges</h3>
-                </a>
-                
+            <div class="swiper-wrapper">
+            <?php
+            while ($category = mysqli_fetch_assoc($result)) {
+                $catId = $category['productCategoriesId'];
+                $catName = htmlspecialchars($category['productCategoryName']); // 安全輸出
+                echo '
+                <div class="swiper-slide">
+                  <a href="#category_' . $catId . '" class="nav-link category-item">
+                    <h3 class="category-title">' . $catName . '</h3>
+                  </a>
+                </div>';
+            }
+            ?>
+            </div>
               </div>
             </div>
-
           </div>
         </div>
+
       </div>
     </section>
 
