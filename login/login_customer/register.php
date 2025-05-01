@@ -100,7 +100,7 @@ if ($cIdExists && $emailExists) {
     }
 
     // Insert the new user into the database
-    $sql = "INSERT INTO customer ( cName, email, password, address, introducer, )
+    $sql = "INSERT INTO customer ( cName, email, password, address, introducer, imageURL)
             VALUES ( ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("ssssis", $fullname, $email, $password, $address, $introducer, $imageURL);

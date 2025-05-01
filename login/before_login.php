@@ -13,7 +13,7 @@
 <body>
     <div class="header_whoyouare">
         <p>Who you are?</p>
-        <a href="../customer/index.php">
+        <a href="/database/customer/index.php">
             <img src="home.png" alt="Home" class="home-icon">
         </a>
     </div>
