@@ -85,11 +85,25 @@ if ($cIdExists && $emailExists) {
         move_uploaded_file($fileTmp, $imageURL);
     }
 
+    $introducer = isset($_POST['introducer']) && trim($_POST['introducer']) !== '' ? (int)$_POST['introducer'] : null;
+
+    // 若不是 NULL，檢查是否存在於 customer 表
+    if (!is_null($introducer)) {
+        $checkIntro = $conn->prepare("SELECT cid FROM customer WHERE cid = ?");
+        $checkIntro->bind_param("i", $introducer);
+        $checkIntro->execute();
+        $introResult = $checkIntro->get_result();
+        if ($introResult->num_rows === 0) {
+            $introducer = null; // introducer 不存在 → 設為 NULL
+        }
+        $checkIntro->close();
+    }
+
     // Insert the new user into the database
-    $sql = "INSERT INTO customer ( name, email, password, address, introducer, imageURL)
+    $sql = "INSERT INTO customer ( cName, email, password, address, introducer, imageURL)
             VALUES ( ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ssssss", $fullname, $email, $password, $address, $introducer, $imageURL);
+    $stmt->bind_param("ssssis", $fullname, $email, $password, $address, $introducer, $imageURL);
 
     if ($stmt->execute()) {
         echo "

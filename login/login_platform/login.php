@@ -18,13 +18,14 @@ if ($_SERVER["REQUEST_METHOD"]=="POST"){
         $user = $result->fetch_assoc();
 
         if ($password == $user['password']) {
-            $platid = $user['platId'];
+            // $platid = $user['platId'];
             $_SESSION['email'] = $user['email'];
             $_SESSION['fullname'] = $user['name'];
             $_SESSION['login_success'] = "登入成功！";
 
             // 分辨他是從哪裡登入的
             $_SESSION['role'] = 'platform';
+            $platid = $user['platId'];
 
             // 跳回原本頁面
             header("Location: /database/customer/index.php?platid=$platid");

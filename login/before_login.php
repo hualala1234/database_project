@@ -20,19 +20,19 @@
 
 
     <div class="who">
-        <a href="/database/login/login_customer/system_blog.php" class="whoyouare">
+        <a href="/database_2/database_project/login/login_customer/system_blog.php" class="whoyouare">
             <img src="customer.png" alt="">
             <p>Customer</p>
         </a>
-        <a href="/database/login/login_merchant/system_blog.php" class="whoyouare">
+        <a href="/database_2/database_project/login/login_merchant/system_blog.php" class="whoyouare">
             <img src="merchant.png" alt="">
             <p>Merchant</p>
         </a>
-        <a href="/database/login/login_deliveryPerson/system_blog.php" class="whoyouare">
+        <a href="/database_2/database_project/login/login_deliveryPerson/system_blog.php" class="whoyouare">
             <img src="delivery.png" alt="">
             <p>Delivery Person</p>
         </a>
-        <a href="/database/login/login_platform/system_blog.php" class="whoyouare">
+        <a href="/database_2/database_project/login/login_platform/system_blog.php" class="whoyouare">
             <img src="platform.png" alt="">
             <p>Platform</p>
         </a>

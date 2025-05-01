@@ -2,7 +2,7 @@
 $host   = 'localhost';
 $user   = 'root';
 $pass   = '';
-$dbname = 'login_customer';  // ← 這行絕對不能漏
+$dbname = 'database';  // ← 這行絕對不能漏
 
 // 建立連線
 $conn = new mysqli($host, $user, $pass, $dbname);

@@ -9,7 +9,7 @@ $address = $_POST['address'];
 $imageURL = 'default-avatar.png';
 
 // Check if mId or email already exists
-$sql = "SELECT * FROM merchant WHERE email = ?";
+$sql = "SELECT * FROM merchant WHERE mEmail = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $email);
 $stmt->execute();
@@ -28,35 +28,7 @@ while ($row = $result->fetch_assoc()) {
 }
 
 // Handle different cases of duplicate mId and email
-if ($mIdExists && $emailExists) {
-    echo "
-        <div style='border: 2px solid red; padding: 10px; color: red;'>
-            <strong>此email已被註冊</strong>
-            <strong>4秒後返回登入頁面</strong>
-        </div>
-    ";
-    echo "
-            <script>
-                setTimeout(function() {
-                    window.history.back();
-                }, 4000); // 4000 毫秒＝4 秒
-            </script>
-        ";
-} elseif ($mIdExists) {
-    echo "
-        <div style='border: 2px solid red; padding: 10px; color: red;'>
-            <strong>此使用者id已被註冊</strong>
-            <strong>4秒後返回登入頁面</strong>
-        </div>
-    ";
-    echo "
-            <script>
-                setTimeout(function() {
-                    window.history.back();
-                }, 4000); // 4000 毫秒＝4 秒
-            </script>
-        ";
-} elseif ($emailExists) {
+if ( $emailExists) {
     echo "
         <div style='border: 2px solid red; padding: 10px; color: red;'>
             <strong>此email已被註冊</strong>
@@ -77,15 +49,23 @@ if ($mIdExists && $emailExists) {
 
     // Image upload (if any)
     if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-        $fileTmp = $_FILES['image']['tmp_name'];
-        $fileName = uniqid() . '-' . $_FILES['image']['name'];
+        $fileTmp  = $_FILES['image']['tmp_name'];
+        $fileName = uniqid() . '-' . basename($_FILES['image']['name']);  // 只留檔名
         $targetDir = 'uploads/';
-        $imageURL = $targetDir . $fileName;
-        move_uploaded_file($fileTmp, $imageURL);
+        // 把檔案移到 uploads/ 下
+        if (move_uploaded_file($fileTmp, $targetDir . $fileName)) {
+            $imageURL = $fileName;  // 存檔名到 DB
+        } else {
+            // 移動失敗，仍維持 default
+            $imageURL = 'default-avatar.png';
+        }
+    } else {
+        // 沒有上傳檔案，使用預設
+        $imageURL = 'default-avatar.png';
     }
 
     // Insert the new user into the database
-    $sql = "INSERT INTO merchant ( name, email, password, address, imageURL)
+    $sql = "INSERT INTO merchant ( mName, mEmail, password, mAddress, mPicture)
             VALUES ( ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("sssss",  $fullname, $email, $password, $address, $imageURL);
