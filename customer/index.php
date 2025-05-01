@@ -1,6 +1,6 @@
 <?php
-session_start(); // 必須是第一行，前面不能有空白或 HTML！
-include ('../dbh.php');
+    include ('../dbh.php');
+    
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -88,7 +88,7 @@ include ('../dbh.php');
                                 <i class="fa-solid fa-cart-shopping fa-2x"></i>
                                 <span class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 22px; height: 20px; min-width: 20px;">3</span>
                             </a>
-                            <a href="/database_project/login/before_login.php" class="my-auto">
+                            <a href="/database_2/database_project/login/before_login.php" class="my-auto">
                                 <i class="fas fa-user fa-2x"></i>
                             </a>
                         </div>
@@ -106,7 +106,7 @@ include ('../dbh.php');
                     <?php if (isset($_SESSION['login_success'])): ?>
                         <!-- 已登入 -->
                         <a href="javascript:void(0);" class="my-auto" onclick="toggleDropdown()">
-                            <img src="/database_project/login/success.png" alt="Success" style="width: 40px; height: 40px; filter: brightness(0) saturate(100%) invert(42%) sepia(91%) saturate(356%) hue-rotate(71deg) brightness(94%) contrast(92%);">
+                            <img src="/database/login/success.png" alt="Success" style="width: 40px; height: 40px; filter: brightness(0) saturate(100%) invert(42%) sepia(91%) saturate(356%) hue-rotate(71deg) brightness(94%) contrast(92%);">
                         </a>
 
                         <div id="myDropdown" class="dropdown-content" style="
@@ -125,14 +125,14 @@ include ('../dbh.php');
                                 <a href="/database/merchant/setting.php" style="padding: 10px 16px; display: block; text-decoration: none; color: black;">商家設定</a>
                             <?php elseif (isset($_SESSION['role']) && $_SESSION['role'] === 'customer'): ?>
                                 <a href="/database/customer/setting.php" style="padding: 10px 16px; display: block; text-decoration: none; color: black;">個人設定</a>
-                                <a href="/database_project/allergy/allergy.php" style="padding: 10px 16px; display: block; text-decoration: none; color: black;">過敏設定</a>
+                                <a href="/database_2/database_project/allergy/allergy.php" style="padding: 10px 16px; display: block; text-decoration: none; color: black;">過敏設定</a>
                                 <?php elseif (isset($_SESSION['role']) && $_SESSION['role'] === 'delivery_person'): ?>
                                 <a href="/database/customer/setting.php" style="padding: 10px 16px; display: block; text-decoration: none; color: black;">外送員設定</a>
                                 <?php elseif (isset($_SESSION['role']) && $_SESSION['role'] === 'platform'): ?>
                                     <a href="/database/customer/setting.php" style="padding: 10px 16px; display: block; text-decoration: none; color: black;">平台設定</a>
                             <?php endif; ?>
                             
-                            <a href="/database_project/login/login_customer/logout.php" style="padding: 10px 16px; display: block; text-decoration: none; color: black;">Logout</a>
+                            <a href="/database_2/database_project/login/login_customer/logout.php" style="padding: 10px 16px; display: block; text-decoration: none; color: black;">Logout</a>
                         </div>
 
                     <?php else: ?>
