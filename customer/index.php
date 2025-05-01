@@ -88,7 +88,7 @@
                                 <i class="fa-solid fa-cart-shopping fa-2x"></i>
                                 <span class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 22px; height: 20px; min-width: 20px;">3</span>
                             </a>
-                            <a href="#" class="my-auto">
+                            <a href="/database_2/database_project/login/before_login.php" class="my-auto">
                                 <i class="fas fa-user fa-2x"></i>
                             </a>
                         </div>
