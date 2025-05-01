@@ -532,10 +532,11 @@
                                             <script>
                                                 document.addEventListener("DOMContentLoaded", function () {
                                                     // 設定初始值
-                                                    var originalPName_' . $productDetail['pid'] . ' = "' . addslashes($productDetail['productName']) . '";
-                                                    var originalPDescription_' . $productDetail['pid'] . ' = "' . addslashes($productDetail['productDescription']) . '";
+                                                    var originalPName_' . $productDetail['pid'] . ' = "' . addslashes($productDetail['pName']) . '";
+                                                    var originalPDescription_' . $productDetail['pid'] . ' = "' . addslashes($productDetail['pDescription']) . '";
                                                     var originalPrice_' . $productDetail['pid'] . ' = "' . addslashes($productDetail['price']) . '";
-                                                    var originalProductCategory_' . $productDetail['pid'] . ' = "' . addslashes($productDetail['category']) . '";
+                                                    var originalProductCategory_' . $productDetail['pid'] . ' = "' . addslashes($currentCategory) . '";
+
 
                                                     var saveButton_' . $productDetail['pid'] . ' = document.getElementById("saveButton_' . $productDetail['pid'] . '");
                                                     var pNameInput_' . $productDetail['pid'] . ' = document.querySelector("#editProductModal_' . $productDetail['pid'] . ' [name=pName]");
