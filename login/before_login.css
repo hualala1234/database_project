@@ -1,0 +1,111 @@
+/* 動畫 */
+@keyframes floatUp {
+    0% {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+/* 先清空全局預設 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.header_whoyouare {
+    position: fixed; /* 固定在螢幕上 */
+    top: 0;           /* 頂到最上面 */
+    left: 0;          /* 貼左邊 */
+    width: 100%;      /* 寬度拉滿 */
+    background-color: #a5d6a7 !important;
+    padding: 20px;
+    text-align: center;
+    z-index: 1000;    /* 疊在最上層，避免被其他東西蓋掉 */
+}
+
+
+.home-icon {
+    width: 40px; /* 調整icon大小 */
+    height: 40px;
+    transition: filter 0.3s; /* 做變色動畫 */
+}
+
+.header_whoyouare p {
+    font-family: "Winky Rough", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-size: 50px;
+}
+
+.header_whoyouare a {
+    position: absolute;
+    right: 20px; /* 距離右邊 20px */
+    top: 50%;
+    transform: translateY(-50%); /* 垂直置中 */
+}
+
+.header_whoyouare a:hover .home-icon {
+    filter: invert(1);
+}
+
+
+
+
+/* 整個 who 容器 */
+.who {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 兩欄 */
+    gap: 40px; /* 每個區塊中間間距 */
+    justify-items: center; /* 置中每個元素 */
+    align-items: center;
+    padding: 50px;
+    padding-top: 120px;
+}
+
+/* 單一個卡片 */
+.whoyouare {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 32px;
+    text-decoration: none;
+    color: inherit;
+    opacity: 0; /* 開始時透明 */
+    animation: floatUp 1s ease forwards;
+}
+
+/* 圖片設定 */
+.whoyouare img {
+    height: 400px;
+    object-fit: cover;
+}
+
+/* 文字設定 */
+.whoyouare p {
+    font-family: "Winky Rough", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+    margin-top: 10px;
+}
+
+/* 依序浮上來 */
+.whoyouare:nth-child(1) {
+    animation-delay: 0.2s;
+}
+.whoyouare:nth-child(2) {
+    animation-delay: 0.4s;
+}
+.whoyouare:nth-child(3) {
+    animation-delay: 0.6s;
+}
+.whoyouare:nth-child(4) {
+    animation-delay: 0.8s;
+}
