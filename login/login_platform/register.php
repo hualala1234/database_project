@@ -1,5 +1,5 @@
 <?php
-require 'db_connection.php';
+require '../../dbh.php';
 
 // $platId = $_POST['platform_id'];
 $fullname = $_POST['fullname'];
@@ -78,9 +78,20 @@ if ($platIdExists && $emailExists) {
     if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
         $fileTmp = $_FILES['image']['tmp_name'];
         $fileName = uniqid() . '-' . $_FILES['image']['name'];
-        $targetDir = 'uploads/';
-        $imageURL = $targetDir . $fileName;
-        move_uploaded_file($fileTmp, $imageURL);
+    
+        $uploadDir = realpath(__DIR__ . '/../../upload_images'); // 實體伺服器路徑
+        $savePath = $uploadDir . '/' . $fileName;                 // 真正儲存位置
+        $imageURL = 'upload_images/' . $fileName;                 // 儲存在資料庫中 → 用於網頁顯示
+    
+        // 確保資料夾存在
+        if (!file_exists($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+        }
+    
+        if (!move_uploaded_file($fileTmp, $savePath)) {
+            echo "<h3 style='color:red;'>圖片移動失敗</h3>";
+            $imageURL = 'default-avatar.png';
+        }
     }
 
     // Insert the new user into the database

@@ -1,5 +1,12 @@
 <?php
-    include ('../dbh.php');
+session_start(); // 必須是第一行，前面不能有空白或 HTML！
+include ('../dbh.php');
+$mid = isset($_SESSION["mid"]) ? $_SESSION["mid"] : '';
+if ($mid !== '') {
+    $sql = "SELECT * FROM Merchant WHERE mid = $mid";
+    $result = mysqli_query($conn, $sql);
+    $row = mysqli_fetch_array($result);
+}
     
 ?>
 <!DOCTYPE html>
@@ -52,15 +59,7 @@
         </div> -->
         <!-- Spinner End -->
 
-        <?php
-        if(isset($_GET["mid"])){
-            $mid = $_GET["mid"];
-            $sql = "SELECT * FROM Merchant WHERE mid = $mid";
-            $result = mysqli_query($conn, $sql);
-            $row = mysqli_fetch_array($result);
-        }
         
-        ?>
         <!-- Navbar start -->
         <div class="container-fluid fixed-top">
             <div class="container topbar bg-primary d-none d-lg-block">
@@ -78,7 +77,7 @@
             </div>
             <div class="container px-0">
                 <nav class="navbar navbar-light bg-white navbar-expand-xl">
-                    <a href="index.html" class="navbar-brand"><h1 class="text-primary display-6">Junglebite商家</h1></a>
+                    <a href="merchant_shop.php?mid=<?php echo $mid; ?>" class="navbar-brand"><h1 class="text-primary display-6">Junglebite商家</h1></a>
                     <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                         <span class="fa fa-bars text-primary"></span>
                     </button>
@@ -105,10 +104,36 @@
                                 <i class="fa fa-shopping-bag fa-2x"></i>
                                 <span class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 15px; height: 20px; min-width: 20px;">3</span>
                             </a> -->
-                            <a href="#" class="my-auto">
+                            <?php if (isset($_SESSION['login_success'])): ?>
+                            <!-- ✅ 已登入的顯示 -->
+                            <div class="dropdown" style="position: relative; display: inline-block;">
+                                <a href="javascript:void(0);" class="my-auto" onclick="toggleDropdown()">
+                                    <img src="  ../login/success.png" alt="Success" style="width: 40px; height: 40px; filter: brightness(0) saturate(100%) invert(42%) sepia(91%) saturate(356%) hue-rotate(71deg) brightness(94%) contrast(92%);">
+                                </a>
+
+                                <div id="myDropdown" class="dropdown-content" style="display: none; position: absolute; background-color: white; min-width: 120px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 1; right: 0; border-radius: 8px;">
+                                    <?php if ($_SESSION['role'] === 'merchant'): ?>
+                                        <a href="/database/merchant/setting.php" class="dropdown-item">商家設定</a>
+                                    <?php elseif ($_SESSION['role'] === 'customer'): ?>
+                                        <a href="/database/customer/setting.php" class="dropdown-item">個人設定</a>
+                                        <a href="/database_project/allergy/allergy.php" class="dropdown-item">過敏設定</a>
+                                    <?php elseif ($_SESSION['role'] === 'delivery_person'): ?>
+                                        <a href="/database/customer/setting.php" class="dropdown-item">外送員設定</a>
+                                    <?php elseif ($_SESSION['role'] === 'platform'): ?>
+                                        <a href="/database/customer/setting.php" class="dropdown-item">平台設定</a>
+                                    <?php endif; ?>
+                                        <a href="/database_project/login/login_customer/logout.php" class="dropdown-item">Logout</a>
+
+                                </div>
+                            </div>
+                            <?php else: ?>
+                            <!-- ❌ 未登入的顯示 -->
+                            <a href="/database_project/login/before_login.php" class="my-auto">
                                 <i class="fas fa-user fa-2x"></i>
                             </a>
+                            <?php endif; ?>
                         </div>
+
                     </div>
                 </nav>
             </div>
@@ -532,10 +557,10 @@
                                             <script>
                                                 document.addEventListener("DOMContentLoaded", function () {
                                                     // 設定初始值
-                                                    var originalPName_' . $productDetail['pid'] . ' = "' . addslashes($productDetail['productName']) . '";
-                                                    var originalPDescription_' . $productDetail['pid'] . ' = "' . addslashes($productDetail['productDescription']) . '";
+                                                    var originalPName_' . $productDetail['pid'] . ' = "' . addslashes($productDetail['pName']) . '";
+                                                    var originalPDescription_' . $productDetail['pid'] . ' = "' . addslashes($productDetail['pDescription']) . '";
                                                     var originalPrice_' . $productDetail['pid'] . ' = "' . addslashes($productDetail['price']) . '";
-                                                    var originalProductCategory_' . $productDetail['pid'] . ' = "' . addslashes($productDetail['category']) . '";
+                                                    var originalProductCategory_' . $productDetail['pid'] . ' = "' . addslashes($currentCategory) . '";
 
                                                     var saveButton_' . $productDetail['pid'] . ' = document.getElementById("saveButton_' . $productDetail['pid'] . '");
                                                     var pNameInput_' . $productDetail['pid'] . ' = document.querySelector("#editProductModal_' . $productDetail['pid'] . ' [name=pName]");

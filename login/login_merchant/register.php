@@ -1,5 +1,10 @@
 <?php
-require 'db_connection.php';
+session_start();
+require '../../dbh.php';
+
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 
 // $mId = $_POST['merchant_id'];
 $fullname = $_POST['fullname'];
@@ -22,7 +27,7 @@ while ($row = $result->fetch_assoc()) {
     // if ($row['mId'] == $mId) {
     //     $mIdExists = true;
     // }
-    if ($row['email'] == $email) {
+    if ($row['mEmail'] == $email) {
         $emailExists = true;
     }
 }
@@ -49,19 +54,22 @@ if ( $emailExists) {
 
     // Image upload (if any)
     if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-        $fileTmp  = $_FILES['image']['tmp_name'];
-        $fileName = uniqid() . '-' . basename($_FILES['image']['name']);  // 只留檔名
-        $targetDir = 'uploads/';
-        // 把檔案移到 uploads/ 下
-        if (move_uploaded_file($fileTmp, $targetDir . $fileName)) {
-            $imageURL = $fileName;  // 存檔名到 DB
-        } else {
-            // 移動失敗，仍維持 default
+        $fileTmp = $_FILES['image']['tmp_name'];
+        $fileName = uniqid() . '-' . $_FILES['image']['name'];
+    
+        $uploadDir = realpath(__DIR__ . '/../../upload_images'); // 實體伺服器路徑
+        $savePath = $uploadDir . '/' . $fileName;                 // 真正儲存位置
+        $imageURL = 'upload_images/' . $fileName;                 // 儲存在資料庫中 → 用於網頁顯示
+    
+        // 確保資料夾存在
+        if (!file_exists($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+        }
+    
+        if (!move_uploaded_file($fileTmp, $savePath)) {
+            echo "<h3 style='color:red;'>圖片移動失敗</h3>";
             $imageURL = 'default-avatar.png';
         }
-    } else {
-        // 沒有上傳檔案，使用預設
-        $imageURL = 'default-avatar.png';
     }
 
     // Insert the new user into the database

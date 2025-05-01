@@ -1,5 +1,12 @@
 <?php
-    include ('../dbh.php');
+session_start(); // 必須是第一行，前面不能有空白或 HTML！
+include ('../dbh.php');
+$mid = isset($_SESSION["mid"]) ? $_SESSION["mid"] : '';
+if ($mid !== '') {
+    $sql = "SELECT * FROM Merchant WHERE mid = $mid";
+    $result = mysqli_query($conn, $sql);
+    $row = mysqli_fetch_array($result);
+}
     
 ?>
 <!DOCTYPE html>

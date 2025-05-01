@@ -13,26 +13,26 @@
 <body>
     <div class="header_whoyouare">
         <p>Who you are?</p>
-        <a href="/database/customer/index.php">
+        <a href="../customer/index.php">
             <img src="home.png" alt="Home" class="home-icon">
         </a>
     </div>
 
 
     <div class="who">
-        <a href="/database_2/database_project/login/login_customer/system_blog.php" class="whoyouare">
+        <a href="login_customer/system_blog.php" class="whoyouare">
             <img src="customer.png" alt="">
             <p>Customer</p>
         </a>
-        <a href="/database_2/database_project/login/login_merchant/system_blog.php" class="whoyouare">
+        <a href="login_merchant/system_blog.php" class="whoyouare">
             <img src="merchant.png" alt="">
             <p>Merchant</p>
         </a>
-        <a href="/database_2/database_project/login/login_deliveryPerson/system_blog.php" class="whoyouare">
+        <a href="login_deliveryPerson/system_blog.php" class="whoyouare">
             <img src="delivery.png" alt="">
             <p>Delivery Person</p>
         </a>
-        <a href="/database_2/database_project/login/login_platform/system_blog.php" class="whoyouare">
+        <a href="login_platform/system_blog.php" class="whoyouare">
             <img src="platform.png" alt="">
             <p>Platform</p>
         </a>
