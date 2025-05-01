@@ -92,9 +92,10 @@ if ($dIdExists && $emailExists) {
         $imageURL = 'default-avatar.png';
     }
     // Insert the new user into the database
-    $sql = "INSERT INTO deliveryPerson (name, email, password, address, imageURL)
-            VALUES (?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO deliveryperson (dpName, email, password, dpAddress, dPicture)
+        VALUES (?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
+    
     $stmt->bind_param("sssss",  $fullname, $email, $password, $address, $imageURL);
 
     if ($stmt->execute()) {
