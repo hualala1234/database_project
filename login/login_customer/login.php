@@ -23,7 +23,7 @@ if ($_SERVER["REQUEST_METHOD"]=="POST"){
             $cid = $user['cid']; // ← 加上這行
             $_SESSION['cid'] = $user['cid'];
             $_SESSION['email'] = $user['email'];
-            $_SESSION['fullname'] = $user['name'];
+            $_SESSION['fullname'] = $user['cname'];
             $_SESSION['login_success'] = "登入成功！";
             $_SESSION['role'] = 'customer';
 
