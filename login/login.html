@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>login section</title>
+    <link rel="stylesheet" href="login.css">
+    <script src="login.js" defer></script>
+</head>
+<body>
+
+	<div style="text-align: center; margin-top: 20px;">
+		<button class="role-btn" data-role="customer">Customer</button>
+		<button class="role-btn" data-role="delivery">Delivery Person</button>
+		<button class="role-btn" data-role="merchant">Merchant</button>
+		<button class="role-btn" data-role="platform">Platform</button>
+	</div>
+
+	<div class="role-form" data-role="customer">
+		<!-- 原本的 sign-up-container + sign-in-container + overlay-container -->
+		<div class="container" id="container-customer">
+			<div class="form-container sign-up-container">
+				<form action="#">
+					
+					<div class="form-header" style="
+					display: flex;
+					justify-content: space-around;
+					align-items: center;
+					margin-bottom: 20px;
+					width: 100%;">
+					<!-- 左上角 Create Account -->
+					<div class="create_account" style="display: flex; flex-direction: column;">
+						<h1 style="margin: 0;">Create</h1>
+						<h1 style="margin: 0;">Account</h1>
+					</div>
+				
+					<!-- 右上角頭像 -->
+					<div id="imageContainer"
+						style="width: 100px; height: 100px; background-color: #ccc; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+						<img id="previewImage" src="default-avatar.png" alt="Click to upload"
+							style="width: 90px; height: 90px; object-fit: cover; border-radius: 50%;">
+					</div>
+					<input type="file" id="imageUpload" accept="image/*" style="display: none;">
+				</div>
+				
+
+					<span>only for custumer</span>
+		
+					<!-- 雙欄排列 -->
+					<div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 10px;">
+						<!-- 左欄 -->
+						<div style="flex: 1; min-width: 200px;">
+							<input type="text" placeholder="Customer ID" style="width: 100%; margin-bottom: 10px;" />
+							<input type="text" placeholder="Name" style="width: 100%; margin-bottom: 10px;" />
+							<input type="email" placeholder="Email" style="width: 100%; margin-bottom: 10px;" />
+						</div>
+						<!-- 右欄 -->
+						<div style="flex: 1; min-width: 200px;">
+							<input type="password" placeholder="Password" style="width: 100%; margin-bottom: 10px;" />
+							<input type="text" placeholder="Address" style="width: 100%; margin-bottom: 10px;" />
+							<input type="text" placeholder="Introducer" style="width: 100%; margin-bottom: 10px;" />
+						</div>
+					</div>
+		
+					<button style="margin-top: 15px;">SIGN UP</button>
+				</form>
+			</div>
+			<div class="form-container sign-in-container">
+				<form action="#">
+					<h1>Sign in</h1>
+					
+					<input type="cId" placeholder="Customer ID" />
+					<input type="email" placeholder="Email" />
+					<input type="password" placeholder="Password" />
+					<a href="#">Forgot your password?</a>
+					<button>Sign In</button>
+				</form>
+			</div>
+			<div class="overlay-container">
+				<div class="overlay">
+					<div class="overlay-panel overlay-left">
+		
+						<h1>Welcome Back!</h1>
+						<p>To keep connected with us please login with your personal info</p>
+						<button class="ghost" id="signIn">Sign In</button>
+					</div>
+					<div class="overlay-panel overlay-right">
+						<h1>Hello, Friend!</h1>
+						<p>Enter your personal details and start journey with us</p>
+						<button class="ghost" id="signUp">Sign Up</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="role-form" data-role="delivery" style="display: none;">
+		<!-- 這裡可以複製上面一整組表單內容，修改為 delivery 的需求 -->
+		<div class="container" id="container-delivery">
+			<div class="form-container sign-up-container">
+				<form action="#">
+					
+					<div class="form-header" style="
+					display: flex;
+					justify-content: space-around;
+					align-items: center;
+					margin-bottom: 20px;
+					width: 100%;">
+					<!-- 左上角 Create Account -->
+					<div class="create_account" style="display: flex; flex-direction: column;">
+						<h1 style="margin: 0;">Create</h1>
+						<h1 style="margin: 0;">Account</h1>
+					</div>
+				
+					<!-- 右上角頭像 -->
+					<div id="imageContainer"
+						style="width: 100px; height: 100px; background-color: #ccc; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+						<img id="previewImage" src="default-avatar.png" alt="Click to upload"
+							style="width: 90px; height: 90px; object-fit: cover; border-radius: 50%;">
+					</div>
+					<input type="file" id="imageUpload" accept="image/*" style="display: none;">
+				</div>
+				
+
+					<span>only for delivery</span>
+		
+					<!-- 雙欄排列 -->
+					<div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 10px;">
+						<!-- 左欄 -->
+						<div style="flex: 1; min-width: 200px;">
+							<input type="text" placeholder="Delivery Person ID" style="width: 100%; margin-bottom: 10px;" />
+							<input type="text" placeholder="Name" style="width: 100%; margin-bottom: 10px;" />
+							<input type="email" placeholder="Email" style="width: 100%; margin-bottom: 10px;" />
+						</div>
+						<!-- 右欄 -->
+						<div style="flex: 1; min-width: 200px;">
+							<input type="password" placeholder="Password" style="width: 100%; margin-bottom: 10px;" />
+							<input type="text" placeholder="Address" style="width: 100%; margin-bottom: 10px;" />
+						</div>
+					</div>
+		
+					<button style="margin-top: 15px;">SIGN UP</button>
+				</form>
+			</div>
+			<div class="form-container sign-in-container">
+				<form action="#">
+					<h1>Sign in</h1>
+					
+					<input type="dId" placeholder="Delivery Person ID" />
+					<input type="email" placeholder="Email" />
+					<input type="password" placeholder="Password" />
+					<a href="#">Forgot your password?</a>
+					<button>Sign In</button>
+				</form>
+			</div>
+			<div class="overlay-container">
+				<div class="overlay">
+					<div class="overlay-panel overlay-left">
+		
+						<h1>Welcome Back!</h1>
+						<p>To keep connected with us please login with your personal info</p>
+						<button class="ghost" id="signIn">Sign In</button>
+					</div>
+					<div class="overlay-panel overlay-right">
+						<h1>Hello, Friend!</h1>
+						<p>Enter your personal details and start journey with us</p>
+						<button class="ghost" id="signUp">Sign Up</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="role-form" data-role="merchant" style="display: none;">
+		<!-- 同樣複製內容，調整為 merchant 專屬表單 -->
+		<div class="container" id="container-merchant">
+			<div class="form-container sign-up-container">
+				<form action="#">
+					
+					<div class="form-header" style="
+					display: flex;
+					justify-content: space-around;
+					align-items: center;
+					margin-bottom: 20px;
+					width: 100%;">
+					<!-- 左上角 Create Account -->
+					<div class="create_account" style="display: flex; flex-direction: column;">
+						<h1 style="margin: 0;">Create</h1>
+						<h1 style="margin: 0;">Account</h1>
+					</div>
+				
+					<!-- 右上角頭像 -->
+					<div id="imageContainer"
+						style="width: 100px; height: 100px; background-color: #ccc; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+						<img id="previewImage" src="default-avatar.png" alt="Click to upload"
+							style="width: 90px; height: 90px; object-fit: cover; border-radius: 50%;">
+					</div>
+					<input type="file" id="imageUpload" accept="image/*" style="display: none;">
+				</div>
+				
+
+					<span>only for merchant</span>
+		
+					<!-- 雙欄排列 -->
+					<div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 10px;">
+						<!-- 左欄 -->
+						<div style="flex: 1; min-width: 200px;">
+							<input type="text" placeholder="Merchant ID" style="width: 100%; margin-bottom: 10px;" />
+							<input type="text" placeholder="Name" style="width: 100%; margin-bottom: 10px;" />
+							<input type="email" placeholder="Email" style="width: 100%; margin-bottom: 10px;" />
+						</div>
+						<!-- 右欄 -->
+						<div style="flex: 1; min-width: 200px;">
+							<input type="password" placeholder="Password" style="width: 100%; margin-bottom: 10px;" />
+							<input type="text" placeholder="Address" style="width: 100%; margin-bottom: 10px;" />
+						</div>
+					</div>
+		
+					<button style="margin-top: 15px;">SIGN UP</button>
+				</form>
+			</div>
+			<div class="form-container sign-in-container">
+				<form action="#">
+					<h1>Sign in</h1>
+					
+					<input type="mId" placeholder="Merchant ID" />
+					<input type="email" placeholder="Email" />
+					<input type="password" placeholder="Password" />
+					<a href="#">Forgot your password?</a>
+					<button>Sign In</button>
+				</form>
+			</div>
+			<div class="overlay-container">
+				<div class="overlay">
+					<div class="overlay-panel overlay-left">
+		
+						<h1>Welcome Back!</h1>
+						<p>To keep connected with us please login with your personal info</p>
+						<button class="ghost" id="signIn">Sign In</button>
+					</div>
+					<div class="overlay-panel overlay-right">
+						<h1>Hello, Friend!</h1>
+						<p>Enter your personal details and start journey with us</p>
+						<button class="ghost" id="signUp">Sign Up</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="role-form" data-role="platform" style="display: none;">
+		<!-- 原本的 sign-up-container + sign-in-container + overlay-container -->
+		<div class="container" id="container-platform">
+			<div class="form-container sign-up-container">
+				<form action="#">
+					
+					<div class="form-header" style="
+					display: flex;
+					justify-content: space-around;
+					align-items: center;
+					margin-bottom: 20px;
+					width: 100%;">
+					<!-- 左上角 Create Account -->
+					<div class="create_account" style="display: flex; flex-direction: column;">
+						<h1 style="margin: 0;">Create</h1>
+						<h1 style="margin: 0;">Account</h1>
+					</div>
+				
+					<!-- 右上角頭像 -->
+					<div id="imageContainer"
+						style="width: 100px; height: 100px; background-color: #ccc; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+						<img id="previewImage" src="default-avatar.png" alt="Click to upload"
+							style="width: 90px; height: 90px; object-fit: cover; border-radius: 50%;">
+					</div>
+					<input type="file" id="imageUpload" accept="image/*" style="display: none;">
+				</div>
+				
+
+					<span>only for platform</span>
+		
+					<!-- 雙欄排列 -->
+					<div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 10px;">
+						<!-- 左欄 -->
+						<div style="flex: 1; min-width: 200px;">
+							<input type="text" placeholder="ENGINEER ID" style="width: 100%; margin-bottom: 10px;" />
+							<input type="text" placeholder="Name" style="width: 100%; margin-bottom: 10px;" />
+							
+						</div>
+						<!-- 右欄 -->
+						<div style="flex: 1; min-width: 200px;">
+							<input type="email" placeholder="Email" style="width: 100%; margin-bottom: 10px;" />
+							<input type="password" placeholder="Password" style="width: 100%; margin-bottom: 10px;" />
+							
+						</div>
+					</div>
+		
+					<button style="margin-top: 15px;">SIGN UP</button>
+				</form>
+			</div>
+			<div class="form-container sign-in-container">
+				<form action="#">
+					<h1>Sign in</h1>
+					
+					<input type="EId" placeholder="ENGINEER ID" />
+					<input type="email" placeholder="Email" />
+					<input type="password" placeholder="Password" />
+					<a href="#">Forgot your password?</a>
+					<button>Sign In</button>
+				</form>
+			</div>
+			<div class="overlay-container">
+				<div class="overlay">
+					<div class="overlay-panel overlay-left">
+		
+						<h1>Welcome Back!</h1>
+						<p>To keep connected with us please login with your personal info</p>
+						<button class="ghost" id="signIn">Sign In</button>
+					</div>
+					<div class="overlay-panel overlay-right">
+						<h1>Hello, Friend!</h1>
+						<p>Enter your personal details and start journey with us</p>
+						<button class="ghost" id="signUp">Sign Up</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+</body>
+</html>
