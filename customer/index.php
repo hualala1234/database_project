@@ -96,6 +96,7 @@ include ('../dbh.php');
                 </nav>
             </div>
         </div>
+<<<<<<< HEAD
 
         <!-- 登入畫面的人像跟成功切換 -->
 
@@ -170,6 +171,8 @@ include ('../dbh.php');
         </div>
 
 
+=======
+>>>>>>> parent of de83c5c (過敏完成)
         <!-- Navbar End -->
 
 
