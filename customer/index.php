@@ -88,7 +88,7 @@
                                 <i class="fa-solid fa-cart-shopping fa-2x"></i>
                                 <span class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 22px; height: 20px; min-width: 20px;">3</span>
                             </a>
-                            <a href="#" class="my-auto">
+                            <a href="/database_2/database_project/login/before_login.php" class="my-auto">
                                 <i class="fas fa-user fa-2x"></i>
                             </a>
                         </div>
@@ -96,6 +96,80 @@
                 </nav>
             </div>
         </div>
+
+        <!-- 登入畫面的人像跟成功切換 -->
+
+                
+
+        <div class="dropdown" style="position: relative; display: inline-block;">
+                    <?php if (isset($_SESSION['login_success'])): ?>
+                        <!-- 已登入 -->
+                        <a href="javascript:void(0);" class="my-auto" onclick="toggleDropdown()">
+                            <img src="/database/login/success.png" alt="Success" style="width: 40px; height: 40px; filter: brightness(0) saturate(100%) invert(42%) sepia(91%) saturate(356%) hue-rotate(71deg) brightness(94%) contrast(92%);">
+                        </a>
+
+                        <div id="myDropdown" class="dropdown-content" style="
+                            display: none;
+                            position: absolute;
+                            background-color: white;
+                            min-width: 120px;
+                            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+                            z-index: 1;
+                            right: 0;
+                            border-radius: 8px;
+                        ">
+
+                        <!-- 之後要改，把個人頁面的設定連結連上去 -->
+                            <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'merchant'): ?>
+                                <a href="/database/merchant/setting.php" style="padding: 10px 16px; display: block; text-decoration: none; color: black;">商家設定</a>
+                            <?php elseif (isset($_SESSION['role']) && $_SESSION['role'] === 'customer'): ?>
+                                <a href="/database/customer/setting.php" style="padding: 10px 16px; display: block; text-decoration: none; color: black;">個人設定</a>
+                                <a href="/database_2/database_project/allergy/allergy.php" style="padding: 10px 16px; display: block; text-decoration: none; color: black;">過敏設定</a>
+                                <?php elseif (isset($_SESSION['role']) && $_SESSION['role'] === 'delivery_person'): ?>
+                                <a href="/database/customer/setting.php" style="padding: 10px 16px; display: block; text-decoration: none; color: black;">外送員設定</a>
+                                <?php elseif (isset($_SESSION['role']) && $_SESSION['role'] === 'platform'): ?>
+                                    <a href="/database/customer/setting.php" style="padding: 10px 16px; display: block; text-decoration: none; color: black;">平台設定</a>
+                            <?php endif; ?>
+                            
+                            <a href="/database_2/database_project/login/login_customer/logout.php" style="padding: 10px 16px; display: block; text-decoration: none; color: black;">Logout</a>
+                        </div>
+
+                    <?php else: ?>
+                        <!-- 未登入 -->
+                        <a href="/database/login/before_login.php" class="my-auto">
+                            <i class="fas fa-user fa-2x"></i>
+                        </a>
+                    <?php endif; ?>
+                </div>
+
+                <script>
+                // 切換下拉選單的顯示/隱藏
+                function toggleDropdown() {
+                    var dropdown = document.getElementById("myDropdown");
+                    if (dropdown.style.display === "block") {
+                        dropdown.style.display = "none";
+                    } else {
+                        dropdown.style.display = "block";
+                    }
+                }
+
+                // 點到別的地方自動關掉選單
+                window.onclick = function(event) {
+                    var dropdown = document.getElementById("myDropdown");
+                    if (!event.target.closest('.dropdown') && dropdown && dropdown.style.display === "block") {
+                        dropdown.style.display = "none";
+                    }
+                }
+                </script>
+
+
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </div>
+
+
         <!-- Navbar End -->
 
 
