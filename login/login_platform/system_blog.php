@@ -53,26 +53,26 @@ $create_email = $_GET['create'] ?? 'Log in to stay connected with us';
     <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 10px;">
     <!-- 左欄 -->
     <div style="flex: 1; min-width: 200px;">
-        <input type="text"
+        <!-- <input type="text"
                name="platform_id"
                placeholder="platform ID"
                style="width: 100%; margin-bottom: 10px;"
                required
-               value="<?php echo htmlspecialchars($_GET['platform_id'] ?? ''); ?>" />
+               value="< ?php echo htmlspecialchars($_GET['platform_id'] ?? ''); ?>" /> -->
         <input type="text"
                name="fullname"
                placeholder="Name"
                style="width: 100%; margin-bottom: 10px;"
                required
                value="<?php echo htmlspecialchars($_GET['fullname'] ?? ''); ?>" />
-            </div>
-            <!-- 右欄 -->
-            <div style="flex: 1; min-width: 200px;">
-            <input type="password"
+        <input type="password"
                 name="password"
                 placeholder="Password"
                 style="width: 100%; margin-bottom: 10px;"
                 required />
+            </div>
+            <!-- 右欄 -->
+            <div style="flex: 1; min-width: 200px;">
                 
             <input type="email"
                 name="email"

@@ -31,30 +31,32 @@ document.querySelectorAll('.role-btn').forEach(button => {
   
 
 
+// 改圖片上傳功能
 const imageContainer = document.getElementById('imageContainer');
-  const imageUpload = document.getElementById('imageUpload');
-  const previewImage = document.getElementById('previewImage');
-  const uploadIcon = document.getElementById('uploadIcon');
+const imageUpload = document.getElementById('imageUpload');
+const previewImage = document.getElementById('previewImage');
+const uploadIcon = document.getElementById('uploadIcon');
 
-  imageContainer.addEventListener('click', () => {
-    imageUpload.click();
-  });
+imageContainer.addEventListener('click', () => {
+  imageUpload.click();
+});
 
-  imageUpload.addEventListener('change', function () {
-    const file = this.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = function (e) {
+imageUpload.addEventListener('change', function () {
+  const file = this.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
       previewImage.src = e.target.result;
-      // uploadIcon.style.display = 'none'; // 隱藏圖示
-      preview.classList.remove('hidden');
-      };
-      reader.readAsDataURL(file);
-    }else {
-      preview.src = '';
-      preview.classList.add('hidden');
-    }
-  });
+      uploadIcon.style.display = 'none'; // ✅ 隱藏 icon
+      previewImage.classList.remove('hidden'); // ✅ 修正變數名
+    };
+    reader.readAsDataURL(file);
+  } else {
+    previewImage.src = '';
+    previewImage.classList.add('hidden');
+    uploadIcon.style.display = 'block'; // ✅ 顯示 icon
+  }
+});
 
 document.querySelectorAll('.role-btn').forEach(button => {
     button.addEventListener('click', () => {

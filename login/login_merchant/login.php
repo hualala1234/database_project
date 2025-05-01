@@ -10,7 +10,7 @@ if ($_SERVER["REQUEST_METHOD"]=="POST"){
     $password=mysqli_real_escape_string($conn,$_POST['password']);
 
     //fetch database
-    $sql="SELECT * FROM merchant WHERE email = '$email'";
+    $sql="SELECT * FROM merchant WHERE mEmail = '$email'";
     $result=$conn->query($sql);
     //只有找到使用者時才檢查密碼
     if ($result->num_rows > 0) {
