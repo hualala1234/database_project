@@ -1,6 +1,7 @@
+
 <?php
-include "db_connection.php";
 session_start();
+include "../../dbh.php";
 $wrong_password = "Enter your password";
 $error_email = "Enter your email";
 
@@ -23,14 +24,14 @@ if ($_SERVER["REQUEST_METHOD"]=="POST"){
             $cid = $user['cid']; // ← 加上這行
             $_SESSION['cid'] = $user['cid'];
             $_SESSION['email'] = $user['email'];
-            $_SESSION['fullname'] = $user['cname'];
+            $_SESSION['fullname'] = $user['cName'];
             $_SESSION['login_success'] = "登入成功！";
             $_SESSION['role'] = 'customer';
 
 
 
             // 跳回原本頁面
-            header("Location: /database/customer/index.php?cid=$cid");
+            header("Location: ../../customer/index.php?cid=$cid");
             exit();
         } 
         else {

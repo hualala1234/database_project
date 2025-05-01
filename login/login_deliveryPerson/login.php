@@ -1,5 +1,5 @@
 <?php
-include "db_connection.php";
+include "../../dbh.php";
 session_start();
 $wrong_password = "Enter your password";
 $error_email = "Enter your email";
