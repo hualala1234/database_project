@@ -33,8 +33,11 @@
 
     var category_swiper = new Swiper(".category-carousel", {
       slidesPerView: 6,
+      slidesPerGroup: 2,
       spaceBetween: 30,
       speed: 500,
+      simulateTouch: true,  // ✅ 啟用模擬滑動
+      touchRatio: 1,        // ✅ 控制滑動靈敏度（預設為 1）
       navigation: {
         nextEl: ".category-carousel-next",
         prevEl: ".category-carousel-prev",
