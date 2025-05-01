@@ -1,5 +1,5 @@
 <?php
-include "db_connection.php";
+include "../../dbh.php";
 session_start();
 $wrong_password = "Enter your password";
 $error_email = "Enter your email";
@@ -29,9 +29,10 @@ if ($_SERVER["REQUEST_METHOD"]=="POST"){
 
             // 取得 merchant 的 mId
             $mid = $user['mid'];
+            $_SESSION['mid'] = $mid; // ✅ 加上這行
 
             // 跳轉到 index.php 並將 mId 傳遞作為查詢參數
-            header("Location: /database/customer/index.php?mid=$mid");
+            header("Location: ../../merchant/merchant_shop.php?mid=$mid");
             exit();
         } 
         else {

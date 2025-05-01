@@ -1,5 +1,5 @@
 <?php
-include "db_connection.php";
+include "../../dbh.php";
 session_start();
 $wrong_password = "Enter your password";
 $error_email = "Enter your email";
@@ -28,7 +28,7 @@ if ($_SERVER["REQUEST_METHOD"]=="POST"){
             $platid = $user['platId'];
 
             // 跳回原本頁面
-            header("Location: /database/customer/index.php?platid=$platid");
+            header("Location: ../../customer/index.php?platid=$platid");
             exit();
         } 
         else {
