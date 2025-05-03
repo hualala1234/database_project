@@ -40,7 +40,7 @@ if ($cid !== '') {
         <link href="../css/bootstrap.min.css" rel="stylesheet">
 
         <!-- Template Stylesheet -->
-        <link href="../css/style.css?v=20250428" rel="stylesheet">
+        <link href="../css/style.css" rel="stylesheet">
 
     </head>
 

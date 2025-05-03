@@ -6,7 +6,7 @@ if (isset($_POST["updateMerchant"])) {
     $mid = mysqli_real_escape_string($conn, $_POST["mid"]);
     $mName = mysqli_real_escape_string($conn, $_POST["mName"]);
     $mAddress = mysqli_real_escape_string($conn, $_POST["mAddress"]);
-    $businessHours = mysqli_real_escape_string($conn, $_POST["businessHours"]);
+    $businessHours = ''; // Initialize
     $mPicture = ''; // 預設為空
 
     // 圖片處理
@@ -47,6 +47,19 @@ if (isset($_POST["updateMerchant"])) {
             mysqli_query($conn, $sqlInsert);
         }
     }
+
+    // Handle business hours data
+    if (!empty($_POST['hoursJson'])) {
+        $businessHours = mysqli_real_escape_string($conn, $_POST['hoursJson']);
+    }
+    
+
+    // Other code for image upload and categories...
+
+    // Update business hours in the database
+    $sqlUpdate = "UPDATE merchant SET businessHours = '$businessHours' WHERE mid = '$mid'";
+    mysqli_query($conn, $sqlUpdate);
+
 
     // 成功跳轉
     header("Location: merchant/merchant_shop.php?mid=$mid");
