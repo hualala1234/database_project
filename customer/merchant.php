@@ -1,12 +1,25 @@
 <?php
 session_start();
 include ('../dbh.php');  
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 $cid = isset($_SESSION["cid"]) ? $_SESSION["cid"] : '';
 if ($cid !== '') {
     $sql = "SELECT * FROM Customer WHERE cid = $cid";
     $result = mysqli_query($conn, $sql);
     $row = mysqli_fetch_array($result);
+    
+}
+$cartCount = 0;
+if (isset($_SESSION['cid'], $_SESSION['cartTime'])) {
+    $stmt = $conn->prepare("SELECT SUM(quantity) AS total FROM CartItem WHERE cid = ? AND cartTime = ?");
+    $stmt->bind_param("is", $_SESSION['cid'], $_SESSION['cartTime']);
+    $stmt->execute();
+    $stmt->bind_result($cartCount);
+    $stmt->fetch();
+    $stmt->close();
 }
 ?>
 
@@ -28,8 +41,13 @@ if ($cid !== '') {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="../css/vendor.css">
     <link rel="stylesheet" type="text/css" href="../css/merchant.css">
-    <link href="../css/style.css?v=20250428" rel="stylesheet">
+    <link href="../css/style.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="../css/bootstrap.min.css">
+    
+    <!-- Libraries Stylesheet -->
+    <link href="../lib/lightbox/css/lightbox.min.css" rel="stylesheet">
+    <link href="../lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+
 
     <!-- Icon Font Stylesheet -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"/>
@@ -195,10 +213,12 @@ if ($cid !== '') {
             </div>
             <div class="d-flex m-3 me-0">
                             
-              <a href="#" class="position-relative me-4 my-auto">
-                <i class="fa-solid fa-cart-shopping fa-2x"></i>
-                <span class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 22px; height: 20px; min-width: 20px;">3</span>
-              </a>
+            <a href="#" class="position-relative me-4 my-auto" data-bs-toggle="modal" data-bs-target="#cartModal">
+              <i class="fa-solid fa-cart-shopping fa-2x"></i>
+              <span class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 22px; height: 20px; min-width: 20px;">
+                <?= $cartCount ?? '' ?>
+              </span>
+            </a>
               <?php if (isset($_SESSION['login_success'])): ?>
               <!-- ✅ 已登入的顯示 -->
               <div class="dropdown" style="position: relative; display: inline-block;">
@@ -261,6 +281,32 @@ if ($cid !== '') {
     </div>
         <!-- Hero End -->
 
+
+    <!-- 顯示商家名稱、住址 -->
+    <?php
+    if (isset($_GET["mid"])) {
+      $mid = $_GET["mid"];
+      $sql = "SELECT * FROM Merchant WHERE mid = $mid";
+      $result = mysqli_query($conn, $sql);
+      $row = mysqli_fetch_array($result);
+    }
+    ?>
+    <section class="py-2 overflow-hidden">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-md-12">
+
+          <div class="section-header d-flex mb-5" style="flex-direction: column;">
+            <h2><?php echo htmlspecialchars($row['mName']); ?></h2>
+            <h4 class="text-muted"><?php echo htmlspecialchars($row['mAddress']); ?></h4>
+          </div>
+            
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 顯示類別 -->
     <section class="py-5 overflow-hidden">
       <div class="container-fluid">
         <div class="row">
@@ -272,9 +318,10 @@ if ($cid !== '') {
               <div class="d-flex align-items-center">
                 <!-- <a href="#" class="btn-link text-decoration-none">View All Categories →</a> -->
                 <div class="swiper-buttons">
-                  <button class="swiper-prev category-carousel-prev btn btn-yellow">❮</button>
-                  <button class="swiper-next category-carousel-next btn btn-yellow">❯</button>
+                  <button class="swiper-prev category-carousel-prev btn btn-primary">❮</button>
+                  <button class="swiper-next category-carousel-next btn btn-primary">❯</button>
                 </div>
+                
               </div>
             </div>
             
@@ -320,132 +367,97 @@ if ($cid !== '') {
 
       </div>
     </section>
+    <?php
+    if (isset($_GET["mid"])) {
+        $mid = $_GET["mid"];
 
+        // 查詢所有分類
+        $sql_categories = "SELECT productCategoriesId, productCategoryName FROM ProductCategoryList WHERE mid = $mid ORDER BY sort_order ASC";
+        $result_categories = mysqli_query($conn, $sql_categories);
 
-    <section class="py-5 overflow-hidden">
-      <div class="container-fluid">
-        <div class="row">
-          <div class="col-md-12">
+        while ($category = mysqli_fetch_assoc($result_categories)) {
+            $catId = $category['productCategoriesId'];
+            $catName = htmlspecialchars($category['productCategoryName']);
 
-            <div class="section-header d-flex flex-wrap flex-wrap justify-content-between mb-5">
+            echo '
+            <!-- 顯示商品 -->
+            <section class="py-3" id="category_' . $catId . '">
               
-              <h2 class="section-title">Newly Arrived Brands</h2>
+              <div class="container-fluid fruite py-5">
+                <div class="container py-0 px-0">
+                  <div class="tab-class text-center">
+                    <div class="row">
+                      <div class="col-lg-12">
+                        <div class="row g4">
+                          <h2 class="col-lg-4 text-start">' . $catName . '</h2>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="tab-content">
+                      <div class="tab-pane active show">
+                        <div class="row g4">
+                          <div class="col-lg-12">
+                            <div class="row g4">';
 
-              <div class="d-flex align-items-center">
-                <a href="#" class="btn-link text-decoration-none">View All Categories →</a>
-                <div class="swiper-buttons">
-                  <button class="swiper-prev brand-carousel-prev btn btn-yellow">❮</button>
-                  <button class="swiper-next brand-carousel-next btn btn-yellow">❯</button>
-                </div>  
+                // 取得這個分類下的商品
+                $sql_products = "SELECT p.* FROM Product p 
+                                JOIN ProductCategories pc ON p.pid = pc.pid 
+                                WHERE pc.productCategoriesId = $catId AND p.mid = $mid";
+                $result_products = mysqli_query($conn, $sql_products);
+
+                if (mysqli_num_rows($result_products) > 0) {
+                    while ($product = mysqli_fetch_assoc($result_products)) {
+                        $pid = $product['pid'];  // 確保在這裡獲取 pid
+                        $mid = $product['mid'];  // 確保在這裡獲取 mid
+                        $pName = htmlspecialchars($product['pName']);
+                        $pDescription = htmlspecialchars($product['pDescription']);
+                        $price = $product['price'];
+                        $picture = htmlspecialchars($product['pPicture'] ?? 'default.jpg');
+                        $jsPName = addslashes($pName);
+                        $jsPDescription = addslashes($pDescription);
+                        $jsPrice = $price;
+                        $jsPicture = '../' . $picture;
+
+                        
+                        echo '
+                          <div class="col-md-6 col-lg-4 col-xl-3 my-3">
+                            <div class="h-100 d-flex flex-column rounded position-relative fruite-item"
+                                style="cursor: pointer;"
+                                onclick="openProductModal(\'' . $jsPName . '\', \'' . $jsPDescription . '\', \'' . $jsPrice . '\', \'' . $jsPicture . '\', ' . $pid . ', ' . $mid . ')"
+                                data-bs-toggle="modal" data-bs-target="#productModal">
+                                <div class="fruite-img">
+                                <img src="../' . $picture . '" class="img-fluid w-100 rounded-top" alt="' . $pName . '">
+                              </div>
+                              <div class="p-4 border border-secondary border-top-0 rounded-bottom d-flex flex-column flex-grow-1 text-start">
+                                <h4>' . $pName . '</h4>
+                                <h5>$' . $price . '</h5>
+                                <div class="text-muted flex-grow-1 d-flex">
+                                  <h5>' . (!empty($pDescription) ? $pDescription : '&nbsp;') . '</h5>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ';
+                    }
+                } else {
+                    echo '<p>此分類尚無商品。</p>';
+                }
+
+                echo '
+                    </div> <!-- brand-carousel -->
+                  </div>
+                </div>
               </div>
             </div>
-            
           </div>
-        </div>
-        <div class="row">
-          <div class="col-md-12">
+              
+            </section>';
+        }
+    }
+    ?>
+    
 
-            <div class="brand-carousel swiper">
-              <div class="swiper-wrapper">
-                
-                <div class="swiper-slide">
-                  <div class="card mb-3 p-3 rounded-4 shadow border-0">
-                    <div class="row g-0">
-                      <div class="col-md-4">
-                        <img src="../images/product-thumb-11.jpg" class="img-fluid rounded" alt="Card title">
-                      </div>
-                      <div class="col-md-8">
-                        <div class="card-body py-0">
-                          <p class="text-muted mb-0">Amber Jar</p>
-                          <h5 class="card-title">Honey best nectar you wish to get</h5>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="swiper-slide">
-                  <div class="card mb-3 p-3 rounded-4 shadow border-0">
-                    <div class="row g-0">
-                      <div class="col-md-4">
-                        <img src="../images/product-thumb-12.jpg" class="img-fluid rounded" alt="Card title">
-                      </div>
-                      <div class="col-md-8">
-                        <div class="card-body py-0">
-                          <p class="text-muted mb-0">Amber Jar</p>
-                          <h5 class="card-title">Honey best nectar you wish to get</h5>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="swiper-slide">
-                  <div class="card mb-3 p-3 rounded-4 shadow border-0">
-                    <div class="row g-0">
-                      <div class="col-md-4">
-                        <img src="../images/product-thumb-13.jpg" class="img-fluid rounded" alt="Card title">
-                      </div>
-                      <div class="col-md-8">
-                        <div class="card-body py-0">
-                          <p class="text-muted mb-0">Amber Jar</p>
-                          <h5 class="card-title">Honey best nectar you wish to get</h5>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="swiper-slide">
-                  <div class="card mb-3 p-3 rounded-4 shadow border-0">
-                    <div class="row g-0">
-                      <div class="col-md-4">
-                        <img src="../images/product-thumb-14.jpg" class="img-fluid rounded" alt="Card title">
-                      </div>
-                      <div class="col-md-8">
-                        <div class="card-body py-0">
-                          <p class="text-muted mb-0">Amber Jar</p>
-                          <h5 class="card-title">Honey best nectar you wish to get</h5>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="swiper-slide">
-                  <div class="card mb-3 p-3 rounded-4 shadow border-0">
-                    <div class="row g-0">
-                      <div class="col-md-4">
-                        <img src="../images/product-thumb-11.jpg" class="img-fluid rounded" alt="Card title">
-                      </div>
-                      <div class="col-md-8">
-                        <div class="card-body py-0">
-                          <p class="text-muted mb-0">Amber Jar</p>
-                          <h5 class="card-title">Honey best nectar you wish to get</h5>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="swiper-slide">
-                  <div class="card mb-3 p-3 rounded-4 shadow border-0">
-                    <div class="row g-0">
-                      <div class="col-md-4">
-                        <img src="../images/product-thumb-12.jpg" class="img-fluid rounded" alt="Card title">
-                      </div>
-                      <div class="col-md-8">
-                        <div class="card-body py-0">
-                          <p class="text-muted mb-0">Amber Jar</p>
-                          <h5 class="card-title">Honey best nectar you wish to get</h5>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-              </div>
-            </div>
 
-          </div>
-        </div>
-      </div>
-    </section>
 
 
     <section class="py-5">
@@ -2357,6 +2369,7 @@ if ($cid !== '') {
         </div>
       </div>
     </footer>
+    
     <div id="footer-bottom">
       <div class="container-fluid">
         <div class="row">
@@ -2369,6 +2382,108 @@ if ($cid !== '') {
         </div>
       </div>
     </div>
+
+
+    <!-- 加入購物車 -->
+    <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="productModalLabel">商品名稱</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+          </div>
+          <div class="modal-body d-flex flex-column flex-md-row gap-4">
+            <img id="modalProductImage" src="" class="img-fluid rounded" style="max-width: 300px;">
+            <div class="flex-fill">
+              <input type="hidden" id="modalPid">
+              <input type="hidden" id="modalMid">
+              <p id="modalProductDescription" class="mb-3 text-muted"></p>
+              <h4 id="modalProductPrice" class="mb-3"></h4>
+              <div class="mb-3">
+                <label for="specialNote" class="form-label">特殊指示</label>
+                <textarea id="specialNote" class="form-control" rows="2"></textarea>
+              </div>
+              <div class="mb-3">
+                <label for="quantity" class="form-label">數量</label>
+                <input type="number" class="form-control" id="quantity" value="1" min="1">
+              </div>
+              <button class="btn btn-primary w-100" onclick="addToCart()">加入購物車</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 購物車 Modal -->
+    <div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered modal-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="cartModalLabel">購物車</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+          </div>
+          <div class="modal-body">
+
+            <?php
+            
+
+            $cid = $_SESSION['cid'];
+            $cartTime = $_SESSION['cartTime'];
+
+            $sql = "SELECT c.*, p.pName, p.price, p.pPicture, m.mName
+                    FROM CartItem c
+                    JOIN Product p ON c.pid = p.pid
+                    JOIN Merchant m ON c.mid = m.mid
+                    WHERE c.cid = ? AND c.cartTime = ?
+                    ORDER BY c.mid";
+
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("is", $cid, $cartTime);
+            $stmt->execute();
+            $result = $stmt->get_result();
+
+            $groupedItems = [];
+            while ($row = $result->fetch_assoc()) {
+                $groupedItems[$row['mid']]['mName'] = $row['mName'];
+                $groupedItems[$row['mid']]['items'][] = $row;
+            }
+            ?>
+
+            <?php foreach ($groupedItems as $group): ?>
+              <div class="mb-4">
+              <h5>
+                <a class="text-primary text-decoration-none" href="merchant.php?mid=<?= urlencode($group['items'][0]['mid']) ?>">
+                  <?= htmlspecialchars($group['mName']) ?>
+                </a>
+              </h5>
+
+                <?php foreach ($group['items'] as $item): ?>
+                  <div class="d-flex align-items-center mb-3">
+                    <img src="../<?= htmlspecialchars($item['pPicture']) ?>" alt="<?= $item['pName'] ?>" class="rounded" style="width: 60px; height: 60px; object-fit: cover;">
+                    <div class="ms-3 flex-grow-1">
+                      <strong><?= htmlspecialchars($item['pName']) ?></strong><br>
+                      <small>NT$<?= $item['price'] ?> x <?= $item['quantity'] ?></small><br>
+                      <small class="text-muted"><?= nl2br(htmlspecialchars($item['specialNote'])) ?></small>
+                    </div>
+                    <div>
+                      <span class="fw-bold">NT$<?= $item['price'] * $item['quantity'] ?></span>
+                    </div>
+                  </div>
+                <?php endforeach; ?>
+              </div>
+            <?php endforeach; ?>
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+            <a href="checkout.php" class="btn btn-primary">前往結帳</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
     <script src="../js/jquery-1.11.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
@@ -2380,6 +2495,7 @@ if ($cid !== '') {
     <script src="../lib/waypoints/waypoints.min.js"></script>
     <script src="../lib/lightbox/js/lightbox.min.js"></script>
     <script src="../lib/owlcarousel/owl.carousel.min.js"></script>
+
 
     <!-- Template Javascript -->
     <script src="../js/main.js"></script>
@@ -2395,5 +2511,75 @@ if ($cid !== '') {
         }
     }
     </script>
+    <script>
+      document.querySelectorAll('a.category-item').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          e.preventDefault();
+          const targetId = this.getAttribute('href').substring(1); // 去掉 #
+          const target = document.getElementById(targetId);
+          if (target) {
+            const offset = -5; // navbar 高度
+            const bodyRect = document.body.getBoundingClientRect().top;
+            const elementRect = target.getBoundingClientRect().top;
+            const elementPosition = elementRect - bodyRect;
+            const offsetPosition = elementPosition - offset;
+
+            window.scrollTo({
+              top: offsetPosition,
+              behavior: "smooth"
+            });
+          }
+        });
+      });
+    </script>
+    <script>
+      function openProductModal(name, description, price, imageUrl, pid, mid) {
+        document.getElementById('productModalLabel').textContent = name;
+        document.getElementById('modalProductDescription').textContent = description;
+        document.getElementById('modalProductPrice').textContent = 'NT$ ' + price;
+        document.getElementById('modalProductImage').src = imageUrl;
+        document.getElementById('specialNote').value = '';
+        document.getElementById('quantity').value = 1;
+        document.getElementById('modalPid').value = pid;
+        document.getElementById('modalMid').value = mid;
+      }
+    </script>
+    <script>
+      function addToCart() {
+        const pid = document.getElementById('modalPid').value;
+        const mid = document.getElementById('modalMid').value;
+        const quantity = parseInt(document.getElementById('quantity').value);
+        const note = document.getElementById('specialNote').value;
+
+        fetch('add_to_cart.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pid, mid, quantity, note })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            alert('已加入購物車');
+            updateCartCount();  // 呼叫更新購物車數量的函式
+          } else {
+            alert('加入失敗：' + data.message);
+          }
+        });
+      }
+
+
+    </script>
+    <script>
+      function updateCartCount() {
+        fetch('cart_count.php')
+          .then(res => res.json())
+          .then(data => {
+            document.querySelector('.fa-cart-shopping + span').textContent = data.count;
+          });
+      }
+
+    </script>
+
+
   </body>
 </html>

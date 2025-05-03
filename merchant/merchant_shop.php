@@ -7,7 +7,8 @@ if ($mid !== '') {
     $result = mysqli_query($conn, $sql);
     $row = mysqli_fetch_array($result);
 }
-    
+
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -49,7 +50,7 @@ if ($mid !== '') {
         </div> -->
         <!-- Spinner End -->
 
-        
+
         <!-- Navbar start -->
         <div class="container-fluid fixed-top">
             <div class="container topbar bg-primary d-none d-lg-block">
@@ -122,8 +123,9 @@ if ($mid !== '') {
                                 <i class="fas fa-user fa-2x"></i>
                             </a>
                             <?php endif; ?>
+                            
                         </div>
-
+                        
                     </div>
                 </nav>
             </div>
@@ -325,16 +327,16 @@ if ($mid !== '') {
         validateForm();
     </script>
     <script>
-    function toggleDropdown() {
-        var dropdown = document.getElementById("myDropdown");
-        dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
-    }
-    window.onclick = function(event) {
-        var dropdown = document.getElementById("myDropdown");
-        if (!event.target.closest('.dropdown') && dropdown && dropdown.style.display === "block") {
-            dropdown.style.display = "none";
+        function toggleDropdown() {
+            var dropdown = document.getElementById("myDropdown");
+            dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
         }
-    }
+        window.onclick = function(event) {
+            var dropdown = document.getElementById("myDropdown");
+            if (!event.target.closest('.dropdown') && dropdown && dropdown.style.display === "block") {
+                dropdown.style.display = "none";
+            }
+        }
     </script>
 
 

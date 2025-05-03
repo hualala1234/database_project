@@ -1,15 +1,29 @@
 <?php
-session_start(); // 必須是第一行，前面不能有空白或 HTML！
-include ('../dbh.php');
+session_start();
+include ('../dbh.php');  
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 $cid = isset($_SESSION["cid"]) ? $_SESSION["cid"] : '';
 if ($cid !== '') {
     $sql = "SELECT * FROM Customer WHERE cid = $cid";
     $result = mysqli_query($conn, $sql);
     $row = mysqli_fetch_array($result);
+    
 }
-
-
+$cartCount = 0;
+if (isset($_SESSION['cid'], $_SESSION['cartTime'])) {
+    $stmt = $conn->prepare("SELECT SUM(quantity) AS total FROM CartItem WHERE cid = ? AND cartTime = ?");
+    $stmt->bind_param("is", $_SESSION['cid'], $_SESSION['cartTime']);
+    $stmt->execute();
+    $stmt->bind_result($cartCount);
+    $stmt->fetch();
+    $stmt->close();
+}
 ?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -40,7 +54,7 @@ if ($cid !== '') {
         <link href="../css/bootstrap.min.css" rel="stylesheet">
 
         <!-- Template Stylesheet -->
-        <link href="../css/style.css?v=20250428" rel="stylesheet">
+        <link href="../css/style.css" rel="stylesheet">
 
     </head>
 
@@ -95,9 +109,11 @@ if ($cid !== '') {
                                 <i class="fas fa-search text-primary"></i>
                             </button>
 
-                            <a href="#" class="position-relative me-4 my-auto">
+                            <a href="#" class="position-relative me-4 my-auto" data-bs-toggle="modal" data-bs-target="#cartModal">
                                 <i class="fa-solid fa-cart-shopping fa-2x"></i>
-                                <span class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 22px; height: 20px; min-width: 20px;">3</span>
+                                <span class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 22px; height: 20px; min-width: 20px;">
+                                    <?= $cartCount ?? '' ?>
+                                </span>
                             </a>
 
                             <?php if (isset($_SESSION['login_success'])): ?>
@@ -261,7 +277,7 @@ if ($cid !== '') {
                 <div class="tab-class text-center">
                     <div class="row g-4">
                         <div class="col-lg-4 text-start">
-                            <h1>商品分類</h1>
+                            <h1>商家類別</h1>
                         </div>
                         <div class="col-lg-8 text-end">
                         <ul class="nav nav-pills d-inline-flex text-center mb-5">
@@ -1036,16 +1052,16 @@ if ($cid !== '') {
     <!-- Template Javascript -->
     <script src="../js/main.js"></script>
     <script>
-    function toggleDropdown() {
-        var dropdown = document.getElementById("myDropdown");
-        dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
-    }
-    window.onclick = function(event) {
-        var dropdown = document.getElementById("myDropdown");
-        if (!event.target.closest('.dropdown') && dropdown && dropdown.style.display === "block") {
-            dropdown.style.display = "none";
+        function toggleDropdown() {
+            var dropdown = document.getElementById("myDropdown");
+            dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
         }
-    }
+        window.onclick = function(event) {
+            var dropdown = document.getElementById("myDropdown");
+            if (!event.target.closest('.dropdown') && dropdown && dropdown.style.display === "block") {
+                dropdown.style.display = "none";
+            }
+        }
     </script>
 
     </body>

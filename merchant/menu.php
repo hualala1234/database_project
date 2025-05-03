@@ -1,13 +1,13 @@
 <?php
-session_start(); // 必須是第一行，前面不能有空白或 HTML！
 include ('../dbh.php');
+session_start(); // 必須是第一行，前面不能有空白或 HTML！
 $mid = isset($_SESSION["mid"]) ? $_SESSION["mid"] : '';
 if ($mid !== '') {
     $sql = "SELECT * FROM Merchant WHERE mid = $mid";
     $result = mysqli_query($conn, $sql);
     $row = mysqli_fetch_array($result);
 }
-    
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -48,6 +48,26 @@ if ($mid !== '') {
         <script src="search.js" type ="text/javascript"></script>
         <!-- 加入 jQuery UI -->
         <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+   
+    <script src="menu.js"></script>
+    
+    <!-- JavaScript Libraries -->
+     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../lib/easing/easing.min.js"></script>
+    <script src="../lib/waypoints/waypoints.min.js"></script>
+    <script src="../lib/lightbox/js/lightbox.min.js"></script>
+    <script src="../lib/owlcarousel/owl.carousel.min.js"></script>
+    
+
+    <!-- Template Javascript -->
+    <script src="../js/main.js"></script>
+    <!-- 引入 jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- 引入 jQuery UI -->
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+    <!-- 引入 jQuery UI CSS（使得排序元素顯示為拖曳狀態） -->
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
 
     </head>
 
@@ -104,11 +124,11 @@ if ($mid !== '') {
                                 <i class="fa fa-shopping-bag fa-2x"></i>
                                 <span class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 15px; height: 20px; min-width: 20px;">3</span>
                             </a> -->
-                            <?php if (isset($_SESSION['login_success'])): ?>
+                            <?php if (isset($_SESSION['login_success'])):?>
                             <!-- ✅ 已登入的顯示 -->
                             <div class="dropdown" style="position: relative; display: inline-block;">
-                                <a href="javascript:void(0);" class="my-auto" onclick="toggleDropdown()">
-                                    <img src="  ../login/success.png" alt="Success" style="width: 40px; height: 40px; filter: brightness(0) saturate(100%) invert(42%) sepia(91%) saturate(356%) hue-rotate(71deg) brightness(94%) contrast(92%);">
+                                <a href="javascript:void(0);" class="my-auto" >
+                                    <img onclick="toggleDropdown()" src="  ../login/success.png" alt="Success" style="width: 40px; height: 40px; filter: brightness(0) saturate(100%) invert(42%) sepia(91%) saturate(356%) hue-rotate(71deg) brightness(94%) contrast(92%);">
                                 </a>
 
                                 <div id="myDropdown" class="dropdown-content" style="display: none; position: absolute; background-color: white; min-width: 120px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 1; right: 0; border-radius: 8px;">
@@ -223,6 +243,8 @@ if ($mid !== '') {
                                                 <select class="form-control" id="productCategoryName" name="productCategoryId" required>
                                                     <option value="">-- 請選擇類別 --</option>
                                                     <?php
+                                                    include '../dbh.php';
+                                                    echo 'hhhh';
                                                         // 查詢所有的類別名稱
                                                         $sqlCategories = "SELECT productCategoriesId, productCategoryName FROM ProductCategoryList WHERE mid = $mid";
                                                         $resultCategories = mysqli_query($conn, $sqlCategories);
@@ -452,6 +474,7 @@ if ($mid !== '') {
                                                                     <select class="form-control" id="productCategoryName" name="productCategoryId" required>
                                                                         <option value="">-- 請選擇類別 --</option>';
 
+                                                                        echo 'catahoty';
                                                                         // 查詢當前產品的類別
                                                                         $sqlProductCategory = "SELECT productCategoriesId FROM ProductCategories WHERE pid = " . $productDetail['pid'];
                                                                         $resultProductCategory = mysqli_query($conn, $sqlProductCategory);
@@ -633,53 +656,16 @@ if ($mid !== '') {
 
         <!-- Back to Top -->
         <a href="#" class="btn btn-primary border-3 border-primary rounded-circle back-to-top"><i class="fa fa-arrow-up"></i></a>   
+        <script>
+            function toggleDropdown() {
+                var dropdown = document.getElementById("myDropdown");
+                dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+                console.log('yes get');
+            }
+        </script>
 
         
-    <!-- JavaScript Libraries -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../lib/easing/easing.min.js"></script>
-    <script src="../lib/waypoints/waypoints.min.js"></script>
-    <script src="../lib/lightbox/js/lightbox.min.js"></script>
-    <script src="../lib/owlcarousel/owl.carousel.min.js"></script>
-
-    <!-- Template Javascript -->
-    <script src="../js/main.js"></script>
-    <!-- 引入 jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- 引入 jQuery UI -->
-    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
-    <!-- 引入 jQuery UI CSS（使得排序元素顯示為拖曳狀態） -->
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
-
-    <script>
-        $(function () {
-            // 啟用拖曳排序
-            $("#sortableCategoryList").sortable();
-
-            // 儲存排序
-            $("#saveCategoryOrder").click(function () {
-                var orderedIDs = [];
-                $("#sortableCategoryList li").each(function () {
-                    orderedIDs.push($(this).data("id"));
-                });
-
-                // 發送到後端更新
-                $.post("../process.php", { order: orderedIDs })
-                .done(function () {
-                    location.reload(); // 成功後直接重新整理
-                })
-                .fail(function (xhr, status, error) {
-                    alert("發生錯誤：" + error); // 只有錯誤才提示
-                });
-
-            });
-
-        });
-    </script>
-
-
-
+    
 
     </body>
 
