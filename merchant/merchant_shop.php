@@ -77,7 +77,7 @@ if (!empty($row['businessHours'])) {
         </div> -->
         <!-- Spinner End -->
 
-        
+
         <!-- Navbar start -->
         <div class="container-fluid fixed-top">
             <div class="container topbar bg-primary d-none d-lg-block">
@@ -150,8 +150,9 @@ if (!empty($row['businessHours'])) {
                                 <i class="fas fa-user fa-2x"></i>
                             </a>
                             <?php endif; ?>
+                            
                         </div>
-
+                        
                     </div>
                 </nav>
             </div>
@@ -450,16 +451,16 @@ if (!empty($row['businessHours'])) {
 
 
     <script>
-    function toggleDropdown() {
-        var dropdown = document.getElementById("myDropdown");
-        dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
-    }
-    window.onclick = function(event) {
-        var dropdown = document.getElementById("myDropdown");
-        if (!event.target.closest('.dropdown') && dropdown && dropdown.style.display === "block") {
-            dropdown.style.display = "none";
+        function toggleDropdown() {
+            var dropdown = document.getElementById("myDropdown");
+            dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
         }
-    }
+        window.onclick = function(event) {
+            var dropdown = document.getElementById("myDropdown");
+            if (!event.target.closest('.dropdown') && dropdown && dropdown.style.display === "block") {
+                dropdown.style.display = "none";
+            }
+        }
     </script>
 
     <script>
