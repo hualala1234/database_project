@@ -9,12 +9,12 @@
   </head>
   <body>
     <!-- 要改 -->
-  <div class="header_claw_machine">
-    <p>Who you are?</p>
-    <a href="/database/customer/index.php">
-      <img src="home.png" alt="Home" class="home-icon">
-    </a>
-  </div>
+    <div class="header_claw_machine">
+      <p>CLAW MACHINE</p>
+      <a href="/database/customer/index.php">
+        <img src="home.png" alt="Home" class="home-icon">
+      </a>
+    </div>
     <div class="wrapper">
       <div class="collection-box pix"></div>
       <div class="claw-machine">
