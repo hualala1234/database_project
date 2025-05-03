@@ -547,3 +547,15 @@
     background-color: #81C408!important;  /* hover 時保持一樣 */
     color: white;
 }
+
+.custom-list-group-item {
+    padding-top: 4px;
+    padding-bottom: 4px;
+    line-height: 1.2;
+}
+
+.custom-list-group-item {
+    padding-top: 4px;
+    padding-bottom: 4px;
+    line-height: 1.2;
+}
