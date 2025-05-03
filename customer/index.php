@@ -1,7 +1,29 @@
 <?php
-    include ('../dbh.php');
+session_start();
+include ('../dbh.php');  
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+$cid = isset($_SESSION["cid"]) ? $_SESSION["cid"] : '';
+if ($cid !== '') {
+    $sql = "SELECT * FROM Customer WHERE cid = $cid";
+    $result = mysqli_query($conn, $sql);
+    $row = mysqli_fetch_array($result);
     
+}
+$cartCount = 0;
+if (isset($_SESSION['cid'], $_SESSION['cartTime'])) {
+    $stmt = $conn->prepare("SELECT SUM(quantity) AS total FROM CartItem WHERE cid = ? AND cartTime = ?");
+    $stmt->bind_param("is", $_SESSION['cid'], $_SESSION['cartTime']);
+    $stmt->execute();
+    $stmt->bind_result($cartCount);
+    $stmt->fetch();
+    $stmt->close();
+}
 ?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -32,7 +54,7 @@
         <link href="../css/bootstrap.min.css" rel="stylesheet">
 
         <!-- Template Stylesheet -->
-        <link href="../css/style.css?v=20250428" rel="stylesheet">
+        <link href="../css/style.css" rel="stylesheet">
 
     </head>
 
@@ -44,7 +66,7 @@
         </div> -->
         <!-- Spinner End -->
 
-
+        
         <!-- Navbar start -->
         <div class="container-fluid fixed-top">
             <div class="container topbar bg-primary d-none d-lg-block">
@@ -62,7 +84,7 @@
             </div>
             <div class="container px-0">
                 <nav class="navbar navbar-light bg-white navbar-expand-xl">
-                    <a href="index.html" class="navbar-brand"><h1 class="text-primary display-6">Junglebite</h1></a>
+                    <a href="index.php?cid=<?php echo $cid; ?>" class="navbar-brand"><h1 class="text-primary display-6">Junglebite</h1></a>
                     <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                         <span class="fa fa-bars text-primary"></span>
                     </button>
@@ -83,19 +105,54 @@
                             <a href="contact.html" class="nav-item nav-link">Contact</a>
                         </div>
                         <div class="d-flex m-3 me-0">
-                            <button class="btn-search btn border border-secondary btn-md-square rounded-circle bg-white me-4" data-bs-toggle="modal" data-bs-target="#searchModal"><i class="fas fa-search text-primary"></i></button>
-                            <a href="#" class="position-relative me-4 my-auto">
+                            <button class="btn-search btn border border-secondary btn-md-square rounded-circle bg-white me-4" data-bs-toggle="modal" data-bs-target="#searchModal">
+                                <i class="fas fa-search text-primary"></i>
+                            </button>
+
+                            <a href="#" class="position-relative me-4 my-auto" data-bs-toggle="modal" data-bs-target="#cartModal">
                                 <i class="fa-solid fa-cart-shopping fa-2x"></i>
-                                <span class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 22px; height: 20px; min-width: 20px;">3</span>
+                                <span class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 22px; height: 20px; min-width: 20px;">
+                                    <?= $cartCount ?? '' ?>
+                                </span>
                             </a>
-                            <a href="#" class="my-auto">
+
+                            <?php if (isset($_SESSION['login_success'])): ?>
+                            <!-- ✅ 已登入的顯示 -->
+                            <div class="dropdown" style="position: relative; display: inline-block;">
+                                <a href="javascript:void(0);" class="my-auto" onclick="toggleDropdown()">
+                                    <img src="  ../login/success.png" alt="Success" style="width: 40px; height: 40px; filter: brightness(0) saturate(100%) invert(42%) sepia(91%) saturate(356%) hue-rotate(71deg) brightness(94%) contrast(92%);">
+                                </a>
+
+                                <div id="myDropdown" class="dropdown-content" style="display: none; position: absolute; background-color: white; min-width: 120px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 1; right: 0; border-radius: 8px;">
+                                    <?php if ($_SESSION['role'] === 'merchant'): ?>
+                                        <a href="/database/merchant/setting.php" class="dropdown-item">商家設定</a>
+                                    <?php elseif ($_SESSION['role'] === 'customer'): ?>
+                                        <a href="/database/customer/setting.php" class="dropdown-item">個人設定</a>
+                                        <a href="/database_project/allergy/allergy.php" class="dropdown-item">過敏設定</a>
+                                    <?php elseif ($_SESSION['role'] === 'delivery_person'): ?>
+                                        <a href="/database/customer/setting.php" class="dropdown-item">外送員設定</a>
+                                    <?php elseif ($_SESSION['role'] === 'platform'): ?>
+                                        <a href="/database/customer/setting.php" class="dropdown-item">平台設定</a>
+                                    <?php endif; ?>
+                                        <a href="/database_project/login/login_customer/logout.php" class="dropdown-item">Logout</a>
+
+                                </div>
+                            </div>
+                            <?php else: ?>
+                            <!-- ❌ 未登入的顯示 -->
+                            <a href="/database_project/login/before_login.php" class="my-auto">
                                 <i class="fas fa-user fa-2x"></i>
                             </a>
+                            <?php endif; ?>
                         </div>
+
                     </div>
                 </nav>
             </div>
         </div>
+
+
+
         <!-- Navbar End -->
 
 
@@ -220,183 +277,144 @@
                 <div class="tab-class text-center">
                     <div class="row g-4">
                         <div class="col-lg-4 text-start">
-                            <h1>商品分類</h1>
+                            <h1>商家類別</h1>
                         </div>
                         <div class="col-lg-8 text-end">
-                            <ul class="nav nav-pills d-inline-flex text-center mb-5">
-                                <!-- 所有商品 tab -->
+                        <ul class="nav nav-pills d-inline-flex text-center mb-5">
+                            <!-- 所有商品 tab -->
+                            <li class="nav-item">
+                                <a class="d-flex m-2 py-2 bg-light rounded-pill active" data-bs-toggle="pill" href="#tab-0">
+                                    <span class="text-dark" style="width: 130px;">所有商品</span>
+                                </a>
+                            </li>
+
+                            <?php
+                            // 從 RestaurantCategoryList 取出所有類別
+                            $sqlCategories = "SELECT categoryId, categoryName FROM RestaurantCategoryList ORDER BY categoryId";
+                            $result = $conn->query($sqlCategories);
+                            $first = true;
+
+                            while ($row = $result->fetch_assoc()) {
+                                $tabId = "tab-" . $row["categoryId"];
+                                $name = $row["categoryName"];
+                                $activeClass = $first ? "" : ""; // 第一個分類不再設 active
+                                echo '
                                 <li class="nav-item">
-                                    <a class="d-flex m-2 py-2 bg-light rounded-pill active" data-bs-toggle="pill" href="#tab-0">
-                                        <span class="text-dark" style="width: 130px;">所有商品</span>
+                                    <a class="d-flex m-2 py-2 bg-light rounded-pill ' . $activeClass . '" data-bs-toggle="pill" href="#' . $tabId . '">
+                                        <span class="text-dark" style="width: 130px;">' . htmlspecialchars($name) . '</span>
                                     </a>
-                                </li>
-
-                                <?php
-                                // 查詢所有分類
-                                $sqlc = "SELECT restaurantCategories, CategoryName 
-                                        FROM RestaurantCategories 
-                                        GROUP BY restaurantCategories 
-                                        ORDER BY restaurantCategories";
-
-                                $result = $conn->query($sqlc);
-
-                                // 檢查 SQL 查詢是否成功
-                                if (!$result) {
-                                    echo "SQL 錯誤：" . $conn->error;
-                                }
-
-                                // 初始化 $first 來設置 active 類別
-                                $first = false; // 設置所有分類的第一個為非active
-
-                                // 如果有資料，繼續處理
-                                if ($result->num_rows > 0) {
-                                    while ($row = $result->fetch_assoc()) {
-                                        $tabId = "tab-" . $row["restaurantCategories"];
-                                        $name = $row["CategoryName"];
-                                        $activeClass = $first ? "active" : "";  // 設置第一個分類為 active
-                                        
-                                        // 輸出分類的 <li>
-                                        echo '
-                                        <li class="nav-item">
-                                            <a class="d-flex m-2 py-2 bg-light rounded-pill ' . $activeClass . '" data-bs-toggle="pill" href="#' . $tabId . '">
-                                                <span class="text-dark" style="width: 130px;">' . $name . '</span>
-                                            </a>
-                                        </li>';
-                                        
-                                        // 第一個分類處理完後設為 false
-                                        $first = false;
-                                    }
-                                } else {
-                                    echo '<li class="nav-item">尚無分類資料</li>';
-                                }
-                                ?>
-                            </ul>
-                        </div>
+                                </li>';
+                                $first = false;
+                            }
+                            ?>
+                        </ul>
+                    </div>
                     </div>
 
-                    
-                
-                        
                     <div class="tab-content">
+                        <!-- 所有商品 -->
                         <div id="tab-0" class="tab-pane fade show p-0 active">
                             <div class="row g-4">
                                 <div class="col-lg-12">
                                     <div class="row g-4">
-                                    <?php
-                                    $sqlAll = "
-                                    SELECT 
-                                        m.*, 
-                                        GROUP_CONCAT(rc.CategoryName SEPARATOR ', ') AS categoryNames
-                                    FROM Merchant m
-                                    LEFT JOIN RestaurantCategories rc ON m.mid = rc.mid
-                                    GROUP BY m.mid
-                                    ORDER BY RAND()
-                                    ";
-                                    $resultAll = $conn->query($sqlAll);
-                                    
-                                    if ($resultAll && $resultAll->num_rows > 0) {
-                                        while ($row = $resultAll->fetch_assoc()) {
-                                            echo '
-                                            <div class="col-md-6 col-lg-4 col-xl-3">
-                                                
+                                        <?php
+                                        $sqlAll = "
+                                            SELECT m.*, 
+                                                GROUP_CONCAT(rcl.categoryName SEPARATOR ', ') AS categoryNames
+                                            FROM Merchant m
+                                            LEFT JOIN RestaurantCategories rc ON m.mid = rc.mid
+                                            LEFT JOIN RestaurantCategoryList rcl ON rc.categoryId = rcl.categoryId
+                                            GROUP BY m.mid
+                                            ORDER BY RAND()
+                                        ";
+                                        $resultAll = $conn->query($sqlAll);
 
-                                                 <div class="rounded position-relative fruite-item"
-                                                      style="cursor: pointer;" 
-                                                      onclick="location.href=\'merchant.php?mid=' . urlencode($row["mid"]) . '\'">
-                                                
-                                                    <div class="fruite-img">
-                                                        <img src="../' . $row["mPicture"] . '" class="img-fluid w-100 rounded-top" alt="">
-                                                    </div>
-                                                    <div class="text-white bg-secondary px-3 py-1 rounded position-absolute" style="top: 10px; left: 10px;">' . htmlspecialchars($row["categoryNames"] ?? '未分類') . '</div>
-                                                    <div class="p-4 border border-secondary border-top-0 rounded-bottom">
-                                                        <h4>' . htmlspecialchars($row["mName"]) . '</h4>
-                                                        <p>' . htmlspecialchars($row["mAddress"]) . '</p>
-                                                        <div class="d-flex justify-content-between flex-lg-wrap">
-                                                            <p class="text-dark fs-5 fw-bold mb-0">❤ ' . $row["favoritesCount"] . '</p>
+                                        if ($resultAll && $resultAll->num_rows > 0) {
+                                            while ($row = $resultAll->fetch_assoc()) {
+                                                echo '
+                                                <div class="col-md-6 col-lg-4 col-xl-3">
+                                                    <div class="rounded position-relative fruite-item" style="cursor: pointer;" onclick="location.href=\'merchant.php?mid=' . urlencode($row["mid"]) . '\'">
+                                                        <div class="fruite-img">
+                                                            <img src="../' . $row["mPicture"] . '" class="img-fluid w-100 rounded-top" alt="">
+                                                        </div>
+                                                        <div class="text-white bg-secondary px-3 py-1 rounded position-absolute" style="top: 10px; left: 10px;">' . htmlspecialchars($row["categoryNames"] ?? '未分類') . '</div>
+                                                        <div class="p-4 border border-secondary border-top-0 rounded-bottom">
+                                                            <h4>' . htmlspecialchars($row["mName"]) . '</h4>
+                                                            <p>' . htmlspecialchars($row["mAddress"]) . '</p>
+                                                            <div class="d-flex justify-content-between flex-lg-wrap">
+                                                                <p class="text-dark fs-5 fw-bold mb-0">❤ ' . $row["favoritesCount"] . '</p>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                                
-                                            </div>';
+                                                </div>';
+                                            }
+                                        } else {
+                                            echo "<p class='text-center'>尚無商家資料</p>";
                                         }
-                                    } else {
-                                        echo "<p class='text-center'>尚無商家資料</p>";
-                                    }
-                                
-                                    ?>  
+                                        ?>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <!-- 每個分類對應的 tab-pane -->
-                        <?php
-                        $sqlCategories = "SELECT restaurantCategories, CategoryName 
-                                        FROM RestaurantCategories 
-                                        GROUP BY restaurantCategories, CategoryName 
-                                        ORDER BY restaurantCategories";
 
+                        <!-- 各分類商品 -->
+                        <?php
+                        $sqlCategories = "SELECT categoryId, categoryName FROM RestaurantCategoryList ORDER BY categoryId";
                         $resultCategories = $conn->query($sqlCategories);
 
-                        if ($resultCategories && $resultCategories->num_rows > 0) {
-                            while ($catRow = $resultCategories->fetch_assoc()) {
-                                $catId = $catRow["restaurantCategories"];
-                                $catName = $catRow["CategoryName"];
-                                $tabId = "tab-" . $catId;
+                        while ($catRow = $resultCategories->fetch_assoc()) {
+                            $catId = $catRow["categoryId"];
+                            $catName = $catRow["categoryName"];
+                            $tabId = "tab-" . $catId;
 
-                                echo '
-                                <div id="' . $tabId . '" class="tab-pane fade show p-0">
-                                    <div class="row g-4">
-                                        <div class="col-lg-12">
-                                            <div class="row g-4">
-                                ';
+                            echo '
+                            <div id="' . $tabId . '" class="tab-pane fade show p-0">
+                                <div class="row g-4">
+                                    <div class="col-lg-12">
+                                        <div class="row g-4">
+                            ';
 
-                                // 抓該分類的商家
-                                $sqlMerchants = "
-                                    SELECT m.* FROM Merchant m
-                                    JOIN RestaurantCategories rc ON m.mid = rc.mid
-                                    WHERE rc.restaurantCategories = ?
-                                ";
-                                $stmt = $conn->prepare($sqlMerchants);
-                                $stmt->bind_param("s", $catId);
-                                $stmt->execute();
-                                $resMerchants = $stmt->get_result();
+                            $sqlMerchants = "
+                                SELECT m.* FROM Merchant m
+                                JOIN RestaurantCategories rc ON m.mid = rc.mid
+                                WHERE rc.categoryId = ?
+                            ";
+                            $stmt = $conn->prepare($sqlMerchants);
+                            $stmt->bind_param("i", $catId);
+                            $stmt->execute();
+                            $resMerchants = $stmt->get_result();
 
-                                if ($resMerchants->num_rows > 0) {
-                                    while ($m = $resMerchants->fetch_assoc()) {
-                                        echo '
-                                        <div class="col-md-6 col-lg-4 col-xl-3">
-                                            <div class="rounded position-relative fruite-item">
-                                                <div class="fruite-img">
-                                                    <img src="../' . $m["mPicture"] . '" class="img-fluid rounded-top" alt="">
-                                                </div>
-                                                <div class="text-white bg-secondary px-3 py-1 rounded position-absolute" style="top: 10px; left: 10px;">' . htmlspecialchars($catName) . '</div>
-                                                <div class="p-4 border border-secondary border-top-0 rounded-bottom">
-                                                    <h4>' . htmlspecialchars($m["mName"]) . '</h4>
-                                                    <p>' . htmlspecialchars($m["mAddress"]) . '</p>
-                                                    <div class="d-flex justify-content-between flex-lg-wrap">
-                                                        <p class="text-dark fs-5 fw-bold mb-0">❤ ' . $m["favoritesCount"] . '</p>
-                                                        <a href="#" class="btn border border-secondary rounded-pill px-3 text-primary">
-                                                            <i class="fa fa-shopping-bag me-2 text-primary"></i> 查看
-                                                        </a>
-                                                    </div>
+                            if ($resMerchants->num_rows > 0) {
+                                while ($m = $resMerchants->fetch_assoc()) {
+                                    echo '
+                                    <div class="col-md-6 col-lg-4 col-xl-3">
+                                        <div class="rounded position-relative fruite-item" style="cursor: pointer;" onclick="location.href=\'merchant.php?mid=' . urlencode($m["mid"]) . '\'">
+                                            <div class="fruite-img">
+                                                <img src="../' . $m["mPicture"] . '" class="img-fluid rounded-top" alt="">
+                                            </div>
+                                            <div class="text-white bg-secondary px-3 py-1 rounded position-absolute" style="top: 10px; left: 10px;">' . htmlspecialchars($catName) . '</div>
+                                            <div class="p-4 border border-secondary border-top-0 rounded-bottom">
+                                                <h4>' . htmlspecialchars($m["mName"]) . '</h4>
+                                                <p>' . htmlspecialchars($m["mAddress"]) . '</p>
+                                                <div class="d-flex justify-content-between flex-lg-wrap">
+                                                    <p class="text-dark fs-5 fw-bold mb-0">❤ ' . $m["favoritesCount"] . '</p>
                                                 </div>
                                             </div>
                                         </div>
-                                        ';
-                                    }
-                                } else {
-                                    echo "<p class='text-center'>該分類暫無商家</p>";
+                                    </div>';
                                 }
+                            } else {
+                                echo "<p class='text-center'>該分類暫無商家</p>";
+                            }
 
-                                echo '
-                                            </div>
+                            echo '
                                         </div>
                                     </div>
-                                </div>';
-                            }
+                                </div>
+                            </div>';
                         }
                         ?>
-                    </div>   
+                    </div>  
                 </div> 
             </div> 
         </div>               
@@ -1033,6 +1051,19 @@
 
     <!-- Template Javascript -->
     <script src="../js/main.js"></script>
+    <script>
+        function toggleDropdown() {
+            var dropdown = document.getElementById("myDropdown");
+            dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+        }
+        window.onclick = function(event) {
+            var dropdown = document.getElementById("myDropdown");
+            if (!event.target.closest('.dropdown') && dropdown && dropdown.style.display === "block") {
+                dropdown.style.display = "none";
+            }
+        }
+    </script>
+
     </body>
 
 </html>

@@ -1,6 +1,41 @@
 <?php
-    include ('../dbh.php');
-    
+include ('../dbh.php');
+session_start(); // 必須是第一行，前面不能有空白或 HTML！
+$mid = isset($_SESSION["mid"]) ? $_SESSION["mid"] : '';
+if ($mid !== '') {
+    $sql = "SELECT * FROM Merchant WHERE mid = $mid";
+    $result = mysqli_query($conn, $sql);
+    $row = mysqli_fetch_array($result);
+}
+
+// 商家名稱
+$merchant_name = $row['mName'] ?? '';
+
+// 將 JSON 格式的營業時間轉為陣列格式
+$store_hours = [];
+
+if (!empty($row['businessHours'])) {
+    $hoursArray = json_decode($row['businessHours'], true);
+
+    foreach ($hoursArray as $day => $value) {
+        if ($value === '休息') {
+            $store_hours[$day] = '休息';
+        } else {
+            $store_hours[$day] = $value; // e.g. "08:00 - 17:00"
+        }
+    }
+} else {
+    // 沒有設定時的預設值
+    $store_hours = [
+        '星期一' => '休息',
+        '星期二' => '休息',
+        '星期三' => '休息',
+        '星期四' => '休息',
+        '星期五' => '休息',
+        '星期六' => '休息',
+        '星期日' => '休息'
+    ];
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -42,15 +77,7 @@
         </div> -->
         <!-- Spinner End -->
 
-        <?php
-        if(isset($_GET["mid"])){
-            $mid = $_GET["mid"];
-            $sql = "SELECT * FROM Merchant WHERE mid = $mid";
-            $result = mysqli_query($conn, $sql);
-            $row = mysqli_fetch_array($result);
-        }
-        
-        ?>
+
         <!-- Navbar start -->
         <div class="container-fluid fixed-top">
             <div class="container topbar bg-primary d-none d-lg-block">
@@ -68,7 +95,7 @@
             </div>
             <div class="container px-0">
                 <nav class="navbar navbar-light bg-white navbar-expand-xl">
-                    <a href="index.html" class="navbar-brand"><h1 class="text-primary display-6">Junglebite商家</h1></a>
+                    <a href="merchant_shop.php?mid=<?php echo $mid; ?>" class="navbar-brand"><h1 class="text-primary display-6">Junglebite商家</h1></a>
                     <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                         <span class="fa fa-bars text-primary"></span>
                     </button>
@@ -95,10 +122,37 @@
                                 <i class="fa fa-shopping-bag fa-2x"></i>
                                 <span class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 15px; height: 20px; min-width: 20px;">3</span>
                             </a> -->
-                            <a href="#" class="my-auto">
+                            <?php if (isset($_SESSION['login_success'])): ?>
+                            <!-- ✅ 已登入的顯示 -->
+                            <div class="dropdown" style="position: relative; display: inline-block;">
+                                <a href="javascript:void(0);" class="my-auto" onclick="toggleDropdown()">
+                                    <img src="  ../login/success.png" alt="Success" style="width: 40px; height: 40px; filter: brightness(0) saturate(100%) invert(42%) sepia(91%) saturate(356%) hue-rotate(71deg) brightness(94%) contrast(92%);">
+                                </a>
+
+                                <div id="myDropdown" class="dropdown-content" style="display: none; position: absolute; background-color: white; min-width: 120px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 1; right: 0; border-radius: 8px;">
+                                    <?php if ($_SESSION['role'] === 'merchant'): ?>
+                                        <a href="/database/merchant/setting.php" class="dropdown-item">商家設定</a>
+                                    <?php elseif ($_SESSION['role'] === 'customer'): ?>
+                                        <a href="/database/customer/setting.php" class="dropdown-item">個人設定</a>
+                                        <a href="/database_project/allergy/allergy.php" class="dropdown-item">過敏設定</a>
+                                    <?php elseif ($_SESSION['role'] === 'delivery_person'): ?>
+                                        <a href="/database/customer/setting.php" class="dropdown-item">外送員設定</a>
+                                    <?php elseif ($_SESSION['role'] === 'platform'): ?>
+                                        <a href="/database/customer/setting.php" class="dropdown-item">平台設定</a>
+                                    <?php endif; ?>
+                                        <a href="/database_project/login/login_customer/logout.php" class="dropdown-item">Logout</a>
+
+                                </div>
+                            </div>
+                            <?php else: ?>
+                            <!-- ❌ 未登入的顯示 -->
+                            <a href="/database_project/login/before_login.php" class="my-auto">
                                 <i class="fas fa-user fa-2x"></i>
                             </a>
+                            <?php endif; ?>
+                            
                         </div>
+                        
                     </div>
                 </nav>
             </div>
@@ -119,14 +173,60 @@
                             <form action="../process.php" method="post" enctype="multipart/form-data">
                                 <input  type="hidden" name="mid" value="<?= $row['mid'] ?>">
 
+                                <?php
+                                // 抓目前這間餐廳的類別ID（可能多筆）
+                                $currentCategories = [];
+                                $sqlCurrent = "SELECT categoryId FROM RestaurantCategories WHERE mid = $mid";
+                                $resultCurrent = mysqli_query($conn, $sqlCurrent);
+                                while ($rowCurrent = mysqli_fetch_assoc($resultCurrent)) {
+                                    $currentCategories[] = $rowCurrent['categoryId'];
+                                }
+
+                                // 顯示所有選項
+                                $sqlCategories = "SELECT categoryId, categoryName FROM RestaurantCategoryList"; // 這裡改成從 RestaurantCategoryList 顯示
+                                $resultCategories = mysqli_query($conn, $sqlCategories);
+                                ?>
+
+                                <div class="form-group py-3">
+                                    <div class="text-center mb-2">
+                                        <label class="form-label" style="font-size: 1.2rem;">選擇類別</label>
+                                        <span style="color: red;">*</span>
+                                    </div>
+
+                                    <div style="display:flex; justify-content: center;">
+                                    <?php
+                                        // 抓所有可用的類別
+                                        while ($category = mysqli_fetch_assoc($resultCategories)):
+                                            $categoryId = $category['categoryId'];
+                                            $categoryName = $category['categoryName'];
+                                            $checked = in_array($categoryId, $currentCategories) ? "checked" : "";
+                                    ?>
+                                        <div class="col-md-2 form-check" style=" display:flex; flex-wrap: wrap; gap:0.3rem; justify-content: center;">
+                                            <input class="form-check-input"  type="checkbox" name="restaurantCategories[]" value="<?= $categoryId ?>" id="cat_<?= $categoryId ?>" <?= $checked ?>>
+                                            <label class="form-check-label" for="cat_<?= $categoryId ?>"><?= $categoryName ?></label>
+                                        </div>
+                                    <?php endwhile; ?>
+                                    </div>
+                                </div>
+
+
+
                                 <div class="py-3">
-                                    <h3>店面名稱</h3>
-                                    <input style="font-size: 1.5rem; font-weight: bold;" type="text" class="form-control" name="mName" value="<?= $row['mName'] ?>" placeholder="輸入店面名稱">
+                                    <div style="display:flex; justify-content: center;">
+                                        <h3>商店名稱</h3>
+                                        <h3 style="color:red; margin:0;">*</h3>
+                                    </div>
+                                    
+                                    <input required style="font-size: 1.5rem; font-weight: bold;" type="text" class="form-control" name="mName" value="<?= $row['mName'] ?>" placeholder="輸入店面名稱">
                                 </div>
 
                                 <div class="py-3">
-                                    <h3>住址</h3>
-                                    <input style="font-size: 1.5em; font-weight: bold;" type="text" class="form-control" name="mAddress" value="<?= $row['mAddress'] ?>" placeholder="輸入店面地址">
+                                    <div style="display:flex; justify-content: center;">
+                                        <h3>住址</h3>
+                                        <h3 style="color:red; margin:0;">*</h3>
+                                    </div>
+                                    
+                                    <input required style="font-size: 1.5em; font-weight: bold;" type="text" class="form-control" name="mAddress" value="<?= $row['mAddress'] ?>" placeholder="輸入店面地址">
                                 </div>
 
                                 <div class="py-3">
@@ -144,31 +244,85 @@
                                     <h3>上傳新照片</h3>
                                     <input style="font-size: 1.5em; font-weight: bold;" type="file" class="form-control" name="ImageUpload">
                                 </div>
+              
 
-                                <div class="py-3">
-                                    <h3>營業時間</h3>
-                                    <input style="font-size: 1.5em; font-weight: bold;" type="text" class="form-control" name="businessHours" value="<?= $row['businessHours'] ?>" placeholder="輸入營業時間">
+                               
+                                <div class="container mt-5">
+                                    <h3>目前營業時間：</h3>
+                                    <ul class="list-group mb-3">
+                                        <?php foreach ($store_hours as $day => $hours): ?>
+                                            <li class="list-group-item d-flex justify-content-between custom-list-group-item">
+                                            <strong><?php echo $day; ?></strong>
+                                                <span><?php echo $hours; ?></span>
+                                            </li>
+                                        <?php endforeach; ?>
+                                    </ul>
+
+                                    <!-- 關鍵：按鈕 type 設為 button，避免觸發 form 提交 -->
+                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editHoursModal">
+                                        編輯營業時間
+                                    </button>
+                                </div>
+                                <!-- Modal 彈出視窗：注意這是在 <form> 外部！ -->
+                                <div class="modal fade" id="editHoursModal" tabindex="-1" aria-labelledby="editHoursModalLabel" aria-hidden="true" >
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+
+                                            <!-- Modal 的內部也可以包一個小表單，但建議直接用原本大表單來處理，所以不需要 <form> -->
+                                            <div class="modal-body">
+                                                <?php foreach ($store_hours as $day => $hours): 
+                                                    if ($hours === '休息') {
+                                                        $open = '';
+                                                        $close = '';
+                                                        $closed = true;
+                                                    } else {
+                                                        list($open, $close) = array_map('trim', explode('-', $hours));
+                                                        $closed = false;
+                                                    }
+                                                ?>
+                                                <div class="mb-3">
+                                                    <label class="form-label"><?php echo $day; ?></label>
+                                                    <div class="d-flex gap-2">
+                                                        <input type="time" class="form-control" name="hours[<?php echo $day; ?>][open]" value="<?php echo $open; ?>" <?php echo $closed ? 'disabled' : ''; ?>>
+                                                        <span class="align-self-center">至</span>
+                                                        <input type="time" class="form-control" name="hours[<?php echo $day; ?>][close]" value="<?php echo $close; ?>" <?php echo $closed ? 'disabled' : ''; ?>>
+                                                        <div class="form-check ms-2">
+                                                            <input class="form-check-input" type="checkbox" id="closed_<?php echo $day; ?>" name="hours[<?php echo $day; ?>][closed]" value="1" <?php echo $closed ? 'checked' : ''; ?> onchange="toggleDay('<?php echo $day; ?>')">
+                                                            <label class="form-check-label" for="closed_<?php echo $day; ?>">休息</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <?php endforeach; ?>
+                                            </div>
+
+                                            <div class="modal-footer">
+                                                <!-- 關鍵：這裡不要用 submit，Modal 關閉即可 -->
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                                                <button type="button" class="btn btn-primary" onclick="saveBusinessHours()" data-bs-dismiss="modal">儲存</button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
-                                
+                                <input type="hidden" name="hoursJson" id="hoursJson">
                                 <div class="form-element button_container">
                                     <input style=" font-weight: bold; font-size: 1.5em;" type="submit" class="btn btn-primary" name="updateMerchant" id="saveButton" value="儲存" disabled>
                                 </div>
 
                             </form>
                         </div>
+                        
 
                         
+
+                        
+
                     </div>
                 </div>
             </div>
         </div>
     
         
-
-        
-
-
 
         <!-- Back to Top -->
         <a href="#" class="btn btn-primary border-3 border-primary rounded-circle back-to-top"><i class="fa fa-arrow-up"></i></a>   
@@ -181,45 +335,183 @@
     <script src="../lib/waypoints/waypoints.min.js"></script>
     <script src="../lib/lightbox/js/lightbox.min.js"></script>
     <script src="../lib/owlcarousel/owl.carousel.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
 
     <!-- Template Javascript -->
     <script src="../js/main.js"></script>
     <script>
-        window.onload = function() {
-            // 取得原始的資料
-            var originalName = "<?php echo $row['mName']; ?>";
-            var originalAddress = "<?php echo $row['mAddress']; ?>";
-            var originalBusinessHours = "<?php echo $row['businessHours']; ?>";
-            var originalPicture = "<?php echo $row['mPicture']; ?>";  // 原始圖片路徑
+    window.onload = function() {
+        var originalName = "<?php echo $row['mName']; ?>";
+        var originalAddress = "<?php echo $row['mAddress']; ?>";
+        var originalBusinessHours = "<?php echo $row['businessHours']; ?>";
+        var originalPicture = "<?php echo $row['mPicture']; ?>";
+        var originalCategories = <?php echo json_encode($currentCategories); ?>;
 
-            // 取得元素
-            var saveButton = document.getElementById("saveButton");
-            var mNameInput = document.querySelector("[name='mName']");
-            var mAddressInput = document.querySelector("[name='mAddress']");
-            var businessHoursInput = document.querySelector("[name='businessHours']");
-            var imageInput = document.querySelector("[name='ImageUpload']"); // 圖片欄位
+        var saveButton = document.getElementById("saveButton");
+        var mNameInput = document.querySelector("[name='mName']");
+        var mAddressInput = document.querySelector("[name='mAddress']");
+        var businessHoursInput = document.querySelector("[name='businessHours']");
+        var imageInput = document.querySelector("[name='ImageUpload']");
+        var categoryCheckboxes = document.querySelectorAll("input[name='restaurantCategories[]']");
+        var businessHourInputs = document.querySelectorAll("input[name^='hours']");
 
-            // 比對輸入框是否有更動
-            function checkIfChanged() {
-                var nameChanged = mNameInput.value !== originalName;
-                var addressChanged = mAddressInput.value !== originalAddress;
-                var businessHoursChanged = businessHoursInput.value !== originalBusinessHours;
-                var imageChanged = imageInput.files.length > 0; // 如果有選擇新圖片，視為圖片有改變
+        function checkIfChanged() {
+            var nameChanged = mNameInput.value !== originalName;
+            var addressChanged = mAddressInput.value !== originalAddress;
+            var imageChanged = imageInput.files.length > 0;
 
-                // 如果有任何欄位更動，啟用 "Save" 按鈕；否則禁用
-                if (nameChanged || addressChanged || businessHoursChanged || imageChanged) {
-                    saveButton.disabled = false;
+            // 類別變更偵測
+            var currentSelected = [];
+            categoryCheckboxes.forEach(function(checkbox) {
+                if (checkbox.checked) currentSelected.push(checkbox.value);
+            });
+
+            var categoriesChanged = originalCategories.length !== currentSelected.length ||
+                originalCategories.some(cat => !currentSelected.includes(cat));
+
+            // 檢查營業時間是否變更（比對目前值是否與原值不同）
+            let hoursChanged = false;
+            businessHourInputs.forEach(function(input) {
+                if (input.type === "checkbox") {
+                    if (input.checked !== input.defaultChecked) {
+                        hoursChanged = true;
+                    }
                 } else {
-                    saveButton.disabled = true;
+                    if (input.value !== input.defaultValue) {
+                        hoursChanged = true;
+                    }
                 }
-            }
+            });
 
-            // 監聽輸入框的變動
-            mNameInput.addEventListener("input", checkIfChanged);
-            mAddressInput.addEventListener("input", checkIfChanged);
-            businessHoursInput.addEventListener("input", checkIfChanged);
-            imageInput.addEventListener("change", checkIfChanged);  // 監聽圖片選擇的變動
+            if (nameChanged || addressChanged || imageChanged || categoriesChanged || hoursChanged) {
+                saveButton.disabled = false;
+            } else {
+                saveButton.disabled = true;
+            }
         }
+
+        // 原欄位監聽
+        mNameInput.addEventListener("input", checkIfChanged);
+        mAddressInput.addEventListener("input", checkIfChanged);
+        imageInput.addEventListener("change", checkIfChanged);
+        categoryCheckboxes.forEach(cb => cb.addEventListener("change", checkIfChanged));
+
+        // 新增：監聽營業時間欄位變更
+        businessHourInputs.forEach(input => {
+            input.addEventListener("input", checkIfChanged);
+            input.addEventListener("change", checkIfChanged);
+        });
+    };
+    </script>
+
+    <!-- <script>
+        const checkboxes = document.querySelectorAll('input[name="restaurantCategories[]"]');
+        const saveButton = document.getElementById("saveButton");
+
+        function validateForm() {
+            let isAnyChecked = Array.from(checkboxes).some(checkbox => checkbox.checked);
+            let requiredInputsFilled = Array.from(document.querySelectorAll("input[required]")).every(input => input.value.trim() !== "");
+
+            saveButton.disabled = !(isAnyChecked && requiredInputsFilled);
+        }
+
+        checkboxes.forEach(checkbox => checkbox.addEventListener("change", validateForm));
+        document.querySelectorAll("input[required]").forEach(input => input.addEventListener("input", validateForm));
+
+        // 初始檢查
+        validateForm();
+    </script> -->
+
+    <script>
+        const checkboxes = document.querySelectorAll('input[name="restaurantCategories[]"]');
+        const saveButton = document.getElementById("saveButton");
+
+        function validateForm() {
+            let isAnyChecked = Array.from(checkboxes).some(checkbox => checkbox.checked);
+            let requiredInputsFilled = Array.from(document.querySelectorAll("input[required]")).every(input => input.value.trim() !== "");
+
+            if (saveButton) {
+                saveButton.disabled = !(isAnyChecked && requiredInputsFilled);
+            }
+        }
+
+        if (checkboxes.length > 0) {
+            checkboxes.forEach(checkbox => checkbox.addEventListener("change", validateForm));
+        }
+
+        document.querySelectorAll("input[required]").forEach(input => {
+            input.addEventListener("input", validateForm);
+        });
+
+        // 初始檢查
+        validateForm();
+    </script>
+
+
+    <script>
+        function toggleDropdown() {
+            var dropdown = document.getElementById("myDropdown");
+            dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+        }
+        window.onclick = function(event) {
+            var dropdown = document.getElementById("myDropdown");
+            if (!event.target.closest('.dropdown') && dropdown && dropdown.style.display === "block") {
+                dropdown.style.display = "none";
+            }
+        }
+    </script>
+
+    <script>
+        function toggleDay(day) {
+            const isClosed = document.getElementById('closed_' + day).checked;
+            const openInput = document.querySelector(`input[name="hours[${day}][open]"]`);
+            const closeInput = document.querySelector(`input[name="hours[${day}][close]"]`);
+            openInput.disabled = isClosed;
+            closeInput.disabled = isClosed;
+        }
+
+        // 按下 Modal 儲存時，自動啟用表單送出按鈕
+        document.querySelector('#editHoursModal .btn-primary').addEventListener('click', function () {
+            document.getElementById('saveButton').disabled = false;
+        });
+    </script>
+
+    <script>
+    function saveBusinessHours() {
+        const days = ["星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"];
+        const hoursData = {};
+
+        days.forEach(day => {
+            const isClosed = document.getElementById(`closed_${day}`).checked;
+            if (isClosed) {
+                hoursData[day] = "休息";
+            } else {
+                const open = document.querySelector(`input[name="hours[${day}][open]"]`).value;
+                const close = document.querySelector(`input[name="hours[${day}][close]"]`).value;
+                hoursData[day] = `${open} - ${close}`;
+            }
+        });
+
+        // 更新顯示表格
+        const listGroup = document.querySelector(".list-group");
+        listGroup.innerHTML = ""; // 清空舊內容
+        for (const [day, hours] of Object.entries(hoursData)) {
+            listGroup.innerHTML += `
+                <li class="list-group-item d-flex justify-content-between">
+                    <strong>${day}</strong>
+                    <span>${hours}</span>
+                </li>
+            `;
+        }
+
+        // 更新隱藏欄位（表單會帶過去）
+        document.getElementById("hoursJson").value = JSON.stringify(hoursData);
+
+        // 啟用儲存按鈕
+        document.getElementById("saveButton").disabled = false;
+    }
     </script>
 
 

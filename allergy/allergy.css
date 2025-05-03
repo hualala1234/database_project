@@ -1,0 +1,92 @@
+.header_allergy {
+  position: fixed; /* 固定在螢幕上 */
+  top: 0;           /* 頂到最上面 */
+  left: 0;          /* 貼左邊 */
+  width: 100%;      /* 寬度拉滿 */
+  background-color: #a5d6a7 !important;
+  padding: 20px;
+  text-align: center;
+  z-index: 1000;    /* 疊在最上層，避免被其他東西蓋掉 */
+}
+
+
+.home-icon {
+  width: 40px; /* 調整icon大小 */
+  height: 40px;
+  transition: filter 0.3s; /* 做變色動畫 */
+}
+
+.header_allergy p {
+  font-family: "Winky Rough", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  font-size: 50px;
+}
+
+.header_allergy a {
+  position: absolute;
+  right: 20px; /* 距離右邊 20px */
+  top: 50%;
+  transform: translateY(-50%); /* 垂直置中 */
+}
+
+.header_allergy a:hover .home-icon {
+  filter: invert(1);
+}
+
+
+
+.allergen-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 兩欄排版 */
+  gap: 30px;
+  max-width: 600px;
+  margin: auto;
+  padding: 20px;
+}
+
+.allergen-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.allergen-item img {
+  height: 200px;
+  width: 200px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+}
+
+form {
+  max-width: 700px;
+  margin: auto;
+}
+
+legend{
+  text-align: center;
+}
+
+.allergy_btn {
+  padding: 12px 30px;
+  background-color: #4CAF50; /* 綠色主色 */
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  margin-top: 20px;
+}
+
+.allergy_btn:hover {
+  background-color: #45a049;
+  transform: scale(1.05);
+}

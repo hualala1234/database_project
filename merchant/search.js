@@ -1,19 +1,70 @@
+// 全域宣告：用來儲存手動收起的分類 ID
+var manuallyCollapsed = [];
+
 $(document).ready(function () {
+
+    // 初始化箭頭狀態
+    $(".category-toggle").each(function () {
+        var categoryId = $(this).attr("href").replace("#", "");
+        var collapseEl = $("#" + categoryId);
+        var arrow = $(this).find(".arrow");
+
+        if (collapseEl.hasClass("show")) {
+            arrow.text("▲");
+        } else {
+            arrow.text("▼");
+            manuallyCollapsed.push(categoryId); // 預設不是展開的就視為收起
+        }
+    });
+
+    // 點擊分類按鈕時：切換收起狀態 + 更新箭頭 + 更新 manuallyCollapsed 陣列
+    $(".category-toggle").on("click", function () {
+        var categoryId = $(this).attr("href").replace("#", "");
+        var collapseEl = $("#" + categoryId);
+        var arrow = $(this).find(".arrow");
+
+        // 延遲判斷展開狀態，讓 Bootstrap 完成動畫
+        setTimeout(function () {
+            if (collapseEl.hasClass("show")) {
+                arrow.text("▲");
+                // 若為展開，從 manuallyCollapsed 移除
+                var index = manuallyCollapsed.indexOf(categoryId);
+                if (index > -1) manuallyCollapsed.splice(index, 1);
+            } else {
+                arrow.text("▼");
+                if (!manuallyCollapsed.includes(categoryId)) {
+                    manuallyCollapsed.push(categoryId);
+                }
+            }
+        }, 350); // 需與 Bootstrap 動畫時間一致
+    });
+
+    // 封裝：根據 manuallyCollapsed 陣列應用展開/收起狀態
+    function applyManualCollapseState() {
+        $(".collapse").each(function () {
+            var categoryId = $(this).attr("id");
+            if (manuallyCollapsed.includes(categoryId)) {
+                $(this).collapse('hide');
+                $(`.category-toggle[href="#${categoryId}"] .arrow`).text("▼");
+            } else {
+                $(this).collapse('show');
+                $(`.category-toggle[href="#${categoryId}"] .arrow`).text("▲");
+            }
+        });
+    }
+
+    // 搜尋功能邏輯
     $("#myInput").on("keyup", function () {
         var value = $(this).val().toLowerCase();
         var hasVisible = false;
 
-        // 恢復乾淨文字
+        // 還原所有分類與商品的原始內容
         $(".product-title h4:first-child, .category-toggle").each(function () {
             var $this = $(this);
-            var arrowSpan = $this.find("span").prop('outerHTML') || '';
-            var originalText = $this.data("original-text");
-
-            if (!originalText) {
-                originalText = $this.text().replace("▲", "").trim();
-                $this.data("original-text", originalText);
+            if (!$this.data("original-html")) {
+                $this.data("original-html", $this.html());
             }
-            $this.html(arrowSpan + ' ' + originalText);
+            $this.html($this.data("original-html"));
         });
 
         if (value === "") {
@@ -21,6 +72,7 @@ $(document).ready(function () {
             $(".category-toggle").closest(".gap-1").show();
             $(".collapse").show();
             $(".no-data-row").remove();
+            applyManualCollapseState(); // 使用者清空搜尋時還原手動狀態
             return;
         }
 
@@ -28,76 +80,64 @@ $(document).ready(function () {
             var categoryButton = $(this);
             var categoryId = categoryButton.attr("href");
             var productList = $(categoryId).find(".product-title");
-
-            var arrowSpan = categoryButton.find("span").prop('outerHTML') || '';
-            var categoryText = categoryButton.data("original-text");
+            var originalHtml = categoryButton.data("original-html");
+            var originalText = $("<div>").html(originalHtml).text().replace("▲", "").replace("▼", "").trim();
+            var regex = new RegExp(value, "ig");
             var matchedCategory = false;
             var hasProductVisible = false;
 
-            if (categoryText.toLowerCase().indexOf(value) > -1) {
-                // 分類名稱有符合
-                var regex = new RegExp(value, "ig");
-                var highlightedCategory = categoryText.replace(regex, function (match) {
+            if (originalText.toLowerCase().includes(value)) {
+                var highlightedCategory = originalText.replace(regex, function (match) {
                     return `<mark style="background-color: #FFB524; padding:0;">${match}</mark>`;
                 });
-                categoryButton.html(arrowSpan + ' ' + highlightedCategory);
 
+                categoryButton.html('<span class="arrow">▲</span> ' + highlightedCategory);
                 categoryButton.closest(".gap-1").show();
                 $(categoryId).show();
-                productList.show();  // ←★ 重點：分類符合時，底下全部產品都顯示！
+                productList.show();
                 hasVisible = true;
-                matchedCategory = true;
 
-                // ★★★ 新增：即使分類中，底下商品也要一個一個高亮！
                 productList.each(function () {
                     var product = $(this);
-                    var titleElement = product.find("h4:first");
-                    var originalProductText = titleElement.data("original-text");
-
-                    if (!originalProductText) {
-                        originalProductText = titleElement.text();
-                        titleElement.data("original-text", originalProductText);
+                    var title = product.find("h4:first");
+                    if (!title.data("original-text")) {
+                        title.data("original-text", title.text());
                     }
-
+                    var originalProductText = title.data("original-text");
                     var highlightedProduct = originalProductText.replace(regex, function (match) {
                         return `<mark style="background-color: #FFB524; padding:0;">${match}</mark>`;
                     });
-                    titleElement.html(highlightedProduct);
+                    title.html(highlightedProduct);
                 });
             } else {
-                categoryButton.html(arrowSpan + ' ' + categoryText);
+                categoryButton.html(originalHtml);
+                var anyMatch = false;
 
-                // 如果分類沒符合，再檢查底下每個產品
                 productList.each(function () {
                     var product = $(this);
-                    var titleElement = product.find("h4:first");
-                    var originalProductText = titleElement.data("original-text");
-
-                    if (!originalProductText) {
-                        originalProductText = titleElement.text();
-                        titleElement.data("original-text", originalProductText);
+                    var title = product.find("h4:first");
+                    if (!title.data("original-text")) {
+                        title.data("original-text", title.text());
                     }
+                    var originalProductText = title.data("original-text");
 
-                    if (originalProductText.toLowerCase().indexOf(value) > -1) {
-                        var regex = new RegExp(value, "ig");
-                        var highlightedProduct = originalProductText.replace(regex, function (match) {
+                    if (originalProductText.toLowerCase().includes(value)) {
+                        var highlighted = originalProductText.replace(regex, function (match) {
                             return `<mark style="background-color: #FFB524; padding:0;">${match}</mark>`;
                         });
-                        titleElement.html(highlightedProduct);
+                        title.html(highlighted);
                         product.show();
-                        hasProductVisible = true;
+                        anyMatch = true;
                     } else {
                         product.hide();
                     }
                 });
 
-                // 如果底下有產品符合
-                if (hasProductVisible) {
+                if (anyMatch) {
                     categoryButton.closest(".gap-1").show();
                     $(categoryId).show();
                     hasVisible = true;
                 } else {
-                    // 分類和產品都沒中，整塊隱藏
                     categoryButton.closest(".gap-1").hide();
                     $(categoryId).hide();
                 }
@@ -106,24 +146,19 @@ $(document).ready(function () {
 
         $(".no-data-row").remove();
         if (!hasVisible) {
-            $("#addp").show();  // 顯示 #addp 元素
-            $("#addp").append(
+            $("#addp").show().append(
                 "<div class='no-data-row' style='text-align:center; color: #999; padding: 20px;'>🔍 找不到符合的資料</div>"
             );
         } else {
-            $("#addp").hide();  // 如果有資料符合，隱藏 #addp
+            $("#addp").hide();
         }
     });
-});
 
-$(document).ready(function () {
+    // 防止 enter 提交表單
     $("#myInput").on("keydown", function (e) {
         if (e.key === "Enter") {
-            e.preventDefault(); // 只阻止按下 Enter 時
+            e.preventDefault();
         }
     });
 
-    $("#myInput").on("keyup", function () {
-        // 你原本的搜尋邏輯...
-    });
 });

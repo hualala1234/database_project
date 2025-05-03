@@ -1,6 +1,13 @@
 <?php
-    include ('../dbh.php');
-    
+include ('../dbh.php');
+session_start(); // 必須是第一行，前面不能有空白或 HTML！
+$mid = isset($_SESSION["mid"]) ? $_SESSION["mid"] : '';
+if ($mid !== '') {
+    $sql = "SELECT * FROM Merchant WHERE mid = $mid";
+    $result = mysqli_query($conn, $sql);
+    $row = mysqli_fetch_array($result);
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -39,6 +46,29 @@
         <!-- Jquery 連結 -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
         <script src="search.js" type ="text/javascript"></script>
+        <!-- 加入 jQuery UI -->
+        <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+   
+    <script src="menu.js"></script>
+    
+    <!-- JavaScript Libraries -->
+     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../lib/easing/easing.min.js"></script>
+    <script src="../lib/waypoints/waypoints.min.js"></script>
+    <script src="../lib/lightbox/js/lightbox.min.js"></script>
+    <script src="../lib/owlcarousel/owl.carousel.min.js"></script>
+    
+
+    <!-- Template Javascript -->
+    <script src="../js/main.js"></script>
+    <!-- 引入 jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- 引入 jQuery UI -->
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+    <!-- 引入 jQuery UI CSS（使得排序元素顯示為拖曳狀態） -->
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+
     </head>
 
     <body>
@@ -49,15 +79,7 @@
         </div> -->
         <!-- Spinner End -->
 
-        <?php
-        if(isset($_GET["mid"])){
-            $mid = $_GET["mid"];
-            $sql = "SELECT * FROM Merchant WHERE mid = $mid";
-            $result = mysqli_query($conn, $sql);
-            $row = mysqli_fetch_array($result);
-        }
         
-        ?>
         <!-- Navbar start -->
         <div class="container-fluid fixed-top">
             <div class="container topbar bg-primary d-none d-lg-block">
@@ -75,7 +97,7 @@
             </div>
             <div class="container px-0">
                 <nav class="navbar navbar-light bg-white navbar-expand-xl">
-                    <a href="index.html" class="navbar-brand"><h1 class="text-primary display-6">Junglebite商家</h1></a>
+                    <a href="merchant_shop.php?mid=<?php echo $mid; ?>" class="navbar-brand"><h1 class="text-primary display-6">Junglebite商家</h1></a>
                     <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                         <span class="fa fa-bars text-primary"></span>
                     </button>
@@ -102,10 +124,36 @@
                                 <i class="fa fa-shopping-bag fa-2x"></i>
                                 <span class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 15px; height: 20px; min-width: 20px;">3</span>
                             </a> -->
-                            <a href="#" class="my-auto">
+                            <?php if (isset($_SESSION['login_success'])):?>
+                            <!-- ✅ 已登入的顯示 -->
+                            <div class="dropdown" style="position: relative; display: inline-block;">
+                                <a href="javascript:void(0);" class="my-auto" >
+                                    <img onclick="toggleDropdown()" src="  ../login/success.png" alt="Success" style="width: 40px; height: 40px; filter: brightness(0) saturate(100%) invert(42%) sepia(91%) saturate(356%) hue-rotate(71deg) brightness(94%) contrast(92%);">
+                                </a>
+
+                                <div id="myDropdown" class="dropdown-content" style="display: none; position: absolute; background-color: white; min-width: 120px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 1; right: 0; border-radius: 8px;">
+                                    <?php if ($_SESSION['role'] === 'merchant'): ?>
+                                        <a href="/database/merchant/setting.php" class="dropdown-item">商家設定</a>
+                                    <?php elseif ($_SESSION['role'] === 'customer'): ?>
+                                        <a href="/database/customer/setting.php" class="dropdown-item">個人設定</a>
+                                        <a href="/database_project/allergy/allergy.php" class="dropdown-item">過敏設定</a>
+                                    <?php elseif ($_SESSION['role'] === 'delivery_person'): ?>
+                                        <a href="/database/customer/setting.php" class="dropdown-item">外送員設定</a>
+                                    <?php elseif ($_SESSION['role'] === 'platform'): ?>
+                                        <a href="/database/customer/setting.php" class="dropdown-item">平台設定</a>
+                                    <?php endif; ?>
+                                        <a href="/database_project/login/login_customer/logout.php" class="dropdown-item">Logout</a>
+
+                                </div>
+                            </div>
+                            <?php else: ?>
+                            <!-- ❌ 未登入的顯示 -->
+                            <a href="/database_project/login/before_login.php" class="my-auto">
                                 <i class="fas fa-user fa-2x"></i>
                             </a>
+                            <?php endif; ?>
                         </div>
+
                     </div>
                 </nav>
             </div>
@@ -139,8 +187,9 @@
                             </form>              
                         </div>
                         <div style="display:flex;">
-                            <button style="margin-right: 0.5rem;" type="button" class="btn btn-secondary border-2 border-secondary py-3 px-3  text-white h-100" data-bs-toggle="modal" data-bs-target="#addCategoryModal"><i class="fa-solid fa-plus"></i> 新增類別</button>
+                            <button type="button" class="btn btn-secondary border-2 border-secondary py-3 px-3  text-white h-100" data-bs-toggle="modal" data-bs-target="#addCategoryModal"><i class="fa-solid fa-plus"></i> 新增類別</button>
                             <button style="margin-left:0.7rem; background-color: #ff5d6d;" type="button" class="btn border-2 border-secondary py-3 px-3  text-white h-100" data-bs-toggle="modal" data-bs-target="#addProductModal"><i style="margin-right:0.2rem;" class="fa-solid fa-plus"></i>新增商品</button>
+                            <button style="margin-left:0.7rem; background-color: #ff5d6d;" type="button" class="btn border-2 border-secondary py-3 px-3  text-white h-100" data-bs-toggle="modal" data-bs-target="#editCategoryOrderModal"><i style="margin-right:0.2rem;" class="fa-solid fa-list"></i>編輯類別順序</button>
 
                         </div>
                         <div id="addp" style="display:none;"></div>
@@ -184,11 +233,18 @@
                                             <input type="hidden" name="mid" value="<?php echo $mid; ?>">
 
                                             <!-- 類別名稱下拉選單 -->
-                                            <div class="form-group">
-                                                <label for="productCategoryName">選擇類別</label>
+                                            <div class="form-group py-3">
+                                                <div style="display:flex; justify-content: center;">
+                                                    <label for="pName">選擇類別</label>
+                                                    <p style="color:red; margin:0;">*</p>
+
+                                                </div>
+                                                
                                                 <select class="form-control" id="productCategoryName" name="productCategoryId" required>
                                                     <option value="">-- 請選擇類別 --</option>
                                                     <?php
+                                                    include '../dbh.php';
+                                                    echo 'hhhh';
                                                         // 查詢所有的類別名稱
                                                         $sqlCategories = "SELECT productCategoriesId, productCategoryName FROM ProductCategoryList WHERE mid = $mid";
                                                         $resultCategories = mysqli_query($conn, $sqlCategories);
@@ -200,27 +256,39 @@
                                             </div>
 
                                             <!-- 商品名稱 -->
-                                            <div class="form-group">
-                                                <label for="pName">商品名稱</label>
+                                            <div class="form-group py-3">
+                                                <div style="display:flex; justify-content: center;">
+                                                    <label for="pName">商品名稱</label>
+                                                    <p style="color:red; margin:0;">*</p>
+
+                                                </div>
+
+                                                
                                                 <input type="text" class="form-control" id="pName" name="pName" required placeholder="輸入商品名稱">
                                             </div>
 
                                             <!-- 商品敘述 -->
-                                            <div class="form-group">
+                                            <div class="form-group py-3">
+                                                
                                                 <label for="pDescription">商品敘述</label>
                                                 <textarea class="form-control" id="pDescription" name="pDescription" rows="3" placeholder="輸入商品敘述"></textarea>
                                             </div>
 
                                             <!-- 商品價格 -->
-                                            <div class="form-group">
-                                                <label for="price">價錢</label>
+                                            <div class="form-group py-3">
+                                                <div style="display:flex; justify-content: center;">
+                                                    <label for="pName">價錢</label>
+                                                    <p style="color:red; margin:0;">*</p>
+
+                                                </div>
+                                                
                                                 <input type="number" class="form-control" id="price" name="price" required placeholder="輸入價錢">
                                             </div>
 
                                             <!-- 上傳商品照片 -->
-                                            <div class="form-group">
+                                            <div class="form-group py-3">
                                                 <label for="productImage">商品圖片</label>
-                                                <input type="file" class="form-control" id="productImage" name="productImage" required>
+                                                <input type="file" class="form-control" id="productImage" name="productImage">
                                             </div>
 
                                             <button type="submit" class="btn btn-primary mt-3">儲存</button>
@@ -230,6 +298,33 @@
                             </div>
                         </div>
 
+                        <!-- 更改類順序表單 -->
+                        <div class="modal fade" id="editCategoryOrderModal" tabindex="-1" aria-labelledby="editCategoryOrderModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">編輯類別順序</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <ul id="sortableCategoryList" class="list-group">
+                                            <?php
+                                            // 載入分類列表 (排序後)
+                                            $sql = "SELECT productCategoriesId, productCategoryName FROM ProductCategoryList WHERE mid = $mid ORDER BY sort_order ASC";
+                                            $result = mysqli_query($conn, $sql);
+                                            while ($row = mysqli_fetch_assoc($result)) {
+                                                echo '<li class="list-group-item" data-id="' . $row['productCategoriesId'] . '">'
+                                                    . htmlspecialchars($row['productCategoryName']) . '</li>';
+                                            }
+                                            ?>
+                                        </ul>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" id="saveCategoryOrder" class="btn btn-primary">儲存排序</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
                     
                     <?php
@@ -237,9 +332,10 @@
                             $mid = $_GET["mid"];
                             
                             // 查詢 ProductCategoryList 表中符合 mid 的所有 productCategoryName 和 productCategoriesId
-                            $sqlCategoryList = "SELECT productCategoryName, productCategoriesId 
+                            $sqlCategoryList = "SELECT *
                                                 FROM ProductCategoryList 
-                                                WHERE mid = $mid";
+                                                WHERE mid = $mid
+                                                ORDER BY sort_order ASC";
                             $resultCategoryList = mysqli_query($conn, $sqlCategoryList);
 
                             if ($resultCategoryList && mysqli_num_rows($resultCategoryList) > 0) {
@@ -256,9 +352,10 @@
                                         id="category'. $productCategoriesId . '"
                                         role="button" 
                                         aria-expanded="true" 
-                                        aria-controls="collapse_' . $categoryName . '" 
-                                        data-category="' . $categoryName . '"><span id="arrow_' . $productCategoriesId . '">▲</span>
-                                            ' . htmlspecialchars($categoryName) . ' 
+                                        aria-controls="collapse_' . $productCategoriesId . '" 
+                                        data-category="' . $categoryName . '">
+                                            <span class="arrow"></span>
+                                            <span class="category-name">' . htmlspecialchars($categoryName) . '</span>
                                         </a>
                                         <h3 style="margin-left:0.5rem; cursor: pointer;" 
                                             data-bs-toggle="modal" 
@@ -322,7 +419,10 @@
                                     $sqlProducts = "SELECT *
                                                     FROM Product
                                                     WHERE pid IN (SELECT pid FROM ProductCategories WHERE productCategoriesId = $productCategoriesId)";
+
                                     $resultProducts = mysqli_query($conn, $sqlProducts);
+
+                                    
                                     
                                     // 顯示產品
                                     if ($resultProducts && mysqli_num_rows($resultProducts) > 0) {
@@ -333,7 +433,8 @@
 
                                             echo '<div class="product-title">
                                                     <div style="display:flex; justify-content: space-between;" >
-                                                        <h4 style="margin:0; text-align:left; text-decoration:underline; cursor:pointer;" data-bs-toggle="modal" data-bs-target="#editProductModal_' . $productDetail['pid'] . '"><i style="margin-right:0.4rem" class="fa-solid fa-bag-shopping"></i>'
+                                                        <h4 style="margin:0; text-align:left; text-decoration:underline; cursor:pointer;" data-bs-toggle="modal" data-bs-target="#editProductModal_' . $productDetail['pid'] . '">
+                                                            <i style="margin-right:0.4rem" class="fa-solid fa-bag-shopping"></i>'
                                                             . htmlspecialchars($productDetail['pName']) .  ' - $' . htmlspecialchars($productDetail['price']) . 
                                                         '</h4>
                                                         <h4>
@@ -353,13 +454,52 @@
                                                             <h1 class="modal-title fs-5" id="editProductModalLabel_' . $productDetail['pid'] . '">編輯產品</h1>
                                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
                                                         </div>
+                                                        
                                                         <div class="modal-body">
                                                             <form action="../process.php" method="post" enctype="multipart/form-data">
                                                                 <input type="hidden" name="mid" value="' . $mid . '">
                                                                 <input type="hidden" name="pid" value="' . $productDetail['pid'] . '">
+                                                                <input type="hidden" name="deleteImage" id="deleteImage_' . $productDetail['pid'] . '" value="no">
+
+
+
+                                                                <!-- 類別名稱下拉選單 -->
+                                                                <div class="form-group py-3">
+                                                                    <div style="display:flex; justify-content: center;">
+                                                                        <label for="productCategoryName">選擇類別</label>
+                                                                        <p style="color:red; margin:0;">*</p>
+
+                                                                    </div>
+                                                                    
+                                                                    <select class="form-control" id="productCategoryName" name="productCategoryId" required>
+                                                                        <option value="">-- 請選擇類別 --</option>';
+
+                                                                        echo 'catahoty';
+                                                                        // 查詢當前產品的類別
+                                                                        $sqlProductCategory = "SELECT productCategoriesId FROM ProductCategories WHERE pid = " . $productDetail['pid'];
+                                                                        $resultProductCategory = mysqli_query($conn, $sqlProductCategory);
+                                                                        $currentCategory = mysqli_fetch_assoc($resultProductCategory)['productCategoriesId'];
+
+
+                                                                        // 查詢所有的類別名稱
+                                                                        $sqlCategories = "SELECT productCategoriesId, productCategoryName FROM ProductCategoryList WHERE mid = $mid";
+                                                                        $resultCategories = mysqli_query($conn, $sqlCategories);
+                                                                        while ($category = mysqli_fetch_assoc($resultCategories)) {
+                                                                            $selected = ($category['productCategoriesId'] == $currentCategory) ? 'selected' : '';
+                                                                            echo '<option value="' . $category['productCategoriesId'] . '" ' . $selected . '>' . htmlspecialchars($category['productCategoryName']) . '</option>';
+                                                                        }
+
+
+                                                                echo '</select>
+                                                                </div>
 
                                                                 <div class="py-3">
-                                                                    <label for="pName">商品名稱</label>
+                                                                    <div style="display:flex; justify-content: center;">
+                                                                        <label for="pName">商品名稱</label>
+                                                                        <p style="color:red; margin:0;">*</p>
+
+                                                                    </div>
+                                                                    
                                                                     <input style= "font-weight: bold;" type="text" class="form-control" name="pName" required value="' . htmlspecialchars($productDetail['pName']) . '" placeholder="輸入產品名稱">
                                                                 </div>
                                                                 <div class="py-3">
@@ -368,7 +508,12 @@
                                                                 </div>
 
                                                                 <div class="py-3">
-                                                                    <label for="price">價錢</label>
+                                                                    <div style="display:flex; justify-content: center;">
+                                                                        <label for="price">價錢</label>
+                                                                        <p style="color:red; margin:0;">*</p>
+
+                                                                    </div>
+                                                                    
                                                                     <input style=" font-weight: bold;" type="text" class="form-control" name="price" required value="' . htmlspecialchars($productDetail['price']) . '" placeholder="輸入價錢">
                                                                 </div>
 
@@ -376,7 +521,14 @@
                                                                     <p>目前圖片</p>';
                                                                     
                                                                     if (!empty($productDetail['pPicture'])) {
-                                                                        echo '<img src="../' . htmlspecialchars($productDetail['pPicture']) . '" alt="Product Image" style="max-width: 20rem; max-height: 20rem; margin-top: 1rem">';
+                                                                        echo '
+                                                                        <div style="position: relative; display: inline-block;">
+                                                                            <img src="../' . htmlspecialchars($productDetail['pPicture']) . '" alt="Product Image" style="max-width: 20rem; max-height: 20rem; ">
+                                                                            <!-- Delete Button -->
+                                                                            <i class="fa-solid fa-x" style="position: absolute; color: white; cursor: pointer; background-color:#dc3545; border-radius:50%; padding: 0.5em; top:-0.5em; left:95%" onclick="removeImage_' . $productDetail['pid'] . '()"></i>
+                                                                            
+                                                                        </div>
+                                                                        ';
                                                                     } else {
                                                                         echo '<p>No image available</p>';
                                                                     }
@@ -426,36 +578,54 @@
 
                                             echo '
                                             <script>
-                                                document.addEventListener("DOMContentLoaded", function() {
-                                                    var originalPName_' . $productDetail['pid'] . ' = "' . htmlspecialchars($productDetail['pName'], ENT_QUOTES) . '";
-                                                    var originalPrice_' . $productDetail['pid'] . ' = "' . htmlspecialchars($productDetail['price'], ENT_QUOTES) . '";
-                                                    var originalPDescription_' . $productDetail['pid'] . ' = "' . htmlspecialchars($productDetail['pDescription'], ENT_QUOTES) . '";
-                                            
+                                                document.addEventListener("DOMContentLoaded", function () {
+                                                    // 設定初始值
+                                                    var originalPName_' . $productDetail['pid'] . ' = "' . addslashes($productDetail['pName']) . '";
+                                                    var originalPDescription_' . $productDetail['pid'] . ' = "' . addslashes($productDetail['pDescription']) . '";
+                                                    var originalPrice_' . $productDetail['pid'] . ' = "' . addslashes($productDetail['price']) . '";
+                                                    var originalProductCategory_' . $productDetail['pid'] . ' = "' . addslashes($currentCategory) . '";
+
                                                     var saveButton_' . $productDetail['pid'] . ' = document.getElementById("saveButton_' . $productDetail['pid'] . '");
                                                     var pNameInput_' . $productDetail['pid'] . ' = document.querySelector("#editProductModal_' . $productDetail['pid'] . ' [name=pName]");
                                                     var pDescriptionInput_' . $productDetail['pid'] . ' = document.querySelector("#editProductModal_' . $productDetail['pid'] . ' [name=pDescription]");
                                                     var priceInput_' . $productDetail['pid'] . ' = document.querySelector("#editProductModal_' . $productDetail['pid'] . ' [name=price]");
                                                     var imageInput_' . $productDetail['pid'] . ' = document.querySelector("#editProductModal_' . $productDetail['pid'] . ' [name=ImageUpload]");
-                                            
+                                                    var productCategoryInput_' . $productDetail['pid'] . ' = document.querySelector("#editProductModal_' . $productDetail['pid'] . ' [name=productCategoryId]");
+                                                    var deleteImageInput_' . $productDetail['pid'] . ' = document.getElementById("deleteImage_' . $productDetail['pid'] . '");
+
                                                     function checkIfChanged_' . $productDetail['pid'] . '() {
                                                         var nameChanged = pNameInput_' . $productDetail['pid'] . '.value !== originalPName_' . $productDetail['pid'] . ';
                                                         var descriptionChanged = pDescriptionInput_' . $productDetail['pid'] . '.value !== originalPDescription_' . $productDetail['pid'] . ';
                                                         var priceChanged = priceInput_' . $productDetail['pid'] . '.value !== originalPrice_' . $productDetail['pid'] . ';
-                                                        var imageChanged = imageInput_' . $productDetail['pid'] . '.files.length > 0;
-                                            
-                                                        if (nameChanged || priceChanged || imageChanged || descriptionChanged) {
-                                                            saveButton_' . $productDetail['pid'] . '.disabled = false;
-                                                        } else {
-                                                            saveButton_' . $productDetail['pid'] . '.disabled = true;
-                                                        }
+                                                        var imageChanged = imageInput_' . $productDetail['pid'] . '.files.length > 0 || deleteImageInput_' . $productDetail['pid'] . '.value === "yes";
+                                                        var categoryChanged = productCategoryInput_' . $productDetail['pid'] . '.value !== originalProductCategory_' . $productDetail['pid'] . ';
+
+                                                        saveButton_' . $productDetail['pid'] . '.disabled = !(nameChanged || priceChanged || imageChanged || descriptionChanged || categoryChanged);
                                                     }
-                                            
+
                                                     pNameInput_' . $productDetail['pid'] . '.addEventListener("input", checkIfChanged_' . $productDetail['pid'] . ');
                                                     pDescriptionInput_' . $productDetail['pid'] . '.addEventListener("input", checkIfChanged_' . $productDetail['pid'] . ');
                                                     priceInput_' . $productDetail['pid'] . '.addEventListener("input", checkIfChanged_' . $productDetail['pid'] . ');
                                                     imageInput_' . $productDetail['pid'] . '.addEventListener("change", checkIfChanged_' . $productDetail['pid'] . ');
+                                                    productCategoryInput_' . $productDetail['pid'] . '.addEventListener("change", checkIfChanged_' . $productDetail['pid'] . ');
+
+                                                    window.removeImage_' . $productDetail['pid'] . ' = function () {
+                                                        var imageElement = document.querySelector("#editProductModal_' . $productDetail['pid'] . ' img");
+                                                        var deleteIcon = document.querySelector("#editProductModal_' . $productDetail['pid'] . ' i.fa-x");
+
+                                                        if (imageElement) imageElement.style.display = "none";
+                                                        if (deleteIcon) deleteIcon.style.display = "none";
+
+                                                        deleteImageInput_' . $productDetail['pid'] . '.value = "yes";
+                                                        checkIfChanged_' . $productDetail['pid'] . '();
+                                                    };
                                                 });
                                             </script>';
+
+
+
+
+
                                             
                                                     
                                         }
@@ -486,50 +656,16 @@
 
         <!-- Back to Top -->
         <a href="#" class="btn btn-primary border-3 border-primary rounded-circle back-to-top"><i class="fa fa-arrow-up"></i></a>   
+        <script>
+            function toggleDropdown() {
+                var dropdown = document.getElementById("myDropdown");
+                dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+                console.log('yes get');
+            }
+        </script>
 
         
-    <!-- JavaScript Libraries -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../lib/easing/easing.min.js"></script>
-    <script src="../lib/waypoints/waypoints.min.js"></script>
-    <script src="../lib/lightbox/js/lightbox.min.js"></script>
-    <script src="../lib/owlcarousel/owl.carousel.min.js"></script>
-
-    <!-- Template Javascript -->
-    <script src="../js/main.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // 找出所有帶有 .category-toggle 類別的按鈕
-            const toggles = document.querySelectorAll('.category-toggle');
-
-            toggles.forEach(function (toggle) {
-                const targetId = toggle.getAttribute('href').substring(1); // 去掉 #
-                const targetCollapse = document.getElementById(targetId);
-                const arrow = toggle.querySelector('span');
-
-                if (targetCollapse) {
-                    // 初始化箭頭（如果預設是 show，設成 ▲，否則 ▼）
-                    if (targetCollapse.classList.contains('show')) {
-                        arrow.textContent = '▲';
-                    } else {
-                        arrow.textContent = '▼';
-                    }
-
-                    // 監聽 collapse 的開啟和關閉事件
-                    targetCollapse.addEventListener('show.bs.collapse', function () {
-                        arrow.textContent = '▲';
-                    });
-
-                    targetCollapse.addEventListener('hide.bs.collapse', function () {
-                        arrow.textContent = '▼';
-                    });
-                }
-            });
-        });
-    </script>
-
-
+    
 
     </body>
 
