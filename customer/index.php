@@ -113,6 +113,7 @@ if ($cid !== '') {
                                     <?php elseif ($_SESSION['role'] === 'customer'): ?>
                                         <a href="/database/customer/setting.php" class="dropdown-item">個人設定</a>
                                         <a href="/database_project/allergy/allergy.php" class="dropdown-item">過敏設定</a>
+                                        <a href="../claw_machine/claw.php" class="dropdown-item">優惠券活動</a>
                                     <?php elseif ($_SESSION['role'] === 'delivery_person'): ?>
                                         <a href="/database/customer/setting.php" class="dropdown-item">外送員設定</a>
                                     <?php elseif ($_SESSION['role'] === 'platform'): ?>

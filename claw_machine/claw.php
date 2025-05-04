@@ -59,6 +59,19 @@
 
     <div class="confetti-container"></div>
 
+    <img id="couponImage" src="getcoupon.png" alt="已領取優惠券" style="
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 10001;
+      cursor: pointer;
+      max-width: 80%;
+      height: 500px;
+    ">
+
+
   
     <script src="claw.js"></script>
   </body>
