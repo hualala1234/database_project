@@ -11,7 +11,7 @@
     <!-- 要改 -->
     <div class="header_claw_machine">
       <p>CLAW MACHINE</p>
-      <a href="/database/customer/index.php">
+      <a href="../customer/index.php">
         <img src="home.png" alt="Home" class="home-icon">
       </a>
     </div>
