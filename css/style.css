@@ -592,3 +592,29 @@ body {
     line-height: 1.2;
 }
 
+
+
+/* 營業時間頁面 */
+.custom-list-group-item {
+    padding-top: 4px;
+    padding-bottom: 4px;
+    line-height: 1.2;
+}
+
+.custom-list-group-item {
+    padding-top: 4px;
+    padding-bottom: 4px;
+    line-height: 1.2;
+}
+
+.form-element.button_container {
+    padding-top: 30px !important;
+}
+
+button.btn.btn-sm.btn-outline-light.ms-2.change-address-btn {
+    margin-right: 100px;
+}
+
+span.address-label.text-white {
+    margin-left: 100px;
+}
