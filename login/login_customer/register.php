@@ -78,7 +78,7 @@ if ($cIdExists && $emailExists) {
 } else {
     // If no duplicates, proceed with the insert
 
-    $imageURL = 'default-avatar.png'; // Default image if none uploaded
+    $imageURL = ''; // Default image if none uploaded
 
     // Image upload (if any)
     if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
@@ -96,7 +96,7 @@ if ($cIdExists && $emailExists) {
     
         if (!move_uploaded_file($fileTmp, $savePath)) {
             echo "<h3 style='color:red;'>圖片移動失敗</h3>";
-            $imageURL = 'default-avatar.png';
+            $imageURL = '';
         }
     }
     

@@ -8,7 +8,34 @@ if ($mid !== '') {
     $row = mysqli_fetch_array($result);
 }
 
+// 商家名稱
+$merchant_name = $row['mName'] ?? '';
 
+// 將 JSON 格式的營業時間轉為陣列格式
+$store_hours = [];
+
+if (!empty($row['businessHours'])) {
+    $hoursArray = json_decode($row['businessHours'], true);
+
+    foreach ($hoursArray as $day => $value) {
+        if ($value === '休息') {
+            $store_hours[$day] = '休息';
+        } else {
+            $store_hours[$day] = $value; // e.g. "08:00 - 17:00"
+        }
+    }
+} else {
+    // 沒有設定時的預設值
+    $store_hours = [
+        '星期一' => '休息',
+        '星期二' => '休息',
+        '星期三' => '休息',
+        '星期四' => '休息',
+        '星期五' => '休息',
+        '星期六' => '休息',
+        '星期日' => '休息'
+    ];
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -217,35 +244,85 @@ if ($mid !== '') {
                                     <h3>上傳新照片</h3>
                                     <input style="font-size: 1.5em; font-weight: bold;" type="file" class="form-control" name="ImageUpload">
                                 </div>
+              
 
-                                <div class="py-3">
-                                    <div style="display:flex; justify-content: center;">
-                                        <h3>營業時間</h3>
-                                        <h3 required style="color:red; margin:0;">*</h3>
+                               
+                                <div class="container mt-5">
+                                    <h3>目前營業時間：</h3>
+                                    <ul class="list-group mb-3">
+                                        <?php foreach ($store_hours as $day => $hours): ?>
+                                            <li class="list-group-item d-flex justify-content-between custom-list-group-item">
+                                            <strong><?php echo $day; ?></strong>
+                                                <span><?php echo $hours; ?></span>
+                                            </li>
+                                        <?php endforeach; ?>
+                                    </ul>
+
+                                    <!-- 關鍵：按鈕 type 設為 button，避免觸發 form 提交 -->
+                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editHoursModal">
+                                        編輯營業時間
+                                    </button>
+                                </div>
+                                <!-- Modal 彈出視窗：注意這是在 <form> 外部！ -->
+                                <div class="modal fade" id="editHoursModal" tabindex="-1" aria-labelledby="editHoursModalLabel" aria-hidden="true" >
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+
+                                            <!-- Modal 的內部也可以包一個小表單，但建議直接用原本大表單來處理，所以不需要 <form> -->
+                                            <div class="modal-body">
+                                                <?php foreach ($store_hours as $day => $hours): 
+                                                    if ($hours === '休息') {
+                                                        $open = '';
+                                                        $close = '';
+                                                        $closed = true;
+                                                    } else {
+                                                        list($open, $close) = array_map('trim', explode('-', $hours));
+                                                        $closed = false;
+                                                    }
+                                                ?>
+                                                <div class="mb-3">
+                                                    <label class="form-label"><?php echo $day; ?></label>
+                                                    <div class="d-flex gap-2">
+                                                        <input type="time" class="form-control" name="hours[<?php echo $day; ?>][open]" value="<?php echo $open; ?>" <?php echo $closed ? 'disabled' : ''; ?>>
+                                                        <span class="align-self-center">至</span>
+                                                        <input type="time" class="form-control" name="hours[<?php echo $day; ?>][close]" value="<?php echo $close; ?>" <?php echo $closed ? 'disabled' : ''; ?>>
+                                                        <div class="form-check ms-2">
+                                                            <input class="form-check-input" type="checkbox" id="closed_<?php echo $day; ?>" name="hours[<?php echo $day; ?>][closed]" value="1" <?php echo $closed ? 'checked' : ''; ?> onchange="toggleDay('<?php echo $day; ?>')">
+                                                            <label class="form-check-label" for="closed_<?php echo $day; ?>">休息</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <?php endforeach; ?>
+                                            </div>
+
+                                            <div class="modal-footer">
+                                                <!-- 關鍵：這裡不要用 submit，Modal 關閉即可 -->
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                                                <button type="button" class="btn btn-primary" onclick="saveBusinessHours()" data-bs-dismiss="modal">儲存</button>
+                                            </div>
+                                        </div>
                                     </div>
-                                    
-                                    <input style="font-size: 1.5em; font-weight: bold;" type="text" class="form-control" name="businessHours" value="<?= $row['businessHours'] ?>" placeholder="輸入營業時間">
                                 </div>
 
-                                
+                                <input type="hidden" name="hoursJson" id="hoursJson">
                                 <div class="form-element button_container">
                                     <input style=" font-weight: bold; font-size: 1.5em;" type="submit" class="btn btn-primary" name="updateMerchant" id="saveButton" value="儲存" disabled>
                                 </div>
 
                             </form>
                         </div>
+                        
 
                         
+
+                        
+
                     </div>
                 </div>
             </div>
         </div>
     
         
-
-        
-
-
 
         <!-- Back to Top -->
         <a href="#" class="btn btn-primary border-3 border-primary rounded-circle back-to-top"><i class="fa fa-arrow-up"></i></a>   
@@ -258,6 +335,9 @@ if ($mid !== '') {
     <script src="../lib/waypoints/waypoints.min.js"></script>
     <script src="../lib/lightbox/js/lightbox.min.js"></script>
     <script src="../lib/owlcarousel/owl.carousel.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
 
     <!-- Template Javascript -->
     <script src="../js/main.js"></script>
@@ -267,8 +347,6 @@ if ($mid !== '') {
         var originalAddress = "<?php echo $row['mAddress']; ?>";
         var originalBusinessHours = "<?php echo $row['businessHours']; ?>";
         var originalPicture = "<?php echo $row['mPicture']; ?>";
-
-        // 從 PHP 傳入原始類別
         var originalCategories = <?php echo json_encode($currentCategories); ?>;
 
         var saveButton = document.getElementById("saveButton");
@@ -277,11 +355,11 @@ if ($mid !== '') {
         var businessHoursInput = document.querySelector("[name='businessHours']");
         var imageInput = document.querySelector("[name='ImageUpload']");
         var categoryCheckboxes = document.querySelectorAll("input[name='restaurantCategories[]']");
+        var businessHourInputs = document.querySelectorAll("input[name^='hours']");
 
         function checkIfChanged() {
             var nameChanged = mNameInput.value !== originalName;
             var addressChanged = mAddressInput.value !== originalAddress;
-            var businessHoursChanged = businessHoursInput.value !== originalBusinessHours;
             var imageChanged = imageInput.files.length > 0;
 
             // 類別變更偵測
@@ -290,26 +368,45 @@ if ($mid !== '') {
                 if (checkbox.checked) currentSelected.push(checkbox.value);
             });
 
-            // 比較是否與原始類別相同（順序不重要）
             var categoriesChanged = originalCategories.length !== currentSelected.length ||
                 originalCategories.some(cat => !currentSelected.includes(cat));
 
-            if (nameChanged || addressChanged || businessHoursChanged || imageChanged || categoriesChanged) {
+            // 檢查營業時間是否變更（比對目前值是否與原值不同）
+            let hoursChanged = false;
+            businessHourInputs.forEach(function(input) {
+                if (input.type === "checkbox") {
+                    if (input.checked !== input.defaultChecked) {
+                        hoursChanged = true;
+                    }
+                } else {
+                    if (input.value !== input.defaultValue) {
+                        hoursChanged = true;
+                    }
+                }
+            });
+
+            if (nameChanged || addressChanged || imageChanged || categoriesChanged || hoursChanged) {
                 saveButton.disabled = false;
             } else {
                 saveButton.disabled = true;
             }
         }
 
-        // 監聽欄位變更
+        // 原欄位監聽
         mNameInput.addEventListener("input", checkIfChanged);
         mAddressInput.addEventListener("input", checkIfChanged);
-        businessHoursInput.addEventListener("input", checkIfChanged);
         imageInput.addEventListener("change", checkIfChanged);
         categoryCheckboxes.forEach(cb => cb.addEventListener("change", checkIfChanged));
+
+        // 新增：監聽營業時間欄位變更
+        businessHourInputs.forEach(input => {
+            input.addEventListener("input", checkIfChanged);
+            input.addEventListener("change", checkIfChanged);
+        });
     };
     </script>
-    <script>
+
+    <!-- <script>
         const checkboxes = document.querySelectorAll('input[name="restaurantCategories[]"]');
         const saveButton = document.getElementById("saveButton");
 
@@ -325,7 +422,34 @@ if ($mid !== '') {
 
         // 初始檢查
         validateForm();
+    </script> -->
+
+    <script>
+        const checkboxes = document.querySelectorAll('input[name="restaurantCategories[]"]');
+        const saveButton = document.getElementById("saveButton");
+
+        function validateForm() {
+            let isAnyChecked = Array.from(checkboxes).some(checkbox => checkbox.checked);
+            let requiredInputsFilled = Array.from(document.querySelectorAll("input[required]")).every(input => input.value.trim() !== "");
+
+            if (saveButton) {
+                saveButton.disabled = !(isAnyChecked && requiredInputsFilled);
+            }
+        }
+
+        if (checkboxes.length > 0) {
+            checkboxes.forEach(checkbox => checkbox.addEventListener("change", validateForm));
+        }
+
+        document.querySelectorAll("input[required]").forEach(input => {
+            input.addEventListener("input", validateForm);
+        });
+
+        // 初始檢查
+        validateForm();
     </script>
+
+
     <script>
         function toggleDropdown() {
             var dropdown = document.getElementById("myDropdown");
@@ -339,7 +463,56 @@ if ($mid !== '') {
         }
     </script>
 
+    <script>
+        function toggleDay(day) {
+            const isClosed = document.getElementById('closed_' + day).checked;
+            const openInput = document.querySelector(`input[name="hours[${day}][open]"]`);
+            const closeInput = document.querySelector(`input[name="hours[${day}][close]"]`);
+            openInput.disabled = isClosed;
+            closeInput.disabled = isClosed;
+        }
 
+        // 按下 Modal 儲存時，自動啟用表單送出按鈕
+        document.querySelector('#editHoursModal .btn-primary').addEventListener('click', function () {
+            document.getElementById('saveButton').disabled = false;
+        });
+    </script>
+
+    <script>
+    function saveBusinessHours() {
+        const days = ["星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"];
+        const hoursData = {};
+
+        days.forEach(day => {
+            const isClosed = document.getElementById(`closed_${day}`).checked;
+            if (isClosed) {
+                hoursData[day] = "休息";
+            } else {
+                const open = document.querySelector(`input[name="hours[${day}][open]"]`).value;
+                const close = document.querySelector(`input[name="hours[${day}][close]"]`).value;
+                hoursData[day] = `${open} - ${close}`;
+            }
+        });
+
+        // 更新顯示表格
+        const listGroup = document.querySelector(".list-group");
+        listGroup.innerHTML = ""; // 清空舊內容
+        for (const [day, hours] of Object.entries(hoursData)) {
+            listGroup.innerHTML += `
+                <li class="list-group-item d-flex justify-content-between">
+                    <strong>${day}</strong>
+                    <span>${hours}</span>
+                </li>
+            `;
+        }
+
+        // 更新隱藏欄位（表單會帶過去）
+        document.getElementById("hoursJson").value = JSON.stringify(hoursData);
+
+        // 啟用儲存按鈕
+        document.getElementById("saveButton").disabled = false;
+    }
+    </script>
 
 
     </body>

@@ -161,11 +161,21 @@ if (isset($_SESSION['cid'])) {
         display: flex;
         flex-direction: column;
         align-items: center;
+        position: relative;
+        top: 200px;
     }
 </style>
 
 </head>
 <body>
+
+    <div class="header_allergy">
+        <p>allergens you have</p>
+        <a href="customer\index.php">
+            <img src="home.png" alt="Home" class="home-icon">
+        </a>    
+    </div>
+
     <div class="container mt-5">
         <h3>歡迎, <?php echo htmlspecialchars($customer_name); ?></h3>
         <p>您的客戶編號 (CID): <?php echo htmlspecialchars($customer_id); ?></p>
