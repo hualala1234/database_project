@@ -23,9 +23,9 @@ $conn->begin_transaction();
 
 try {
     // 1️⃣ 插入 Transaction 資料表
-    $stmt = $conn->prepare("INSERT INTO Transaction (cid, mid, totalPrice, paymentMethod, cardName, tNote)
+    $stmt = $conn->prepare("INSERT INTO Transaction (cid, mid, totalPrice, paymentMethod, cardName, tNote, address_text, id)
                             VALUES (?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("iidsss", $cid, $mid, $totalPrice, $paymentMethod, $cardName, $tNote);
+    $stmt->bind_param("iidsss", $cid, $mid, $totalPrice, $paymentMethod, $cardName, $tNote, $address_text, $id);
 
     $stmt->execute();
 
