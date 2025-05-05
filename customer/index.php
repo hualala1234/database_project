@@ -22,6 +22,25 @@ if (isset($_SESSION['cid'], $_SESSION['cartTime'])) {
     $stmt->close();
 }
 
+// 處理表單提交更新地址
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_address_id'])) {
+    $selected_address_id = $_POST['selected_address_id'];
+    // 根據選擇的地址 ID 更新 session 中的地址
+    $sql = "SELECT address_text FROM caddress WHERE address_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $selected_address_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($row = $result->fetch_assoc()) {
+        $_SESSION['current_address'] = $row['address_text']; // 更新 session 地址
+    }
+    // 重定向回 index.php，讓頁面更新
+    header("Location: index.php");
+    exit;
+}
+
+// 取得目前使用的地址（如果有從 modal 選擇過）
+$defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選擇地址');
 
 ?>
 
@@ -73,10 +92,15 @@ if (isset($_SESSION['cid'], $_SESSION['cartTime'])) {
         <div class="container-fluid fixed-top">
             <div class="container topbar bg-primary d-none d-lg-block">
                 <div class="d-flex justify-content-between">
-                    <div class="top-info ps-2">
-                        <i class="fas fa-map-marker-alt me-2 text-secondary"></i> <a href="#" class="text-white">客戶住址</a>
-                        <!-- <small class="me-3"><i class="fas fa-envelope me-2 text-secondary"></i><a href="#" class="text-white">Email@Example.com</a></small> -->
-                    </div>
+                <div class="top-info ps-2">
+                    <span class="address-label"><i class="fas fa-map-marker-alt me-2 text-secondary"></i> 我的住址</span>
+                    <span class="address-text" id="current-address" class="text-white">
+                        <?= htmlspecialchars($defaultAddress) ?> <!-- PHP 顯示預設地址 -->
+                    </span>
+                    <button class="btn btn-sm btn-outline-light ms-2 change-address-btn" data-bs-toggle="modal" data-bs-target="#addressModal">
+                        更換外送地點
+                    </button>
+                </div>
                     <!-- <div class="top-link pe-2">
                         <a href="#" class="text-white"><small class="text-white mx-2">Privacy Policy</small>/</a>
                         <a href="#" class="text-white"><small class="text-white mx-2">Terms of Use</small>/</a>
@@ -1178,6 +1202,8 @@ if (isset($_SESSION['cid'], $_SESSION['cartTime'])) {
         <!-- Back to Top -->
         <a href="#" class="btn btn-primary border-3 border-primary rounded-circle back-to-top"><i class="fa fa-arrow-up"></i></a>   
 
+
+        
         
     <!-- JavaScript Libraries -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
@@ -1308,6 +1334,38 @@ if (isset($_SESSION['cid'], $_SESSION['cartTime'])) {
             });
         }
     </script>
+
+    <!-- 🟦 Modal: 更換外送地址 -->
+    <div class="modal fade" id="addressModal" tabindex="-1" aria-labelledby="addressModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <form method="post" action="index.php">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addressModalLabel">選擇外送地址</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <select class="form-select" name="selected_address_id" id="addressSelect">
+                            <?php
+                            $sql = "SELECT address_id, address_text FROM caddress WHERE cid = ?";
+                            $stmt = $conn->prepare($sql);
+                            $stmt->bind_param("i", $_SESSION['cid']); // 假設有 cid session
+                            $stmt->execute();
+                            $result = $stmt->get_result();
+                            while ($row = $result->fetch_assoc()) {
+                            echo '<option value="' . $row['address_id'] . '">' . htmlspecialchars($row['address_text']) . '</option>';
+                            }
+                            ?>
+                        </select>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">使用此地址</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
 
     </body>
 
