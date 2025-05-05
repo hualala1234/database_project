@@ -90,22 +90,16 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
         <!-- Navbar start -->
         <div class="container-fluid fixed-top">
         <div class="container topbar bg-primary d-none d-lg-block">
-            <div class="d-flex justify-content-between">
-            <div class="top-info ps-2">
-                <span class="address-label"><i class="fas fa-map-marker-alt me-2 text-secondary"></i> 我的住址</span>
-                <span class="address-text" id="current-address" class="text-white">
-                    <?= htmlspecialchars($defaultAddress) ?> <!-- PHP 顯示預設地址 -->
-                </span>
-                <button class="btn btn-sm btn-outline-light ms-2 change-address-btn" data-bs-toggle="modal" data-bs-target="#addressModal">
-                    更換外送地點
-                </button>
-            </div>
-            <!-- <div class="top-link pe-2">
-                <a href="#" class="text-white"><small class="text-white mx-2">Privacy Policy</small>/</a>
-                <a href="#" class="text-white"><small class="text-white mx-2">Terms of Use</small>/</a>
-                <a href="#" class="text-white"><small class="text-white ms-2">Sales and Refunds</small></a>
-            </div> -->
-            </div>
+                <div class="top-info ps-2">
+                    <span class="address-label text-white"><i class="fas fa-map-marker-alt me-2 text-secondary"></i> 我的住址</span>
+                    <span class="address-text" id="current-address" class="text-white">
+                        <?= htmlspecialchars($defaultAddress) ?> <!-- PHP 顯示預設地址 -->
+                    </span>
+                    <button class="btn btn-sm btn-outline-light ms-2 change-address-btn" data-bs-toggle="modal" data-bs-target="#addressModal">
+                        更換外送地點
+                    </button>
+                </div>
+            
         </div>
         <div class="container px-0">
             <nav class="navbar navbar-light bg-white navbar-expand-xl">
