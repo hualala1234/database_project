@@ -539,15 +539,39 @@
 
 
 #my-btn {
-    background-color: #81C408!important;  /* Bootstrap 的 primary 顏色 */
+    background-color: #146E57!important;  /* Bootstrap 的 primary 顏色 */
     color: white;
     border-color: #6c757d;
 }
 #my-btn:hover {
-    background-color: #81C408!important;  /* hover 時保持一樣 */
+    background-color: #146E57!important;  /* hover 時保持一樣 */
     color: white;
 }
 
+td {
+    text-align: center;
+    vertical-align: middle;
+}
+thead > tr > th {
+    text-align: center;
+}
+
+body {
+    background-color: #D5E2D8;
+}
+
+.fruite-item > .p-4 {
+    background-color: white;
+}
+
+.check-title {
+    color: #146E57;
+}
+
+.check-title:hover {
+    color: #F0A900;
+}
+
 .custom-list-group-item {
     padding-top: 4px;
     padding-bottom: 4px;
@@ -559,3 +583,4 @@
     padding-bottom: 4px;
     line-height: 1.2;
 }
+
