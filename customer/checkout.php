@@ -213,9 +213,37 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
 
                 <div style="display:flex; justify-content: space-between; align-items: stretch;" >
                     <div class="mt-5 col-6" style="display:flex; flex-direction: column;">
-                        <div style="display:flex;">
-                            <input type="text" class="border-secondary  rounded me-5 py-2 mb-4" placeholder="優惠卷號碼">
-                            <button class="btn btn-primary border-secondary rounded-pill px-4 py-2 text-white mb-4" type="button">使用優惠卷</button>
+                        <div style="display:flex; align-items: center;">
+                            
+                            <div class="dropdown mb-4">
+                                <button class="btn btn-primary border-secondary rounded-pill px-4 py-2 me-2 text-white dropdown-toggle" type="button" id="couponDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    使用優惠券
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="couponDropdown">
+                                    <?php
+                                    // 撈出該使用者的所有優惠券
+                                    $query = "SELECT message, code FROM coupons WHERE cid = ?";
+                                    $stmt = $conn->prepare($query);
+                                    $stmt->bind_param("i", $cid);
+                                    $stmt->execute();
+                                    $result = $stmt->get_result();
+
+                                    // 顯示選單項目
+                                    while ($row = $result->fetch_assoc()) {
+                                        echo '<li><a class="dropdown-item use-coupon" data-code="' . htmlspecialchars($row['code']) . '">' . htmlspecialchars($row['message']) . '</a></li>';
+                                    }
+                                    ?>
+                                    <li><a  class="dropdown-item " href="../claw_machine/claw.php?cid=<?= $cid ?>">新增優惠卷</a></li>
+                                    <li><a class="dropdown-item  clear-coupon">不使用優惠券</a></li>
+                                </ul>
+                            </div>
+                            <!-- 隱藏欄位，用於表單送出 -->
+                            <input type="hidden" name="couponCode" id="selectedCoupon" value="">
+                            <p class="text-muted" id="selectedCouponText"></p>
+
+
+                            
+                            
                         </div>
                         
 
@@ -283,7 +311,7 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
                     </div>
                     
                     <div class="col-5  mt-5">
-                        <div class="bg-light rounded">
+                        <div class="bg-white rounded">
                             <div class="p-4">
                                 <!-- <h1 class="display-6 mb-4">Cart <span class="fw-normal">Total</span></h1> -->
                                 <div class="d-flex justify-content-between mb-4">
@@ -293,7 +321,7 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
                                 <div class="d-flex justify-content-between">
                                     <h5 class="mb-0 me-4 text-dark">外送費</h5>
                                     <div class="">
-                                        <p class="mb-0">$30</p>
+                                        <p class="mb-0 delivery-fee"></p>
                                     </div>
                                 </div>
                                 <div class="d-flex justify-content-between my-2">
@@ -308,7 +336,7 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
                                 <p class="mb-0 pe-4 grand-total"></p>
                             </div>
                             <div class="text-end px-2">
-                                <button id="submitOrderBtn" class="btn border-secondary rounded-pill px-4 py-3 text-primary text-uppercase mb-4 ms-4 " type="button">送出訂單</button>
+                                <button id="submitOrderBtn" class="btn btn-primary border-secondary rounded-pill px-4 py-3 text-primary text-uppercase mb-4 ms-4 text-white" type="button">送出訂單</button>
                             </div>
                             
                         </div>
@@ -390,27 +418,8 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
                 }
             }
         </script>
-        <script>
-            document.addEventListener("DOMContentLoaded", function () {
-                const newCardOption = document.getElementById("newCardOption");
-                const submitBtn = document.getElementById("submitOrderBtn");
-
-                // 當選擇新增信用卡
-                newCardOption.addEventListener("change", function () {
-                    if (this.checked) {
-                        submitBtn.disabled = true;
-                        // 顯示 modal（視你用的框架可能不同）
-                        const newCardModal = new bootstrap.Modal(document.getElementById("newCardModal"));
-                        newCardModal.show();
-                    }
-                });
-
-                // 當卡片成功新增後（你可以在新增成功的 callback 裡觸發）
-                window.enableOrderButton = function () {
-                    submitBtn.disabled = false;
-                };
-            });
-        </script>
+        
+        
 
         
 
