@@ -478,28 +478,13 @@ const { height: machineBottomHeight, top: machineBottomTop } = document
     },
   })
 
-
-  // function showPopupMessage(prize) {
-  //   createPopup(prize)
-  
-  //   const popup = document.querySelector('.popup-message')
-  //   popup.classList.add('show')
-  
-  //   launchConfetti()
-  
-  //   setTimeout(() => {
-  //     popup.classList.remove('show')
-  //   }, 3000)
-  // }
   
   // 以下有改過
   function showPopupMessage(prize) {
     createPopup(prize);
   
     const popup = document.querySelector('.popup-message');
-    popup.classList.add('show');
   
-    // ⭐ 這邊新增：送資料給 PHP
     fetch('save_coupon.php', {
       method: 'POST',
       headers: {
@@ -513,18 +498,31 @@ const { height: machineBottomHeight, top: machineBottomTop } = document
     })
     .then(response => response.json())
     .then(data => {
+      if (data.status === 'error') {
+        const couponImg = document.getElementById('couponImage');
+        if (couponImg) {
+          couponImg.style.display = 'block';
+          couponImg.onclick = () => {
+            couponImg.style.display = 'none';
+          };
+        }
+        return; // ❗ 不顯示 popup
+      }
+  
       console.log('Prize saved:', data);
+      launchConfetti(); // ✅ 顯示特效（你若有這函式）
+  
+      popup.classList.add('show');
+      setTimeout(() => {
+        popup.classList.remove('show');
+      }, 3000);
     })
     .catch(error => {
       console.error('Error saving prize:', error);
     });
-  
-    launchConfetti();
-  
-    setTimeout(() => {
-      popup.classList.remove('show');
-    }, 3000);
   }
+  
+  
   // 以上有改過
   
 
@@ -581,5 +579,4 @@ const { height: machineBottomHeight, top: machineBottomTop } = document
     const colors = ['#ff9ddf', '#ffd966', '#95e6ff', '#baffc9', '#ffc2e2']
     return colors[Math.floor(Math.random() * colors.length)]
   }
-  
   

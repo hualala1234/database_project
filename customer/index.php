@@ -114,17 +114,21 @@ if (isset($_SESSION['cid'], $_SESSION['cartTime'])) {
                                 </a>
 
                                 <div id="myDropdown" class="dropdown-content" style="display: none; position: absolute; background-color: white; min-width: 120px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 1; right: 0; border-radius: 8px;">
-                                <?php if ($_SESSION['role'] === 'merchant'): ?>
-                                <a href="/database/merchant/setting.php" class="dropdown-item">商家設定</a>
-                                <?php elseif ($_SESSION['role'] === 'customer'): ?>
-                                <a href="/database/customer/setting.php" class="dropdown-item">個人設定</a>
-                                <a href="/database_project/allergy/allergy.php" class="dropdown-item">過敏設定</a>
-                                <?php elseif ($_SESSION['role'] === 'delivery_person'): ?>
-                                <a href="/database/customer/setting.php" class="dropdown-item">外送員設定</a>
-                                <?php elseif ($_SESSION['role'] === 'platform'): ?>
-                                <a href="/database/customer/setting.php" class="dropdown-item">平台設定</a>
-                                <?php endif; ?>
-                                <a href="/database_project/login/login_customer/logout.php" class="dropdown-item">Logout</a>
+
+                                    <?php if ($_SESSION['role'] === 'merchant'): ?>
+                                        <a href="/database/merchant/setting.php" class="dropdown-item">商家設定</a>
+                                    <?php elseif ($_SESSION['role'] === 'customer'): ?>
+                                        <a href="/database/customer/setting.php" class="dropdown-item">個人設定</a>
+                                        <a href="/database_project/allergy/allergy.php" class="dropdown-item">過敏設定</a>
+                                        <a href="../claw_machine/claw.php" class="dropdown-item">優惠券活動</a>
+                                        <a href="friends.php" class="dropdown-item">我的好友</a>
+                                    <?php elseif ($_SESSION['role'] === 'delivery_person'): ?>
+                                        <a href="/database/customer/setting.php" class="dropdown-item">外送員設定</a>
+                                    <?php elseif ($_SESSION['role'] === 'platform'): ?>
+                                        <a href="/database/customer/setting.php" class="dropdown-item">平台設定</a>
+                                    <?php endif; ?>
+                                        <a href="/database_project/login/login_customer/logout.php" class="dropdown-item">Logout</a>
+
 
                                 </div>
                             </div>
