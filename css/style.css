@@ -91,7 +91,9 @@
     line-height: 0;
     letter-spacing: 1px;
     display: flex;
-    align-items: center;
+    /* 吃不到!!! */
+    align-items: center !important;
+    justify-content: space-evenly !important;
 }
 
 .topbar .top-link {
@@ -114,6 +116,11 @@
 .topbar .top-link a small:hover i {
     color: var(--bs-primary) !important;
 }
+
+span#current-address {
+    color: white;
+}
+
 /*** Topbar End ***/
 
 /*** Navbar Start ***/
@@ -548,6 +555,7 @@
     color: white;
 }
 
+
 td {
     text-align: center;
     vertical-align: middle;
@@ -582,4 +590,31 @@ body {
     padding-top: 4px;
     padding-bottom: 4px;
     line-height: 1.2;
+}
+
+
+
+/* 營業時間頁面 */
+.custom-list-group-item {
+    padding-top: 4px;
+    padding-bottom: 4px;
+    line-height: 1.2;
+}
+
+.custom-list-group-item {
+    padding-top: 4px;
+    padding-bottom: 4px;
+    line-height: 1.2;
+}
+
+.form-element.button_container {
+    padding-top: 30px !important;
+}
+
+button.btn.btn-sm.btn-outline-light.ms-2.change-address-btn {
+    margin-right: 100px;
+}
+
+span.address-label.text-white {
+    margin-left: 100px;
 }
