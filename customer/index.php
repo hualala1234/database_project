@@ -120,7 +120,7 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
                             <a href="#" class="position-relative me-4 my-auto" data-bs-toggle="modal" data-bs-target="#cartModal">
                                 <i class="fa-solid fa-cart-shopping fa-2x"></i>
                                 <span class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 22px; height: 20px; min-width: 20px;">
-                                    <?= $cartCount ?? '' ?>
+                                    <?= isset($cartCount) ? $cartCount : '0' ?>
                                 </span>
                             </a>
                             <?php if (isset($_SESSION['login_success'])): ?>

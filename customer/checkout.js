@@ -11,13 +11,15 @@ function getQueryParam(name) {
     loadCart(mid);
     SubmitOrder(mid)
   });
-  
+  let globalCartTime = null;
   // ✅ 載入購物車資料
   function loadCart(mid) {
     
     fetch(`cart_data.php?mid=${mid}`)
       .then(res => res.json())
-      .then(items => {
+      .then(data => {
+        const items = data.items;
+        globalCartTime = data.cartTime;
         const tbody = document.querySelector("tbody");
         tbody.innerHTML = "";
         let subtotal = 0;
@@ -72,7 +74,9 @@ function getQueryParam(name) {
     
     coupon.addEventListener("click", () => {
       const code = coupon.dataset.code;
+      const id = coupon.dataset.id;
       document.getElementById("selectedCoupon").value = code;
+      document.getElementById("selectedCoupon").dataset.id = id; // 儲存 id 在 dataset 裡
       document.getElementById("selectedCouponText").textContent = "已套用：" + coupon.textContent.trim();
       applyCoupon(code);
       });
@@ -87,52 +91,82 @@ function getQueryParam(name) {
       updateSummary(currentSubtotal); // 回復為原始價格
     }
   });
+
+
   function SubmitOrder(mid) {
     document.getElementById("submitOrderBtn").addEventListener("click", () => {
       const selectedPayment = document.querySelector("input[name='paymentMethod']:checked");
-      console.log(selectedPayment);  // 調試選中項目
       if (!selectedPayment) {
         alert("請選擇付款方式！");
         return;
       }
-      
+      const address = document.getElementById("current-address").textContent.trim();
       const paymentMethod = selectedPayment.value;
-      const cardName = document.getElementById("cardName").value || "";
       const tNote = document.getElementById("specialNote").value || "";
       const couponCode = document.getElementById("selectedCoupon").value || null;
-      
+      console.log("cid：", cid);
       console.log("mid from URL:", mid); // 打印出 mid 的值來檢查
-      
-  
+      console.log("備註是：", tNote);
       console.log("使用的付款方式是：", paymentMethod);
+      console.log("使用的address是：", address);
   
-      fetch("cart_data.php")
+
+  
+      fetch(`cart_data.php?mid=${mid}`)
         .then(res => res.json())
-        .then(cartItems => {
+        .then(data => {
+          const items = data.items;
+          const cartTime = data.cartTime;
+          console.log("items是：", items);
+          console.log("cartTime是：", cartTime);
           const totalPriceText = document.querySelector(".grand-total").textContent.replace("$", "");
           const totalPrice = parseInt(totalPriceText);
+          const couponId = document.getElementById("selectedCoupon").dataset.id;
+          console.log("totalPrice是：", totalPrice);
+          console.log("couponId是：", couponId);
+
+          const cartItems = items.map(item => ({
+            pid: item.pid,
+            price: item.price,
+            quantity: item.quantity,
+            specialNote: item.specialNote || ''
+          }));
+
   
-          fetch("submit_order.php", {
+          fetch(`submit_order.php?mid=${mid}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               mid,
               totalPrice,
               paymentMethod,
-              cardName,
               tNote,
               couponCode,
-              cartItems
+              address_text: address,
+              cartItems,
+              id: couponId,
+              cartTime,
+              subtotal: currentSubtotal
+              
             })
           })
-          .then(res => res.json())
+          .then(res => {
+            if (!res.ok) {
+              throw new Error('伺服器錯誤');
+            }
+            return res.json();  // 只有當回應成功時，才解析為 JSON
+          })
           .then(result => {
             if (result.success) {
               alert("✅ 訂單送出成功！");
-              window.location.href = "success.html";
+              window.location.href = `index.php?cid=${cid}`; // 送出訂單後導向首頁
             } else {
               alert("❌ 訂單失敗：" + result.error);
             }
+          })
+          .catch(error => {
+            console.error('錯誤:', error);
+            alert("❌ 伺服器錯誤，請稍後再試！");
           });
         });
     });

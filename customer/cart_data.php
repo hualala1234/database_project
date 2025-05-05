@@ -26,5 +26,9 @@ $items = [];
 while ($row = $result->fetch_assoc()) {
     $items[] = $row;
 }
-echo json_encode($items);
+echo json_encode([
+    "cartTime" => $cartTime,
+    "items" => $items
+]);
+
 ?>
