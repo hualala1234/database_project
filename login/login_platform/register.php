@@ -95,10 +95,11 @@ if ($platIdExists && $emailExists) {
     }
 
     // Insert the new user into the database
-    $sql = "INSERT INTO platform (name, email, password, imageURL)
-            VALUES (?, ?, ?, ?)";
+    $role = 'platform'; // 預設角色為 platform
+    $sql = "INSERT INTO platform (name, email, password, imageURL, role)
+            VALUES (?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ssss",  $fullname, $email, $password, $imageURL);
+    $stmt->bind_param("sssss",  $fullname, $email, $password, $imageURL, $role);
 
     if ($stmt->execute()) {
         echo "
