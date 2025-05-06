@@ -36,8 +36,13 @@ try {
     $stmt->execute([':cid' => $cid]);
     $playedToday = $stmt->fetchColumn();
 
-    if ($playedToday > 3) {
-        echo json_encode(['status' => 'error', 'message' => '今天已經玩過一次了']);
+    // 每次讀取優惠券時，檢查是否過期
+    $stmt = $pdo->prepare("DELETE FROM coupons WHERE created_at < NOW() - INTERVAL 1 DAY");
+    $stmt->execute();
+
+
+    if ($playedToday > 2) {
+        echo json_encode(['status' => 'error', 'message' => '今天已經玩過三次了']);
         exit;
     }
 
