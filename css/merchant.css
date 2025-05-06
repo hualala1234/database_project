@@ -272,7 +272,7 @@ h1,h2,h3,h4,h5,h6 {
   --bs-breadcrumb-item-active-color: var(--bs-primary);
 }
 .dropdown-menu {
-  --bs-dropdown-link-active-bg: var(--bs-primary);
+  --bs-dropdown-link-active-bg: #D5E2D8;
 }
 .nav-pills .nav-link {
   --bs-nav-pills-link-active-color: #111;
@@ -721,3 +721,7 @@ h1,h2,h3,h4,h5,h6 {
   }
 }
 
+.dropdown-item:hover{
+  background-color: #146E57!important;
+  color: #fff!important;
+}

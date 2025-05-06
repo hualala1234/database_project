@@ -73,10 +73,11 @@ if ( $emailExists) {
     }
 
     // Insert the new user into the database
-    $sql = "INSERT INTO merchant ( mName, mEmail, password, mAddress, mPicture)
-            VALUES ( ?, ?, ?, ?, ?)";
+    $role = 'm'; // 預設角色為 merchant
+    $sql = "INSERT INTO merchant ( mName, mEmail, password, mAddress, mPicture, role)
+            VALUES ( ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssss",  $fullname, $email, $password, $address, $imageURL);
+    $stmt->bind_param("ssssss",  $fullname, $email, $password, $address, $imageURL, $role);
 
     if ($stmt->execute()) {
         echo "

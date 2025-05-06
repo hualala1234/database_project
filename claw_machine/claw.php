@@ -1,3 +1,8 @@
+<?php
+session_start();
+$cid = $_SESSION['cid'] ?? '';
+?>
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -9,12 +14,12 @@
   </head>
   <body>
     <!-- 要改 -->
-  <div class="header_claw_machine">
-    <p>Who you are?</p>
-    <a href="/database/customer/index.php">
-      <img src="home.png" alt="Home" class="home-icon">
-    </a>
-  </div>
+    <div class="header_claw_machine">
+      <p>CLAW MACHINE</p>
+      <a href="../customer/index.php?cid=<?php echo htmlspecialchars($cid); ?>">
+        <img src="home.png" alt="Home" class="home-icon">
+      </a>
+    </div>
     <div class="wrapper">
       <div class="collection-box pix"></div>
       <div class="claw-machine">
@@ -58,6 +63,19 @@
     
 
     <div class="confetti-container"></div>
+
+    <img id="couponImage" src="getcoupon.png" alt="已領取優惠券" style="
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 10001;
+      cursor: pointer;
+      max-width: 80%;
+      height: 500px;
+    ">
+
 
   
     <script src="claw.js"></script>

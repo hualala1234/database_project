@@ -97,13 +97,13 @@ $create_email = $_GET['create'] ?? 'Log in to stay connected with us';
                 <form action="login.php" method="POST">
                     <h1>Login</h1>
                     <span>Use Your Account To Sign In</span>
-                    <input 
+                    <!-- <input 
                         type="text" 
                         name="name" 
                         placeholder="Enter your name" 
                         
                         value="<?php echo htmlspecialchars($_GET['name'] ?? ''); ?>"
-                    >
+                    > -->
                     
                     <input 
                         type="email" 

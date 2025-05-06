@@ -116,39 +116,44 @@ if (!empty($row['businessHours'])) {
                             </div> -->
                             <a href="contact.html" class="nav-item nav-link">聯繫平台</a>
                         </div>
-                        <div class="d-flex m-3 me-0">
-                            <!-- <button class="btn-search btn border border-secondary btn-md-square rounded-circle bg-white me-4" data-bs-toggle="modal" data-bs-target="#searchModal"><i class="fas fa-search text-primary"></i></button> -->
-                            <!-- <a href="#" class="position-relative me-4 my-auto">
-                                <i class="fa fa-shopping-bag fa-2x"></i>
-                                <span class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 15px; height: 20px; min-width: 20px;">3</span>
-                            </a> -->
+                        
+                        <div class="d-flex m-3 me-0"> 
                             <?php if (isset($_SESSION['login_success'])): ?>
-                            <!-- ✅ 已登入的顯示 -->
-                            <div class="dropdown" style="position: relative; display: inline-block;">
-                                <a href="javascript:void(0);" class="my-auto" onclick="toggleDropdown()">
-                                    <img src="  ../login/success.png" alt="Success" style="width: 40px; height: 40px; filter: brightness(0) saturate(100%) invert(42%) sepia(91%) saturate(356%) hue-rotate(71deg) brightness(94%) contrast(92%);">
-                                </a>
+                                <!-- ✅ 已登入的顯示 -->
+                                <div class="dropdown-custom" style="position: relative; display: inline-block;">
+                                    <a href="javascript:void(0);" class="my-auto d-inline-block" onclick="toggleDropdown()" style="cursor: pointer;">
+                                        <img src="../login/success.png" alt="Success" style="width: 40px; height: 40px; filter: brightness(0) saturate(100%) invert(42%) sepia(91%) saturate(356%) hue-rotate(71deg) brightness(94%) contrast(92%);">
+                                    </a>
 
-                                <div id="myDropdown" class="dropdown-content" style="display: none; position: absolute; background-color: white; min-width: 120px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 1; right: 0; border-radius: 8px;">
-                                    <?php if ($_SESSION['role'] === 'merchant'): ?>
-                                        <a href="/database/merchant/setting.php" class="dropdown-item">商家設定</a>
-                                    <?php elseif ($_SESSION['role'] === 'customer'): ?>
-                                        <a href="/database/customer/setting.php" class="dropdown-item">個人設定</a>
-                                        <a href="/database_project/allergy/allergy.php" class="dropdown-item">過敏設定</a>
-                                    <?php elseif ($_SESSION['role'] === 'delivery_person'): ?>
-                                        <a href="/database/customer/setting.php" class="dropdown-item">外送員設定</a>
-                                    <?php elseif ($_SESSION['role'] === 'platform'): ?>
-                                        <a href="/database/customer/setting.php" class="dropdown-item">平台設定</a>
-                                    <?php endif; ?>
+                                    <div id="myDropdown" class="d-none" style="
+                                        position: absolute;
+                                        top: 100%;
+                                        right: 0;
+                                        background-color: white;
+                                        min-width: 120px;
+                                        box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+                                        z-index: 1000;
+                                        border-radius: 8px;
+                                        padding: 8px 0;
+                                    ">
+                                        <?php if ($_SESSION['role'] === 'merchant'): ?>
+                                            <a href="/database/merchant/setting.php" class="dropdown-item">商家設定</a>
+                                        <?php elseif ($_SESSION['role'] === 'customer'): ?>
+                                            <a href="/database/customer/setting.php" class="dropdown-item">個人設定</a>
+                                            <a href="/database_project/allergy/allergy.php" class="dropdown-item">過敏設定</a>
+                                        <?php elseif ($_SESSION['role'] === 'delivery_person'): ?>
+                                            <a href="/database/customer/setting.php" class="dropdown-item">外送員設定</a>
+                                        <?php elseif ($_SESSION['role'] === 'platform'): ?>
+                                            <a href="/database/customer/setting.php" class="dropdown-item">平台設定</a>
+                                        <?php endif; ?>
                                         <a href="/database_project/login/login_customer/logout.php" class="dropdown-item">Logout</a>
-
+                                    </div>
                                 </div>
-                            </div>
                             <?php else: ?>
-                            <!-- ❌ 未登入的顯示 -->
-                            <a href="/database_project/login/before_login.php" class="my-auto">
-                                <i class="fas fa-user fa-2x"></i>
-                            </a>
+                                <!-- ❌ 未登入的顯示 -->
+                                <a href="/database_project/login/before_login.php" class="my-auto">
+                                    <i class="fas fa-user fa-2x"></i>
+                                </a>
                             <?php endif; ?>
                             
                         </div>
@@ -406,23 +411,7 @@ if (!empty($row['businessHours'])) {
     };
     </script>
 
-    <!-- <script>
-        const checkboxes = document.querySelectorAll('input[name="restaurantCategories[]"]');
-        const saveButton = document.getElementById("saveButton");
-
-        function validateForm() {
-            let isAnyChecked = Array.from(checkboxes).some(checkbox => checkbox.checked);
-            let requiredInputsFilled = Array.from(document.querySelectorAll("input[required]")).every(input => input.value.trim() !== "");
-
-            saveButton.disabled = !(isAnyChecked && requiredInputsFilled);
-        }
-
-        checkboxes.forEach(checkbox => checkbox.addEventListener("change", validateForm));
-        document.querySelectorAll("input[required]").forEach(input => input.addEventListener("input", validateForm));
-
-        // 初始檢查
-        validateForm();
-    </script> -->
+    
 
     <script>
         const checkboxes = document.querySelectorAll('input[name="restaurantCategories[]"]');
@@ -450,18 +439,23 @@ if (!empty($row['businessHours'])) {
     </script>
 
 
+
     <script>
         function toggleDropdown() {
-            var dropdown = document.getElementById("myDropdown");
-            dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+
+            const dropdown = document.getElementById("myDropdown");
+            dropdown.classList.toggle("d-none");
         }
+
         window.onclick = function(event) {
-            var dropdown = document.getElementById("myDropdown");
-            if (!event.target.closest('.dropdown') && dropdown && dropdown.style.display === "block") {
-                dropdown.style.display = "none";
+            const dropdown = document.getElementById("myDropdown");
+            if (!event.target.closest('.dropdown-custom') && dropdown && !dropdown.classList.contains("d-none")) {
+                dropdown.classList.add("d-none");
+
             }
         }
     </script>
+
 
     <script>
         function toggleDay(day) {
