@@ -1,0 +1,182 @@
+@import url('https://fonts.googleapis.com/css2?family=Winky+Rough:ital,wght@0,300..900;1,300..900&display=swap');
+
+.header_friends {
+    position: fixed; /* 固定在螢幕上 */
+    top: 0;           /* 頂到最上面 */
+    left: 0;          /* 貼左邊 */
+    width: 100% !important;      /* 寬度拉滿 */
+    background-color: #a5d6a7 !important;
+    /* padding: 20px; */
+    text-align: center;
+    z-index: 1000;    /* 疊在最上層，避免被其他東西蓋掉 */
+}
+
+
+.home-icon {
+    width: 40px; /* 調整icon大小 */
+    height: 40px;
+    transition: filter 0.3s; /* 做變色動畫 */
+}
+
+.header_friends p {
+    font-family: "Winky Rough", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-size: 50px;
+}
+
+.header_friends a {
+    position: absolute;
+    right: 20px; /* 距離右邊 20px */
+    top: 50%;
+    transform: translateY(-50%); /* 垂直置中 */
+}
+
+.header_friends a:hover .home-icon {
+    filter: invert(1);
+}
+  
+
+.add-form {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px; /* 元素之間留點間距 */
+    flex-wrap: wrap; /* 如果螢幕變小可換行 */
+}
+
+.add-button {
+    background-color: #28a745;
+    color: white;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 15px;
+    cursor: pointer;
+}
+.delete-button {
+    background-color: #dc3545;
+    color: white;
+    font-size: 14px;
+    border: none;
+    border-radius: 5px;
+    padding: 4px 10px;
+    cursor: pointer;
+}
+input[type="email"] {
+    padding: 5px;
+    font-size: 16px;
+    width: 300px;
+}
+.error {
+    color: red;
+    margin-top: 10px;
+}
+
+.friend-imageURL {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.friend-list {
+    display: flex;
+    flex-wrap: wrap; /* 換行 */
+    justify-content: space-between; /* 三個之間平均分配空間 */
+    gap: 20px; /* 每個卡片間距 */
+    
+}
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #e1f3e278;
+    padding: 40px;
+    /* max-width: 800px; */
+    margin: 50px auto 0 auto; /* 上 50px，自動左右置中 */
+    color: #333;
+    /* position: absolute; 移除這一行 */
+}
+
+h2 {
+    color: #2b5c2b;
+    border-left: 6px solid #4caf50;
+    padding-left: 12px;
+    margin-bottom: 20px;
+}
+
+.friend-card {
+    background-color: #f4fff4;
+    border: 2px solid #a5d6a7;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 8px rgba(51, 77, 51, 0.15);
+    position: relative;
+    margin: 20px;
+    width: calc(25% - 20px); /* 三個一排，扣掉間距 */
+    box-sizing: border-box;
+}
+
+.friend-imageURL {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 2px solid #81c784;
+    margin-top: 10px;
+}
+
+.add-form,
+form[action=""] {
+    margin-top: 20px;
+}
+
+input[type="email"] {
+    padding: 10px;
+    font-size: 16px;
+    width: 65%;
+    border: 2px solid #81c784;
+    border-radius: 8px;
+    background-color: #fafffa;
+    margin-right: 10px;
+    color: #2e4d2c;
+}
+
+.add-button,
+.delete-button {
+    padding: 8px 16px;
+    font-size: 14px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.add-button {
+    background-color: #66bb6a;
+    color: white;
+}
+
+.add-button:hover {
+    background-color: #57a05a;
+}
+
+.delete-button {
+    background-color: #c62828;
+    color: white;
+}
+
+.delete-button:hover {
+    background-color: #a51f1f;
+}
+
+.error {
+    color: #d32f2f;
+    margin-top: 15px;
+    font-weight: bold;
+}

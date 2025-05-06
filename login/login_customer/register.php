@@ -96,7 +96,7 @@ if ($cIdExists && $emailExists) {
     
         if (!move_uploaded_file($fileTmp, $savePath)) {
             echo "<h3 style='color:red;'>圖片移動失敗</h3>";
-            $imageURL = '';
+            $imageURL = 'default-avatar.png';
         }
     }
     
@@ -117,10 +117,11 @@ if ($cIdExists && $emailExists) {
     }
 
     // Insert the new user into the database
-    $sql = "INSERT INTO customer ( cName, email, password, address, introducer, imageURL)
-            VALUES ( ?, ?, ?, ?, ?, ?)";
+    $role = 'c';
+    $sql = "INSERT INTO customer ( cName, email, password, address, introducer, imageURL, role)
+            VALUES ( ?, ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ssssis", $fullname, $email, $password, $address, $introducer, $imageURL);
+    $stmt->bind_param("ssssiss", $fullname, $email, $password, $address, $introducer, $imageURL, $role);
 
     if ($stmt->execute()) {
         echo "

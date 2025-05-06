@@ -21,6 +21,28 @@ if (isset($_SESSION['cid'], $_SESSION['cartTime'])) {
     $stmt->fetch();
     $stmt->close();
 }
+
+// 處理表單提交更新地址
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_address_id'])) {
+    $selected_address_id = $_POST['selected_address_id'];
+    // 根據選擇的地址 ID 更新 session 中的地址
+    $sql = "SELECT address_text FROM caddress WHERE address_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $selected_address_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($row = $result->fetch_assoc()) {
+        $_SESSION['current_address'] = $row['address_text']; // 更新 session 地址
+    }
+    // 重定向回 index.php，讓頁面更新
+    header("Location: merchant.php");
+    exit;
+}
+
+// 取得目前使用的地址（如果有從 modal 選擇過）
+$defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選擇地址');
+
+
 ?>
 
 <!DOCTYPE html>
@@ -57,6 +79,7 @@ if (isset($_SESSION['cid'], $_SESSION['cartTime'])) {
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Raleway:wght@600;800&display=swap" rel="stylesheet"> 
+   
 
     <!-- <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -185,21 +208,21 @@ if (isset($_SESSION['cid'], $_SESSION['cartTime'])) {
     <!-- Navbar start -->
     <div class="container-fluid fixed-top">
       <div class="container topbar bg-primary d-none d-lg-block">
-        <div class="d-flex justify-content-between">
+        
           <div class="top-info ps-2">
-            <i class="fas fa-map-marker-alt me-2 text-secondary"></i> <a href="#" class="text-white">客戶住址</a>
-            <!-- <small class="me-3"><i class="fas fa-envelope me-2 text-secondary"></i><a href="#" class="text-white">Email@Example.com</a></small> -->
+            <span class="address-label text-white"><i class="fas fa-map-marker-alt me-2 text-secondary"></i> 目前住址</span>
+            <span class="address-text" id="current-address" class="text-white">
+                <?= htmlspecialchars($defaultAddress) ?> <!-- PHP 顯示預設地址 -->
+            </span>
+            <button class="btn btn-sm btn-outline-light ms-2 change-address-btn" data-bs-toggle="modal" data-bs-target="#addressModal">
+                更換外送地點
+            </button>
           </div>
-          <!-- <div class="top-link pe-2">
-            <a href="#" class="text-white"><small class="text-white mx-2">Privacy Policy</small>/</a>
-            <a href="#" class="text-white"><small class="text-white mx-2">Terms of Use</small>/</a>
-            <a href="#" class="text-white"><small class="text-white ms-2">Sales and Refunds</small></a>
-          </div> -->
-        </div>
+
       </div>
       <div class="container px-0">
         <nav class="navbar navbar-light bg-white navbar-expand-xl">
-          <a href="index.php?cid=<?php echo $cid; ?>" class="navbar-brand"><h1 class="text-primary display-6">Junglebite</h1></a>
+          <a href="merchant.php?cid=<?php echo $cid; ?>" class="navbar-brand"><h1 class="text-primary display-6">Junglebite</h1></a>
           <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
             <span class="fa fa-bars text-primary"></span>
           </button>
@@ -216,7 +239,7 @@ if (isset($_SESSION['cid'], $_SESSION['cartTime'])) {
             <a href="#" class="position-relative me-4 my-auto" data-bs-toggle="modal" data-bs-target="#cartModal">
               <i class="fa-solid fa-cart-shopping fa-2x"></i>
               <span class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 22px; height: 20px; min-width: 20px;">
-                <?= $cartCount ?? '' ?>
+                <?= isset($cartCount) ? $cartCount : '0' ?>
               </span>
             </a>
               <?php if (isset($_SESSION['login_success'])): ?>
@@ -381,15 +404,15 @@ if (isset($_SESSION['cid'], $_SESSION['cartTime'])) {
 
             echo '
             <!-- 顯示商品 -->
-            <section class="py-3" id="category_' . $catId . '">
-              
+            <section class="py-3" id="category_' . $catId . '">     
               <div class="container-fluid fruite py-5">
+                <h2 class="col-lg-4 text-start my-4">' . $catName . '</h2> 
                 <div class="container py-0 px-0">
                   <div class="tab-class text-center">
                     <div class="row">
                       <div class="col-lg-12">
                         <div class="row g4">
-                          <h2 class="col-lg-4 text-start">' . $catName . '</h2>
+                          
                         </div>
                       </div>
                     </div>
@@ -2424,59 +2447,139 @@ if (isset($_SESSION['cid'], $_SESSION['cartTime'])) {
           </div>
           <div class="modal-body">
 
+          <?php
+          $cid = $_SESSION['cid'];
+          $cartTime = isset($_SESSION['cartTime']) ? $_SESSION['cartTime'] : '';
+
+          $sql = "SELECT c.*, p.pName, p.price, p.pPicture, m.mName
+                  FROM CartItem c
+                  JOIN Product p ON c.pid = p.pid
+                  JOIN Merchant m ON c.mid = m.mid
+                  WHERE c.cid = ? AND c.cartTime = ?
+                  ORDER BY c.mid";
+
+          $stmt = $conn->prepare($sql);
+          $stmt->bind_param("is", $cid, $cartTime);
+          $stmt->execute();
+          $result = $stmt->get_result();
+
+          $groupedItems = [];
+          while ($row = $result->fetch_assoc()) {
+              $groupedItems[$row['mid']]['mName'] = $row['mName'];
+              $groupedItems[$row['mid']]['items'][] = $row;
+          }
+          ?>
+
+          <?php foreach ($groupedItems as $mid => $group): ?>
             <?php
-            
-
-            $cid = $_SESSION['cid'];
-            $cartTime = $_SESSION['cartTime'];
-
-            $sql = "SELECT c.*, p.pName, p.price, p.pPicture, m.mName
-                    FROM CartItem c
-                    JOIN Product p ON c.pid = p.pid
-                    JOIN Merchant m ON c.mid = m.mid
-                    WHERE c.cid = ? AND c.cartTime = ?
-                    ORDER BY c.mid";
-
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("is", $cid, $cartTime);
-            $stmt->execute();
-            $result = $stmt->get_result();
-
-            $groupedItems = [];
-            while ($row = $result->fetch_assoc()) {
-                $groupedItems[$row['mid']]['mName'] = $row['mName'];
-                $groupedItems[$row['mid']]['items'][] = $row;
-            }
+              $subtotal = 0;
+              foreach ($group['items'] as $item) {
+                $subtotal += $item['price'] * $item['quantity'];
+              }
             ?>
-
-            <?php foreach ($groupedItems as $group): ?>
-              <div class="mb-4">
+            <div class="mb-4">
               <h5>
                 <a class="text-primary text-decoration-none" href="merchant.php?mid=<?= urlencode($group['items'][0]['mid']) ?>">
                   <?= htmlspecialchars($group['mName']) ?>
                 </a>
               </h5>
 
-                <?php foreach ($group['items'] as $item): ?>
-                  <div class="d-flex align-items-center mb-3">
+              <?php foreach ($group['items'] as $item): ?>
+                <div style="display: flex; align-items: flex-end; justify-content: space-between;">
+                  <div class="d-flex align-items-center mb-3"
+                      id="cart-item-<?= $item['pid'] ?>-<?= $item['mid'] ?>"
+                      data-price="<?= $item['price'] ?>">
                     <img src="../<?= htmlspecialchars($item['pPicture']) ?>" alt="<?= $item['pName'] ?>" class="rounded" style="width: 60px; height: 60px; object-fit: cover;">
                     <div class="ms-3 flex-grow-1">
-                      <strong><?= htmlspecialchars($item['pName']) ?></strong><br>
-                      <small>NT$<?= $item['price'] ?> x <?= $item['quantity'] ?></small><br>
-                      <small class="text-muted"><?= nl2br(htmlspecialchars($item['specialNote'])) ?></small>
-                    </div>
-                    <div>
-                      <span class="fw-bold">NT$<?= $item['price'] * $item['quantity'] ?></span>
-                    </div>
-                  </div>
-                <?php endforeach; ?>
-              </div>
-            <?php endforeach; ?>
+                      <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                          <strong><?= htmlspecialchars($item['pName']) ?> - NT$<?= htmlspecialchars($item['price']) ?></strong>
+                        </div>
 
-          </div>
+                        <?php if (!empty($item['specialNote'])): ?>
+                          <div class="text-muted small  mx-3">
+                            備註:
+                            <?= nl2br(htmlspecialchars($item['specialNote'])) ?>
+                          </div>
+                        <?php endif; ?>
+                      </div>
+                      
+
+                      <div class="d-flex align-items-center mt-2">
+                        <div class="input-group input-group-sm" style="max-width: 140px;">
+                          <button class="btn btn-outline-secondary" type="button" onclick="handleDecrease(<?= $item['pid'] ?>, <?= $item['mid'] ?>)">-</button>
+                          <input type="text" id="qty-<?= $item['pid'] ?>-<?= $item['mid'] ?>" class="form-control text-center" value="<?= $item['quantity'] ?>" readonly>
+                          <button class="btn btn-outline-secondary" type="button" onclick="handleIncrease(<?= $item['pid'] ?>, <?= $item['mid'] ?>)">+</button>
+                        </div>
+
+                        <button class="btn btn-sm btn-outline-danger ms-3" onclick="removeItem(<?= $item['pid'] ?>, <?= $item['mid'] ?>)">
+                          <i class="fa-solid fa-trash"></i>
+                        </button>
+                        <!-- 新增編輯按鈕 -->
+                        <button class="btn btn-sm btn-outline-secondary ms-2"
+                                onclick="openEditModal(<?= $item['pid'] ?>, <?= $item['mid'] ?>, <?= $item['quantity'] ?>, decodeURIComponent('<?= rawurlencode($item['specialNote']) ?>'))">
+                          <i class="fa-solid fa-pen"></i>
+                        </button>
+                        
+                      </div> 
+                    </div> 
+                  </div>
+                  <div>
+                    <span class="fw-bold" id="subtotal-<?= $item['pid'] ?>-<?= $item['mid'] ?>">
+                      NT$<?= $item['price'] * $item['quantity'] ?>
+                    </span>
+                  </div>
+                  
+                </div>
+                
+                
+              <?php endforeach; ?>
+              <!-- 小計與結帳按鈕 -->
+               <hr>
+              <div style="display: flex; flex-direction: column; align-items: flex-end;" class="mt-2">
+                <div class="fw-bold text-end">
+                  小計：<span id="store-subtotal-<?= $mid ?>">NT$<?= $subtotal ?></span>
+                </div>
+                <a href="checkout.php?mid=<?= $mid ?>" class="btn btn-sm btn-primary mt-2 fw-bold py-2 text-white" >
+                  前往結帳
+                </a>
+              </div>
+            </div>
+            
+          <?php endforeach; ?>
+
+        </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
-            <a href="checkout.php" class="btn btn-primary">前往結帳</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 修改購物車 -->
+    <div class="modal fade" id="editCartModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">編輯購物車項目</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="editPid">
+            <input type="hidden" id="editMid">
+
+            <div class="mb-3">
+              <label for="editQuantity" class="form-label">數量</label>
+              <input type="number" id="editQuantity" class="form-control" min="1">
+            </div>
+            <div class="mb-3">
+              <label for="editNote" class="form-label">備註</label>
+              <textarea id="editNote" class="form-control" rows="2"></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+            <button class="btn btn-primary text-white" onclick="saveEdit()">儲存變更</button>
           </div>
         </div>
       </div>
@@ -2484,21 +2587,8 @@ if (isset($_SESSION['cid'], $_SESSION['cartTime'])) {
 
 
 
-    <script src="../js/jquery-1.11.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
-    <script src="../js/plugins.js"></script>
-    <script src="../js/script.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../lib/easing/easing.min.js"></script>
-    <script src="../lib/waypoints/waypoints.min.js"></script>
-    <script src="../lib/lightbox/js/lightbox.min.js"></script>
-    <script src="../lib/owlcarousel/owl.carousel.min.js"></script>
 
-
-    <!-- Template Javascript -->
-    <script src="../js/main.js"></script>
+    
     <script>
     function toggleDropdown() {
         var dropdown = document.getElementById("myDropdown");
@@ -2559,15 +2649,16 @@ if (isset($_SESSION['cid'], $_SESSION['cartTime'])) {
         .then(res => res.json())
         .then(data => {
           if (data.success) {
-            alert('已加入購物車');
-            updateCartCount();  // 呼叫更新購物車數量的函式
-          } else {
-            alert('加入失敗：' + data.message);
+            // ✅ 觸發 modal 裡面的關閉按鈕（等同使用者按關閉）
+            document.querySelector('#productModal .btn-close').click();
+
+            // 更新購物車數量
+            updateCartCount();
+            // ✅ 重新載入頁面以刷新購物車內容
+            window.location.reload();
           }
         });
       }
-
-
     </script>
     <script>
       function updateCartCount() {
@@ -2579,7 +2670,150 @@ if (isset($_SESSION['cid'], $_SESSION['cartTime'])) {
       }
 
     </script>
+    <script>
 
+      function handleIncrease(pid, mid) {
+        const input = document.getElementById(`qty-${pid}-${mid}`);
+        const currentQty = parseInt(input.value);
+        updateQuantity(pid, mid, currentQty + 1);
+      }
+      function handleDecrease(pid, mid) {
+        const input = document.getElementById(`qty-${pid}-${mid}`);
+        const currentQty = parseInt(input.value);
+        if (currentQty > 1) {
+          updateQuantity(pid, mid, currentQty - 1);
+        }
+      }
+      function updateQuantity(pid, mid, newQty) {
+
+        
+        if (newQty < 1) return;
+
+        fetch('update_cart_item.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pid, mid, quantity: newQty })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            // 更新數量欄位
+            document.getElementById(`qty-${pid}-${mid}`).value = newQty;
+
+            // 更新小計
+            const itemDiv = document.getElementById(`cart-item-${pid}-${mid}`);
+            const price = parseFloat(itemDiv.dataset.price);
+            const subtotal = price * newQty;
+            document.getElementById(`subtotal-${pid}-${mid}`).textContent = `NT$${subtotal}`;
+
+            // 更新購物車 icon 上的數量
+            updateCartCount();
+          }
+        });
+      }
+
+      function removeItem(pid, mid) {
+        if (!confirm('確定要移除這項商品嗎？')) return;
+
+        fetch('remove_cart_item.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pid, mid })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            // 移除 DOM 元素
+            const item = document.getElementById(`cart-item-${pid}-${mid}`);
+            if (item) item.remove();
+
+            updateCartCount();
+          }
+        });
+      }
+      </script>
+      <script>
+        function openEditModal(pid, mid, quantity, note) {
+          
+          // 設定 modal 裡的值
+          document.getElementById('editPid').value = pid;
+          document.getElementById('editMid').value = mid;
+          document.getElementById('editQuantity').value = quantity;
+          document.getElementById('editNote').value = note;
+
+          // 顯示 modal
+          const modalEl = document.getElementById('editCartModal');
+          const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+          modal.show();
+        }
+
+        function saveEdit() {
+          const pid = document.getElementById('editPid').value;
+          const mid = document.getElementById('editMid').value;
+          const quantity = document.getElementById('editQuantity').value;
+          const note = document.getElementById('editNote').value;
+
+          fetch('update_cart.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ pid, mid, quantity, note })
+          })
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              location.reload(); // 重新載入購物車
+            }
+          });
+        }
+        </script>
+
+
+
+    <script src="../js/jquery-1.11.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
+    <script src="../js/plugins.js"></script>
+    <script src="../js/script.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="../lib/easing/easing.min.js"></script>
+    <script src="../lib/waypoints/waypoints.min.js"></script>
+    <script src="../lib/lightbox/js/lightbox.min.js"></script>
+    <script src="../lib/owlcarousel/owl.carousel.min.js"></script>
+
+    <!-- Template Javascript -->
+    <script src="../js/main.js"></script>
+
+
+    <!-- 🟦 Modal: 更換外送地址 -->
+    <div class="modal fade" id="addressModal" tabindex="-1" aria-labelledby="addressModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <form method="post" action="merchant.php">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addressModalLabel">選擇外送地址</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <select class="form-select" name="selected_address_id" id="addressSelect">
+                            <?php
+                            $sql = "SELECT address_id, address_text FROM caddress WHERE cid = ?";
+                            $stmt = $conn->prepare($sql);
+                            $stmt->bind_param("i", $_SESSION['cid']); // 假設有 cid session
+                            $stmt->execute();
+                            $result = $stmt->get_result();
+                            while ($row = $result->fetch_assoc()) {
+                            echo '<option value="' . $row['address_id'] . '">' . htmlspecialchars($row['address_text']) . '</option>';
+                            }
+                            ?>
+                        </select>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">使用此地址</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
 
   </body>
 </html>
