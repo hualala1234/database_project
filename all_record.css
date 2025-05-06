@@ -1,0 +1,326 @@
+#transaction_list table tbody tr:hover {
+    background-color: #f0f8ff;
+}
+.btn-comment {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+.btn-nocomment {
+    background-color: #bbb;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: not-allowed;
+}
+.btn-comment:hover {
+    background-color: #218838;
+}
+#commentModal{
+    display: none;
+    position: fixed; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: white; padding: 30px;
+    box-shadow: 0px 0px 20px rgba(0,0,0,0.3);
+    border-radius: 12px; z-index: 9999;
+    text-align: center;
+}
+#closeModal{
+    margin-top: 20px; 
+    padding: 8px 20px; background-color: #4CAF50; 
+    color: white; border: none; border-radius: 8px; 
+    cursor: pointer;
+}
+#modalOverlay{
+    display: none; position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5); z-index: 9998;
+}
+
+
+
+
+
+
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(50deg, #f3c680, hsla(179,54%,76%,1));
+  }
+.block1{
+    border-radius: 10px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    height: 100px;
+    /* background-color: rgb(120, 167, 120); */
+    background-color: #487b6e;
+    opacity: 0.91;
+    margin-bottom: 30px;
+}
+img {
+    margin: 0px 2px 5px 2px;
+}
+img:hover {
+    cursor: pointer;
+    border-radius: 5px;
+    scale: 1.5;
+}
+.card{
+    display: flex;
+    flex-direction: column;
+    width: 70%;
+    height: 125px;
+    padding: 20px 30px;
+    background-color: #FFF1D5;
+    border-radius: 10px;
+    margin: 10px;
+}
+.card:hover{
+    cursor: pointer;
+    background-color: #FFE4B5;
+    scale: 1.03;
+}
+.c_title{
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 0px;
+    margin-top: 15px;
+}
+.info{
+    margin-top: 20px;
+    font-size: 22px;
+}
+.info>p{
+    margin: 0px;
+    padding: 5px;
+}
+/* 編輯跟刪除 */
+.card.change{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+/* 顯示編輯視窗 */
+#showCard{
+    background-color: #BDDDE4;
+    border-radius: 10px;
+    padding: 20px 40px;
+    height: 280px;
+    width: 350px;
+    position: fixed;
+    /* top: 35%;
+    left: 5%; */
+    top: 8%;
+    left: 23%;
+    font-size: 22px;
+    h3{
+        font-size: 32px;
+        margin-top: 0px;
+        margin-bottom: 48px;
+        border-radius: 10px;
+        /* border-bottom: 2px solid #000; */
+    }
+}
+.change{
+    position: absolute;
+    bottom: 5%;
+    right: 10%;
+}
+#closeshow{
+    position: absolute;
+    top: 5%;
+    right: 10%;
+}
+#add_card{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: 300px
+}
+#add_card.img {
+        margin: 0px;
+        padding: 0px;
+}
+#container{ 
+    display: flex; 
+    flex-direction: row; 
+    align-items: flex-start;
+    justify-content: space-around;
+    /* background-color: #F5F5F5; */
+    border-radius: 10px;
+    margin-top: 20px;
+}
+#right_container{
+    width: 95%;
+    border-radius: 10px;
+    background-color: floralwhite;
+    padding: 15px;
+    height: auto; 
+    display: flex; 
+    flex-direction: column;
+    align-items: center;
+}
+.fill-height {
+    flex: 1;
+}
+#transaction_list{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    height: 90%;
+    /* background-color: #F5F5F5; */
+    border-radius: 10px;
+}
+table{
+    border-spacing: 30px;   
+    border-collapse: separate;
+    text-align: left;
+    width: 90%;
+}
+
+.footer{
+    margin-top: 30px;
+    position:relative;
+    bottom: 0;
+    background-color: darkgreen;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+    height: 60px;
+    background-color: rgb(120, 167, 120);
+    p{
+        margin: 0px;
+        padding: 0px;
+    }
+    padding-top: 25px;
+}
+.income{
+    width: 50%;
+    height: 125px;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 30px;
+    background-color: #FFF1D5;
+    border-radius: 10px;
+    margin: 10px;
+}
+.income:hover{
+    cursor: pointer;
+    background-color: #FFE4B5;
+    scale: 1.03;
+}
+#salary{
+    text-align: center;
+    font-weight: bold;
+    letter-spacing: 5px;
+}
+.visualize_graph{
+    background-color: cadetblue;
+    height: 550px;
+    width: 90%;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+
+/* addCard.css */
+#add_card_page{
+    width: 45%;
+    background-color: #bde4d8;
+    border-radius: 10px;
+    padding: 0px 40px 80px 40px;  
+    height: 50%;
+    width: 45%;
+    position: absolute;
+    top: 20%;
+    left: 33%;
+    margin-bottom: 20px;
+}
+#card_detial{
+    padding: 30px;
+    /* margin: 12px; */
+    line-height: 60px;
+    height: 85%;
+    width: 90%;
+}
+label {
+    font-size: 22px;
+}
+#card_detial>button{
+    position: absolute;
+    bottom: 5%;
+    right: 5%;
+    font-size: 18px;
+    line-height: 30px;
+}
+#closeadd{
+    position: absolute;
+    top: 5%;
+    right: 10%;
+}
+.block11{
+    margin-top: 10px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    height: 90px;
+    border-bottom: 2px solid #000;
+    /* background-color: rgb(120, 167, 120); */
+}
+th{
+    text-align: center;
+    padding:5px;
+}
+td{
+    padding:5px 15px; 
+    text-align:center;
+}
+.comment-cell{
+    width: 25%;
+}
+.comment-cell:hover {
+    background-color: #f0f8ff;
+    cursor: pointer;
+}
+#commentModal{
+    display:none; position:fixed; 
+    top:50%; left:50%; 
+    transform:translate(-50%,-50%); 
+    background:white; 
+    padding:30px; border-radius:12px;
+    box-shadow:0 2px 15px rgba(0,0,0,0.4); 
+    z-index:1000; min-width:300px; 
+    text-align:center;
+}
+#modalOverlay{
+    display:none; position:fixed; 
+    top:0; left:0; width:100%; 
+    height:100%; 
+    background:rgba(0,0,0,0.5); 
+    z-index:999;
+}
+h2 {
+    margin-top: 50px;
+    margin-bottom: 50px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid;
+    width: 400px;
+}

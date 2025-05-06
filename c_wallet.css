@@ -1,0 +1,290 @@
+body{
+    background-image: url('./image/forest.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+    /* background: linear-gradient(50deg, #ffe0ae, rgb(171, 230, 229)); */
+}
+#out_block{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+#menu {
+    display: flex;
+    flex-direction: row;
+    /* align-items: center; */
+    justify-content: center;
+    background-color: #F5F5F5;
+    width:100%;
+    height: 100%;
+    border-radius: 10px;
+}
+.block1{
+    border-radius: 10px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    height: 100px;
+    /* background-color: rgb(120, 167, 120); */
+    /* background-color: rgb(136, 188, 136); */
+    background-color: #487b6e;
+    opacity: 0.91;
+}
+#piggy{
+    margin: 0px;
+}
+#balance{
+    font-size: 30px;
+    margin: 0px;
+    padding: 0px;
+    padding-top: 15px;
+    height: 40px;
+    align-items: center;
+}
+.word{
+    font-size: 30px;
+    font-weight: bold;
+    margin: 0px;
+    margin-left: 10px;
+    margin-right: 10px;
+    padding: 0px;
+    height: 40px;
+    padding-top: 5px;
+}
+img {
+    margin-left: 10px;
+    padding: 5px;
+    margin-top: 5px;
+}
+img:hover {
+    cursor: pointer;
+    border-radius: 5px;
+    scale: 1.5;
+}
+.card{
+    display: flex;
+    flex-direction: column;
+    height: 150px;
+    width: 200px;
+    padding: 15px 30px;
+    background-color: #FFF1D5;
+    border-radius: 10px;
+    margin: 10px;
+}
+.balance{
+    height: 92px;
+    width: 95%;
+    font-weight: bold;
+    /* margin-bottom: 30px; */
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+}
+.mycard{
+    width: 100%;
+    margin-left: 30px;
+}
+.card:hover{
+    cursor: pointer;
+    background-color: #FFE4B5;
+    scale: 1.05;
+}
+.clicked{
+    background-color: #FFE4B5;
+    scale: 1.05;
+}
+.c_title{
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 0px;
+    margin-top: 15px;
+}
+.info{
+    margin-top: 20px;
+}
+.info>p{
+    margin: 0px;
+    padding: 5px;
+}
+/* 編輯跟刪除 */
+.card.change{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+}
+/* 顯示編輯視窗 */
+#showCard{
+    opacity: 1;
+    /* z-index: 10000; */
+    background-image: url('./image/editbox.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+    /* background-color: #BDDDE4; */
+    border-radius: 10px;
+    padding: 20px 40px;
+    height: 324px;
+    width: 576px;
+    font-size: 22px;
+    h3{
+        font-size: 32px;
+        margin-top: 0px;
+        margin-bottom: 48px;
+        border-radius: 10px;
+        /* border-bottom: 2px solid #000; */
+    }
+}
+#showCard{
+    position: fixed;
+    top: 0%;
+    left: 23%;
+}
+.change{
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    bottom: 40%;
+    right: 16%;
+}
+#closeshow{
+    position: absolute;
+    top: 15%;
+    right: 18%;
+}
+#add_card{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    width: 300px
+}
+#add_card.img {
+        margin: 0px;
+        padding: 0px;
+}
+#container{ 
+    width: 90%;
+    display: flex;
+    /* flex-flow: row-reverse wrap-reverse; */
+    flex-wrap: wrap;
+    flex-direction: row;
+    align-items: flex-start;
+    /* background-color: #F5F5F5; */
+    border-radius: 10px;
+    margin-top: 20px;
+    /* justify-content: space-between; */
+    justify-content: flex-start;
+    margin-left: 5%;
+    margin-bottom: 5%;
+}
+#right_container{
+    width: 60%;
+    background-color: floralwhite;
+    padding: 15px;
+    height: 100%; 
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    
+}
+.fill-height {
+    flex: 1;
+}
+#transaction_list{
+    /* display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    width: 95%;
+    height: 72%;
+    background-color: #F5F5F5;
+    border-radius: 10px; */
+
+    width: 100%;
+    align-items: center;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+table{
+    border-spacing: 30px;   
+    border-collapse: separate;
+    text-align: center;
+    width: 100%;
+}
+
+.footer{
+    margin-top: 30px;
+    position: absolute;
+    bottom: 0;
+    background-color: darkgreen;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+    height: 60px;
+    background-color: rgb(120, 167, 120);
+    p{
+        margin: 0px;
+        padding: 0px;
+    }
+    padding-top: 25px;
+}
+
+/* addCard.css */
+#add_card_page{
+    width: 45%;
+    background-color: #bde4d8;
+    border-radius: 10px;
+    padding: 0px 40px 80px 40px;  
+    height: 450px;
+    width: 540px;
+    position: fixed;
+    top: 20%;
+    left: 33%;
+}
+#card_detial{
+    padding: 30px;
+    /* margin: 12px; */
+    line-height: 60px;
+    height: 85%;
+    width: 90%;
+}
+label {
+    font-size: 22px;
+}
+#card_detial>button{
+    position: absolute;
+    bottom: 5%;
+    right: 5%;
+    font-size: 18px;
+    line-height: 30px;
+}
+#closeadd{
+    position: absolute;
+    top: 5%;
+    right: 10%;
+}
+.block11{
+    margin-top: 10px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    height: 90px;
+    border-bottom: 2px solid #000;
+    /* background-color: rgb(120, 167, 120); */
+}
+.transaction_group{
+    width: 100%;
+    align-items: center;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
