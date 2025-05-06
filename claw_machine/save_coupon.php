@@ -36,7 +36,7 @@ try {
     $stmt->execute([':cid' => $cid]);
     $playedToday = $stmt->fetchColumn();
 
-    // 每次讀取優惠券時，檢查是否過期
+    // 每次讀取優惠券時，刪除超過一天的
     $stmt = $pdo->prepare("DELETE FROM coupons WHERE created_at < NOW() - INTERVAL 1 DAY");
     $stmt->execute();
 
@@ -46,10 +46,19 @@ try {
         exit;
     }
 
+    // ✅ 提取關鍵字（例如："15% 折扣優惠"、"免運費1次"）
+    $fullMessage = $input['prizeMessage'];
+    $matchedKeyword = '';
+    if (preg_match('/\d+% 折扣優惠|免運費\d*次/', $fullMessage, $matches)) {
+        $matchedKeyword = $matches[0];
+    } else {
+        $matchedKeyword = $fullMessage; // 若無法匹配就儲存原始訊息
+    }
+
     // ✅ 沒玩過就儲存資料
     $stmt = $pdo->prepare("INSERT INTO coupons (message, code, created_at,cid) VALUES (:message, :code, :created_at, :cid)");
     $stmt->execute([
-        ':message' => $input['prizeMessage'],
+        ':message' => $matchedKeyword,
         ':code' => $input['prizeCode'],
         ':created_at' => $input['time'],
         ':cid' => $cid,
@@ -59,3 +68,4 @@ try {
 } catch (PDOException $e) {
     echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
 }
+?>
