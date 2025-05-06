@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_address_id']
         $_SESSION['current_address'] = $row['address_text']; // 更新 session 地址
     }
     // 重定向回 index.php，讓頁面更新
-    header("Location: index.php");
+    header("Location: merchant.php");
     exit;
 }
 
@@ -222,7 +222,7 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
       </div>
       <div class="container px-0">
         <nav class="navbar navbar-light bg-white navbar-expand-xl">
-          <a href="index.php?cid=<?php echo $cid; ?>" class="navbar-brand"><h1 class="text-primary display-6">Junglebite</h1></a>
+          <a href="merchant.php?cid=<?php echo $cid; ?>" class="navbar-brand"><h1 class="text-primary display-6">Junglebite</h1></a>
           <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
             <span class="fa fa-bars text-primary"></span>
           </button>
@@ -2787,7 +2787,7 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
     <!-- 🟦 Modal: 更換外送地址 -->
     <div class="modal fade" id="addressModal" tabindex="-1" aria-labelledby="addressModalLabel" aria-hidden="true">
         <div class="modal-dialog">
-            <form method="post" action="index.php">
+            <form method="post" action="merchant.php">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="addressModalLabel">選擇外送地址</h5>
