@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_address_id']
         $_SESSION['current_address'] = $row['address_text']; // 更新 session 地址
     }
     // 重定向回 index.php，讓頁面更新
-    header("Location: index.php");
+    header("Location: index.php?cid=$cid");
     exit;
 }
 

@@ -5,6 +5,7 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
+
 $cid = isset($_SESSION["cid"]) ? $_SESSION["cid"] : '';
 if ($cid !== '') {
     $sql = "SELECT * FROM Customer WHERE cid = $cid";
@@ -12,6 +13,7 @@ if ($cid !== '') {
     $row = mysqli_fetch_array($result);
     
 }
+
 $storeCount = 0;
 if (isset($_SESSION['cid'], $_SESSION['cartTime'])) {
     $stmt = $conn->prepare("SELECT COUNT(DISTINCT mid) AS storeCount FROM CartItem WHERE cid = ? AND DATE(cartTime) = ?");
@@ -25,6 +27,7 @@ if (isset($_SESSION['cid'], $_SESSION['cartTime'])) {
 
 // 處理表單提交更新地址
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_address_id'])) {
+
     $selected_address_id = $_POST['selected_address_id'];
     // 根據選擇的地址 ID 更新 session 中的地址
     $sql = "SELECT address_text FROM caddress WHERE address_id = ?";
@@ -223,7 +226,7 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
       </div>
       <div class="container px-0">
         <nav class="navbar navbar-light bg-white navbar-expand-xl">
-          <a href="merchant.php?cid=<?php echo $cid; ?>" class="navbar-brand"><h1 class="text-primary display-6">Junglebite</h1></a>
+          <a href="index.php?cid=<?php echo $cid; ?>" class="navbar-brand"><h1 class="text-primary display-6">Junglebite</h1></a>
           <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
             <span class="fa fa-bars text-primary"></span>
           </button>
@@ -2587,7 +2590,41 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
     </div>
 
 
-
+    <!-- 🟦 Modal: 更換外送地址 -->
+    <div class="modal fade" id="addressModal" tabindex="-1" aria-labelledby="addressModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <form method="post" action="merchant.php?mid=<?= htmlspecialchars($_GET['mid']) ?>">
+                <input type="hidden" name="action" value="change_address">
+                <input type="hidden" name="cartTime" value="<?= htmlspecialchars($cartTime) ?>">
+                <input type="hidden" name="cid" value="<?= htmlspecialchars($_SESSION['cid']) ?>">
+                <input type="hidden" name="pid" value="<?= htmlspecialchars($_GET['pid']) ?>">
+                <input type="hidden" name="mid" value="<?= htmlspecialchars($_GET['mid']) ?>">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addressModalLabel">選擇外送地址</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <select class="form-select" name="selected_address_id" id="addressSelect">
+                            <?php
+                            $sql = "SELECT address_id, address_text FROM caddress WHERE cid = ?";
+                            $stmt = $conn->prepare($sql);
+                            $stmt->bind_param("i", $_SESSION['cid']); // 假設有 cid session
+                            $stmt->execute();
+                            $result = $stmt->get_result();
+                            while ($row = $result->fetch_assoc()) {
+                            echo '<option value="' . $row['address_id'] . '">' . htmlspecialchars($row['address_text']) . '</option>';
+                            }
+                            ?>
+                        </select>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">使用此地址</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
 
     
     <script>
@@ -2622,36 +2659,7 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
     <script src="cart.js"></script>
 
 
-    <!-- 🟦 Modal: 更換外送地址 -->
-    <div class="modal fade" id="addressModal" tabindex="-1" aria-labelledby="addressModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <form method="post" action="merchant.php">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="addressModalLabel">選擇外送地址</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <select class="form-select" name="selected_address_id" id="addressSelect">
-                            <?php
-                            $sql = "SELECT address_id, address_text FROM caddress WHERE cid = ?";
-                            $stmt = $conn->prepare($sql);
-                            $stmt->bind_param("i", $_SESSION['cid']); // 假設有 cid session
-                            $stmt->execute();
-                            $result = $stmt->get_result();
-                            while ($row = $result->fetch_assoc()) {
-                            echo '<option value="' . $row['address_id'] . '">' . htmlspecialchars($row['address_text']) . '</option>';
-                            }
-                            ?>
-                        </select>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary">使用此地址</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
+    
 
   </body>
 </html>
