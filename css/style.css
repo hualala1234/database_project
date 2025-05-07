@@ -70,7 +70,7 @@
 }
 
 .btn.border-secondary:hover {
-    background: var(--bs-secondary) !important;
+    background: var(--bs-secondary);
     color: var(--bs-white) !important;
 }
 
@@ -126,8 +126,10 @@ span#current-address {
 /*** Navbar Start ***/
 .navbar .navbar-nav .nav-link {
     padding: 10px 15px;
-    font-size: 16px;
+    font-size: 1.5rem;
     transition: .5s;
+    font-weight: bold;
+    margin-right: 0.5rem;
 }
 
 .navbar {
@@ -617,4 +619,9 @@ button.btn.btn-sm.btn-outline-light.ms-2.change-address-btn {
 
 span.address-label.text-white {
     margin-left: 100px;
+}
+
+#search-btn:hover{
+    background-color: #146E57!important;  /* hover 時保持一樣 */
+    color: white;
 }
