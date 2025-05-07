@@ -80,7 +80,7 @@ if (!empty($row['businessHours'])) {
 
         <!-- Navbar start -->
         <div class="container-fluid fixed-top">
-            <div class="container topbar bg-primary d-none d-lg-block">
+            <div class="container topbar bg-primary d-none d-lg-block" style="padding: 20px;">
                 <div class="d-flex justify-content-between">
                     <div class="top-info ps-2">
                     <!-- <i class="fas fa-map-marker-alt me-2 text-secondary"></i> <a href="#" class="text-white">客戶住址</a> -->
@@ -104,7 +104,7 @@ if (!empty($row['businessHours'])) {
                             <!-- <a href="index.php" class="nav-item nav-link active">Home</a> -->
                             <a href="merchant_shop.php?mid=<?php echo $mid; ?>" class="nav-item nav-link">店面資訊</a>
                             <a href="menu.php?mid=<?php echo $mid; ?>" class="nav-item nav-link">菜單管理</a>
-                            <a href="shop-detail.html" class="nav-item nav-link">訂單</a>
+                            <a href="order.php?mid=<?php echo $mid; ?>" class="nav-item nav-link">訂單</a>
                             <!-- <div class="nav-item dropdown">
                                 <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
                                 <div class="dropdown-menu m-0 bg-secondary rounded-0">
@@ -194,7 +194,7 @@ if (!empty($row['businessHours'])) {
 
                                 <div class="form-group py-3">
                                     <div class="text-center mb-2">
-                                        <label class="form-label" style="font-size: 1.2rem;">選擇類別</label>
+                                        <label class="form-label text-dark" style="font-size: 1.75rem; font-weight:bold;">選擇類別</label>
                                         <span style="color: red;">*</span>
                                     </div>
 
@@ -256,7 +256,7 @@ if (!empty($row['businessHours'])) {
                                     <h3>目前營業時間：</h3>
                                     <ul class="list-group mb-3">
                                         <?php foreach ($store_hours as $day => $hours): ?>
-                                            <li class="list-group-item d-flex justify-content-between custom-list-group-item">
+                                            <li class="list-group-item d-flex justify-content-between custom-list-group-item text-dark">
                                             <strong><?php echo $day; ?></strong>
                                                 <span><?php echo $hours; ?></span>
                                             </li>
@@ -264,7 +264,7 @@ if (!empty($row['businessHours'])) {
                                     </ul>
 
                                     <!-- 關鍵：按鈕 type 設為 button，避免觸發 form 提交 -->
-                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editHoursModal">
+                                    <button type="button" class="btn btn-primary text-white" data-bs-toggle="modal" data-bs-target="#editHoursModal">
                                         編輯營業時間
                                     </button>
                                 </div>
@@ -303,7 +303,7 @@ if (!empty($row['businessHours'])) {
                                             <div class="modal-footer">
                                                 <!-- 關鍵：這裡不要用 submit，Modal 關閉即可 -->
                                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                                                <button type="button" class="btn btn-primary" onclick="saveBusinessHours()" data-bs-dismiss="modal">儲存</button>
+                                                <button type="button" class="btn btn-primary text-white" onclick="saveBusinessHours()" data-bs-dismiss="modal">儲存</button>
                                             </div>
                                         </div>
                                     </div>
@@ -311,7 +311,7 @@ if (!empty($row['businessHours'])) {
 
                                 <input type="hidden" name="hoursJson" id="hoursJson">
                                 <div class="form-element button_container">
-                                    <input style=" font-weight: bold; font-size: 1.5em;" type="submit" class="btn btn-primary" name="updateMerchant" id="saveButton" value="儲存" disabled>
+                                    <input style=" font-weight: bold; font-size: 1.5em;" type="submit" class="btn btn-primary text-white" name="updateMerchant" id="saveButton" value="儲存" disabled>
                                 </div>
 
                             </form>

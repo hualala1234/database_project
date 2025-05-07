@@ -5,7 +5,7 @@ if (isset($_SESSION['cid'])) {
     $customer_id = $_SESSION['cid'];
     
     // 連接資料庫
-    $conn = new mysqli('localhost', 'root', '', 'database');
+    $conn = new mysqli('localhost', 'root', '', 'junglebite');
     if ($conn->connect_error) {
         die("連接失敗：" . $conn->connect_error);
     }

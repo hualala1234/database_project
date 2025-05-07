@@ -13,19 +13,19 @@ $quantity = $data['quantity'] ?? '';
 
 $response = ['success' => false]; // 預設回傳值
 
-if ($cid && $cartTime && $pid && $mid && $quantity >= 1) {
+if ($cid && $cartTime && $pid && $mid && $quantity > 0) {  // 修改為 quantity > 0
     $stmt = $conn->prepare("UPDATE CartItem SET quantity = ? WHERE cid = ? AND cartTime = ? AND pid = ? AND mid = ?");
     $stmt->bind_param("iisii", $quantity, $cid, $cartTime, $pid, $mid);
     $stmt->execute();
 
     $response['success'] = true;
-} elseif ($cid && $cartTime && $pid && $quantity <= 0) {
-    $sql = "DELETE FROM CartItem WHERE cid = ? AND cartTime = ? AND pid = ?";
+} elseif ($cid && $cartTime && $pid && $mid && $quantity <= 0) { // 如果數量 <= 0 刪除商品
+    $sql = "DELETE FROM CartItem WHERE cid = ? AND cartTime = ? AND pid = ? AND mid = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("isi", $cid, $cartTime, $pid);
+    $stmt->bind_param("isii", $cid, $cartTime, $pid, $mid);  // 加入 mid 條件
     $stmt->execute();
 
-    $response = ['deleted' => true];
+    $response['success'] = true;
 }
 
 // 最後統一只輸出一次 JSON

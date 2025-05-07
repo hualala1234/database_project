@@ -19,6 +19,17 @@ $stmt = $conn->prepare($sql);
 $stmt->bind_param("isi", $cid, $cartTime, $pid);
 $stmt->execute();
 
+// 檢查購物車是否還有商品
+$sqlCheck = "SELECT COUNT(*) FROM CartItem WHERE cid = ? AND cartTime = ?";
+$stmtCheck = $conn->prepare($sqlCheck);
+$stmtCheck->bind_param("is", $cid, $cartTime);
+$stmtCheck->execute();
+$stmtCheck->bind_result($itemCount);
+$stmtCheck->fetch();
+if ($itemCount == 0) {
+    echo json_encode(["redirect" => "index.php"]);
+    exit;
+}
 echo json_encode(["success" => true]);
+
 ?>
-<!-- 結帳頁面刪除商品 -->

@@ -57,4 +57,3 @@ echo json_encode([
     "subtotal" => $subtotal
 ]);
 ?>
-<!-- 更新結帳頁面數量 -->

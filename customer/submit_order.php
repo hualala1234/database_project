@@ -60,10 +60,11 @@ try {
         $specialNote = $item['specialNote'] ?? '';
         
         $stmt = $conn->prepare("
-            INSERT INTO Orders (cid, cartTime, pid, price, quantity, mid, specialNote) 
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO Orders (cid, cartTime, pid, price, quantity, mid, specialNote, tranId) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         ");
-        $stmt->bind_param("isiiiis", $cid, $cartTime, $pid, $price, $quantity, $mid, $specialNote);
+        $stmt->bind_param("isiiiisi", $cid, $cartTime, $pid, $price, $quantity, $mid, $specialNote, $transactionId);
+    
 
         $stmt->execute();
     }
@@ -84,20 +85,11 @@ try {
     }
 
     // ✅ 10. 刪除該使用者該次時間點的購物車資料
-    // ✅ 刪除 cartItem
-        $stmt = $conn->prepare("DELETE FROM CartItem WHERE cid = ? AND cartTime = ?");
-        $stmt->bind_param("is", $cid, $cartTime);
-        $stmt->execute();
+   
+    $stmt = $conn->prepare("DELETE FROM CartItem WHERE cid = ? AND cartTime = ? AND mid = ?");
+    $stmt->bind_param("isi", $cid, $cartTime, $mid);
+    $stmt->execute();
 
-
-        // 生成新的 cartTime
-        $newCartTime = date('Y-m-d H:i:s');
-        $_SESSION['cartTime'] = $newCartTime;
-
-        // 在資料庫中插入新的 cart 資料，這樣每次都會有唯一的 cartTime
-        $stmt = $conn->prepare("INSERT INTO Cart (cid, cartTime) VALUES (?, ?)");
-        $stmt->bind_param("is", $cid, $newCartTime);
-        $stmt->execute();
 
     // ✅ 11. 提交交易
     $conn->commit();
