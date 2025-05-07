@@ -1,3 +1,8 @@
+<?php
+session_start();
+$cid = $_SESSION['cid'] ?? '';
+?>
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -11,7 +16,7 @@
     <!-- 要改 -->
     <div class="header_claw_machine">
       <p>CLAW MACHINE</p>
-      <a href="../customer/index.php">
+      <a href="../customer/index.php?cid=<?php echo htmlspecialchars($cid); ?>">
         <img src="home.png" alt="Home" class="home-icon">
       </a>
     </div>

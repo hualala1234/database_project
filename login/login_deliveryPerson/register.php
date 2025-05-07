@@ -95,11 +95,12 @@ if ($dIdExists && $emailExists) {
         }
     }
     // Insert the new user into the database
-    $sql = "INSERT INTO deliveryperson (dpName, email, password, dpAddress, dPicture)
-        VALUES (?, ?, ?, ?, ?)";
+    $role = 'd'; // Default role for new users
+    $sql = "INSERT INTO deliveryperson (dpName, email, password, dpAddress, dPicture, role)
+        VALUES (?, ?, ?, ?, ?,?)";
     $stmt = $conn->prepare($sql);
     
-    $stmt->bind_param("sssss",  $fullname, $email, $password, $address, $imageURL);
+    $stmt->bind_param("ssssss",  $fullname, $email, $password, $address, $imageURL, $role);
 
     if ($stmt->execute()) {
         echo "
