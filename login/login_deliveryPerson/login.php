@@ -24,7 +24,7 @@ if ($_SERVER["REQUEST_METHOD"]=="POST"){
 
             $_SESSION['role'] = 'delivery_person';
             // 跳回原本頁面
-            header("Location: /database/customer/index.php?did=$did");
+            header("Location: /database_project/deliveryperson/delivery_index.php?did=$did");
             exit();
         } 
         else {
