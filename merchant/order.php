@@ -180,7 +180,7 @@ if ($mid !== '') {
                             <a style="font-size:1.5rem!important;" 
                                 class="btn btn-primary order-toggle" 
                                 data-bs-toggle="collapse" 
-                                href="#collapse_order"
+                                href="#collapse_order_new"
                                 id="order"
                                 role="button" 
                                 aria-expanded="true" 
@@ -190,14 +190,14 @@ if ($mid !== '') {
                             </a>
                         </div>
                         <?php
-                        $sqlOrders = "SELECT o.*, c.cName, p.pName, t.transactionTime
+                        $sqlOrdersNew = "SELECT o.*, c.cName, p.pName, t.transactionTime, t.tNote
                                     FROM `Orders` o
                                     JOIN `Product` p ON o.pid = p.pid
                                     JOIN `Customer` c ON o.cid = c.cid
                                     JOIN `Transaction` t ON o.tranId = t.tranId 
-                                    WHERE o.mid = $mid
+                                    WHERE o.mid = $mid AND t.orderStatus = 'new'
                                     ORDER BY t.transactionTime ASC";
-                        $resultOrders = mysqli_query($conn, $sqlOrders);
+                        $resultOrders = mysqli_query($conn, $sqlOrdersNew);
 
                         if (!$resultOrders) {
                             die("查詢錯誤：" . mysqli_error($conn));
@@ -209,11 +209,12 @@ if ($mid !== '') {
                                 $orders[$row['tranId']]['customer'] = $row['cName'];
                                 $orders[$row['tranId']]['transactionTime'] = $row['transactionTime'];
                                 $orders[$row['tranId']]['items'][] = $row;
+                                $orders[$row['tranId']]['tNote'] = $row['tNote']; // 修正這一行
                             }
                         }
                         ?>
 
-                        <div class="collapse show" id="collapse_order">
+                        <div class="collapse show" id="collapse_order_new">
                             <div class="card card-body" style="border:2px solid #626263;">
 
                                 <?php foreach ($orders as $tranId => $order): 
@@ -224,19 +225,28 @@ if ($mid !== '') {
                                 ?>
                                     <!-- 點擊開啟 modal -->
                                     <div class="product-title">
-                                        <div style="display:flex; justify-content: space-between;">
+                                        <div style="display:flex; justify-content: space-between; align-items: center;">
 
                                             <h4 style=" text-align:left; cursor:pointer;" >
                                                 <i class="fa-solid fa-note-sticky"></i>
                                                 訂單編號：#<?= $tranId ?>     
-                                                <span style="text-decoration:underline; cursor:pointer; margin-left:2rem;"
+                                                <span style="text-decoration:underline; cursor:pointer; margin:0 2rem;"
                                                 data-bs-toggle="modal"     
                                                 data-bs-target="#orderModal_<?= $tranId ?>">
                                                 <?= htmlspecialchars($order['customer']) ?> - $<?= $total ?>
-
+                              
                                                 </span>
                                             </h4>
+                                            
+                                            <form method="POST" action="handle_order.php" style="display:flex; align-items: center;">
+                                                <input type="hidden" name="tranId" value="<?= $tranId ?>">
+                                                <h5 class="text-muted me-5">備註：<?= htmlspecialchars($order['tNote']) ?></h5>
+                                                <button name="action" value="accept" class="btn btn-primary text-white py-1">接受</button>
+                                                <button name="action" value="reject" class="btn btn-danger py-1 ms-2">拒絕</button>
+                                            </form>
+                                                                                
                                         </div>
+                                        
                                     </div>
 
                                     <!-- Modal -->
@@ -264,7 +274,7 @@ if ($mid !== '') {
                                                     <form method="post" action="handle_order.php" class="d-flex gap-2">
                                                         <input type="hidden" name="tranId" value="<?= $tranId ?>">
                                                         <input type="hidden" name="cid" value="<?= $order['items'][0]['cid'] ?>">
-                                                        <button name="action" value="accept" class="btn btn-success">接受</button>
+                                                        <button name="action" value="accept" class="btn btn-primary text-white">接受</button>
                                                         <button name="action" value="reject" class="btn btn-danger">拒絕</button>
                                                     </form>
                                                 </div>
@@ -279,15 +289,217 @@ if ($mid !== '') {
                             <a style="font-size:1.5rem!important;" 
                                 class="btn btn-primary order-toggle" 
                                 data-bs-toggle="collapse" 
-                                href="#collapse_making"
+                                href="#collapse_order_making"
                                 id="making"
                                 role="button" 
                                 aria-expanded="true" 
                                 aria-controls="collapse_making" >
                                     <span style="color:#fff;" class="arrow"></span>
-                                    <span style="color:#fff;!important" class="category-name">新訂單</span>
+                                    <span style="color:#fff;!important" class="category-name">製作中</span>
                             </a>
                         </div>
+                        <?php
+                        $sqlOrdersMaking = "SELECT o.*, c.cName, p.pName, t.transactionTime, t.tNote
+                                    FROM `Orders` o
+                                    JOIN `Product` p ON o.pid = p.pid
+                                    JOIN `Customer` c ON o.cid = c.cid
+                                    JOIN `Transaction` t ON o.tranId = t.tranId 
+                                    WHERE o.mid = $mid AND t.orderStatus = 'making'
+                                    ORDER BY t.transactionTime ASC";
+                        $resultOrders = mysqli_query($conn, $sqlOrdersMaking);
+
+                        if (!$resultOrders) {
+                            die("查詢錯誤：" . mysqli_error($conn));
+                        }
+
+                        $orders = [];
+                        if ($resultOrders) {
+                            while ($row = mysqli_fetch_assoc($resultOrders)) {
+                                $orders[$row['tranId']]['customer'] = $row['cName'];
+                                $orders[$row['tranId']]['transactionTime'] = $row['transactionTime'];
+                                $orders[$row['tranId']]['items'][] = $row;
+                                $orders[$row['tranId']]['tNote'] = $row['tNote']; // 修正這一行
+                            }
+                        }
+                        ?>
+
+                        <div class="collapse show" id="collapse_order_making">
+                            <div class="card card-body" style="border:2px solid #626263;">
+
+                                <?php foreach ($orders as $tranId => $order): 
+                                    $total = 0;
+                                    foreach ($order['items'] as $item) {
+                                        $total += $item['price'] * $item['quantity'];
+                                    }
+                                ?>
+                                    <!-- 點擊開啟 modal -->
+                                    <div class="product-title">
+                                        <div style="display:flex; justify-content: space-between; align-items: center;">
+
+                                            <h4 style=" text-align:left; cursor:pointer;" >
+                                                <i class="fa-solid fa-note-sticky"></i>
+                                                訂單編號：#<?= $tranId ?>     
+                                                <span style="text-decoration:underline; cursor:pointer; margin:0 2rem;"
+                                                data-bs-toggle="modal"     
+                                                data-bs-target="#orderModal_<?= $tranId ?>">
+                                                <?= htmlspecialchars($order['customer']) ?> - $<?= $total ?>
+                              
+                                                </span>
+                                                
+                                            </h4>
+                                            <form method="POST" action="handle_order.php" style="display:flex; align-items: center;">
+                                                <input type="hidden" name="tranId" value="<?= $tranId ?>">
+                                                <h5 class="text-muted" style="margin-right:5.5rem;">備註：<?= htmlspecialchars($order['tNote']) ?></h5>
+                                                <button name="action" value="done" class="btn btn-primary text-white py-1 me-4">出餐</button>
+                                            </form>
+
+                                        </div>
+                                        
+                                    </div>
+
+                                    <!-- Modal -->
+                                    <div class="modal fade" id="orderModal_<?= $tranId ?>" tabindex="-1" aria-labelledby="orderModalLabel_<?= $tranId ?>" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="orderModalLabel_<?= $tranId ?>">訂單詳細內容</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <ul class="list-group mb-3">
+                                                        <?php foreach ($order['items'] as $item): ?>
+                                                            <li class="list-group-item d-flex justify-content-between align-items-start">
+                                                                <div class="ms-2 me-auto">
+                                                                    <div class="fw-bold" style="text-align:start;"><?= $item['quantity'] ?>份<span class="ms-3"><?= htmlspecialchars($item['pName']) ?></span></div>                                                                                                                                       
+                                                                </div>
+                                                                <span>$<?= $item['price'] * $item['quantity'] ?><div style="text-align:end;" class="text-muted">備註：<?= htmlspecialchars($item['specialNote']) ?></div></span>
+                                                            </li>
+                                                        <?php endforeach; ?>
+                                                    </ul>
+                                                    <div class="text-end fw-bold">總金額：$<?= $total ?></div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <form method="post" action="handle_order.php" class="d-flex gap-2">
+                                                        <input type="hidden" name="tranId" value="<?= $tranId ?>">
+                                                        <input type="hidden" name="cid" value="<?= $order['items'][0]['cid'] ?>">
+                                                        <button name="action" value="done" class="btn btn-primary text-white">出餐</button>
+                                                        
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                        <div class="gap-1" style="display: flex; align-items: flex-end;">
+                            <a style="font-size:1.5rem!important;" 
+                                class="btn btn-primary order-toggle" 
+                                data-bs-toggle="collapse" 
+                                href="#collapse_order_done"
+                                id="making"
+                                role="button" 
+                                aria-expanded="true" 
+                                aria-controls="collapse_making" >
+                                    <span style="color:#fff;" class="arrow"></span>
+                                    <span style="color:#fff;!important" class="category-name">出餐中</span>
+                            </a>
+                        </div>
+                        <?php
+                        $sqlOrdersMaking = "SELECT o.*, c.cName, p.pName, t.transactionTime, t.tNote
+                                    FROM `Orders` o
+                                    JOIN `Product` p ON o.pid = p.pid
+                                    JOIN `Customer` c ON o.cid = c.cid
+                                    JOIN `Transaction` t ON o.tranId = t.tranId 
+                                    WHERE o.mid = $mid AND t.orderStatus = 'done'
+                                    ORDER BY t.transactionTime ASC";
+                        $resultOrders = mysqli_query($conn, $sqlOrdersMaking);
+
+                        if (!$resultOrders) {
+                            die("查詢錯誤：" . mysqli_error($conn));
+                        }
+
+                        $orders = [];
+                        if ($resultOrders) {
+                            while ($row = mysqli_fetch_assoc($resultOrders)) {
+                                $orders[$row['tranId']]['customer'] = $row['cName'];
+                                $orders[$row['tranId']]['transactionTime'] = $row['transactionTime'];
+                                $orders[$row['tranId']]['items'][] = $row;
+                                $orders[$row['tranId']]['tNote'] = $row['tNote']; // 修正這一行
+                            }
+                        }
+                        ?>
+
+                        <div class="collapse show" id="collapse_order_done">
+                            <div class="card card-body" style="border:2px solid #626263;">
+
+                                <?php foreach ($orders as $tranId => $order): 
+                                    $total = 0;
+                                    foreach ($order['items'] as $item) {
+                                        $total += $item['price'] * $item['quantity'];
+                                    }
+                                ?>
+                                    <!-- 點擊開啟 modal -->
+                                    <div class="product-title">
+                                        <div style="display:flex; justify-content: space-between; align-items: center;">
+
+                                            <h4 style=" text-align:left; cursor:pointer;" >
+                                                <i class="fa-solid fa-note-sticky"></i>
+                                                訂單編號：#<?= $tranId ?>     
+                                                <span style="text-decoration:underline; cursor:pointer; margin:0 2rem;"
+                                                data-bs-toggle="modal"     
+                                                data-bs-target="#orderModal_<?= $tranId ?>">
+                                                <?= htmlspecialchars($order['customer']) ?> - $<?= $total ?>
+                              
+                                                </span>
+                                                
+                                            </h4>
+                                            <form method="POST" action="handle_order.php" style="display:flex; align-items: center;">
+                                                <input type="hidden" name="tranId" value="<?= $tranId ?>">
+                                                <h5 class="text-muted" style="margin-right:5.5rem;">備註：<?= htmlspecialchars($order['tNote']) ?></h5>
+                                                <button name="action" value="take" class="btn btn-primary text-white py-1 me-4">領取</button>
+                                            </form>
+
+                                        </div>
+                                        
+                                    </div>
+
+                                    <!-- Modal -->
+                                    <div class="modal fade" id="orderModal_<?= $tranId ?>" tabindex="-1" aria-labelledby="orderModalLabel_<?= $tranId ?>" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="orderModalLabel_<?= $tranId ?>">訂單詳細內容</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <ul class="list-group mb-3">
+                                                        <?php foreach ($order['items'] as $item): ?>
+                                                            <li class="list-group-item d-flex justify-content-between align-items-start">
+                                                                <div class="ms-2 me-auto">
+                                                                    <div class="fw-bold" style="text-align:start;"><?= $item['quantity'] ?>份<span class="ms-3"><?= htmlspecialchars($item['pName']) ?></span></div>                                                                                                                                       
+                                                                </div>
+                                                                <span>$<?= $item['price'] * $item['quantity'] ?><div style="text-align:end;" class="text-muted">備註：<?= htmlspecialchars($item['specialNote']) ?></div></span>
+                                                            </li>
+                                                        <?php endforeach; ?>
+                                                    </ul>
+                                                    <div class="text-end fw-bold">總金額：$<?= $total ?></div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <form method="post" action="handle_order.php" class="d-flex gap-2">
+                                                        <input type="hidden" name="tranId" value="<?= $tranId ?>">
+                                                        <input type="hidden" name="cid" value="<?= $order['items'][0]['cid'] ?>">
+                                                        <button name="action" value="take" class="btn btn-primary text-white">領取</button>
+                                                        
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                        
                     </div>
                 </div>
             </div>
