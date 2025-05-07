@@ -12,12 +12,14 @@ if ($cid !== '') {
     $row = mysqli_fetch_array($result);
     
 }
-$cartCount = 0;
+
+$storeCount = 0;
 if (isset($_SESSION['cid'], $_SESSION['cartTime'])) {
-    $stmt = $conn->prepare("SELECT SUM(quantity) AS total FROM CartItem WHERE cid = ? AND cartTime = ?");
-    $stmt->bind_param("is", $_SESSION['cid'], $_SESSION['cartTime']);
+    $stmt = $conn->prepare("SELECT COUNT(DISTINCT mid) AS storeCount FROM CartItem WHERE cid = ? AND DATE(cartTime) = ?");
+    $stmt->bind_param("is", $_SESSION['cid'], $cartDate);  // $cartDate 是 '2025-05-06' 或與資料庫日期匹配的日期
+
     $stmt->execute();
-    $stmt->bind_result($cartCount);
+    $stmt->bind_result($storeCount);
     $stmt->fetch();
     $stmt->close();
 }
@@ -119,7 +121,7 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
                                         
                             <a href="#" class="position-relative me-4 my-auto" data-bs-toggle="modal" data-bs-target="#cartModal">
                                 <i class="fa-solid fa-cart-shopping fa-2x"></i>
-                                <span class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 22px; height: 20px; min-width: 20px;">
+                                <span id="cart-count" class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 22px; height: 20px; min-width: 20px;">
                                     <?= isset($cartCount) ? $cartCount : '0' ?>
                                 </span>
                             </a>
@@ -1195,7 +1197,18 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
         <!-- Back to Top -->
         <a href="#" class="btn btn-primary border-3 border-primary rounded-circle back-to-top"><i class="fa fa-arrow-up"></i></a>   
 
-
+    <script>
+    function toggleDropdown() {
+        var dropdown = document.getElementById("myDropdown");
+        dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+    }
+    window.onclick = function(event) {
+        var dropdown = document.getElementById("myDropdown");
+        if (!event.target.closest('.dropdown') && dropdown && dropdown.style.display === "block") {
+            dropdown.style.display = "none";
+        }
+    }
+    </script>
         
         
     <!-- JavaScript Libraries -->
@@ -1208,125 +1221,7 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
 
     <!-- Template Javascript -->
     <script src="../js/main.js"></script>
-    <script>
-        function toggleDropdown() {
-            var dropdown = document.getElementById("myDropdown");
-            dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
-        }
-        window.onclick = function(event) {
-            var dropdown = document.getElementById("myDropdown");
-            if (!event.target.closest('.dropdown') && dropdown && dropdown.style.display === "block") {
-                dropdown.style.display = "none";
-            }
-        }
-    </script>
-    <script>
-        function updateCartCount() {
-            fetch('cart_count.php')
-            .then(res => res.json())
-            .then(data => {
-                document.querySelector('.fa-cart-shopping + span').textContent = data.count;
-            });
-        }
-
-    </script>
-    <script>
-        function handleIncrease(pid, mid) {
-            const input = document.getElementById(`qty-${pid}-${mid}`);
-            const currentQty = parseInt(input.value);
-            updateQuantity(pid, mid, currentQty + 1);
-        }
-        function handleDecrease(pid, mid) {
-            const input = document.getElementById(`qty-${pid}-${mid}`);
-            const currentQty = parseInt(input.value);
-            if (currentQty > 1) {
-                updateQuantity(pid, mid, currentQty - 1);
-            }
-        }
-
-
-        function updateQuantity(pid, mid, newQty) {
-            if (newQty < 1) return;
-
-            fetch('update_cart_item.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ pid, mid, quantity: newQty })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    // 更新數量欄位
-                    document.getElementById(`qty-${pid}-${mid}`).value = newQty;
-
-                    // 更新小計
-                    const itemDiv = document.getElementById(`cart-item-${pid}-${mid}`);
-                    const price = parseFloat(itemDiv.dataset.price);
-                    const subtotal = price * newQty;
-                    document.getElementById(`subtotal-${pid}-${mid}`).textContent = `NT$${subtotal}`;
-
-                    // 更新購物車 icon 上的數量
-                    updateCartCount();
-                }
-            });
-        }
-
-        function removeItem(pid, mid) {
-            if (!confirm('確定要移除這項商品嗎？')) return;
-
-            fetch('remove_cart_item.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ pid, mid })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    // 移除 DOM 元素
-                    const item = document.getElementById(`cart-item-${pid}-${mid}`);
-                    if (item) item.remove();
-
-                    updateCartCount();
-                }
-            });
-        }
-    </script>
-    
-
-    <script>
-        function openEditModal(pid, mid, quantity, note) {
-            
-        // 設定 modal 裡的值
-            document.getElementById('editPid').value = pid;
-            document.getElementById('editMid').value = mid;
-            document.getElementById('editQuantity').value = quantity;
-            document.getElementById('editNote').value = note;
-
-        // 顯示 modal
-            const modalEl = document.getElementById('editCartModal');
-            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-            modal.show();
-        }
-
-        function saveEdit() {
-            const pid = document.getElementById('editPid').value;
-            const mid = document.getElementById('editMid').value;
-            const quantity = document.getElementById('editQuantity').value;
-            const note = document.getElementById('editNote').value;
-
-            fetch('update_cart.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ pid, mid, quantity, note })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                location.reload(); // 重新載入購物車
-                }
-            });
-        }
-    </script>
+    <script src="cart.js"></script>
 
     <!-- 🟦 Modal: 更換外送地址 -->
     <div class="modal fade" id="addressModal" tabindex="-1" aria-labelledby="addressModalLabel" aria-hidden="true">

@@ -39,13 +39,13 @@ function getQueryParam(name) {
                 <div class="d-flex justify-content-center w-100">
                     <div class="input-group quantity my-2" style="width: 100px;">
                         <div class="input-group-btn">
-                            <button class="btn btn-sm btn-minus rounded-circle bg-white border" data-pid="${item.pid}">
+                            <button class="btn btn-sm btn-minus rounded-circle bg-white text-dark" data-pid="${item.pid}">
                             <i class="fa fa-minus"></i>
                             </button>
                         </div>
                         <input type="text" style="background-color: #D5E2D8;" class="form-control form-control-sm text-center border-0 quantity-input text-dark" value="${item.quantity}" data-pid="${item.pid}">
                         <div class="input-group-btn">
-                            <button class="btn btn-sm btn-plus rounded-circle bg-white border" data-pid="${item.pid}">
+                            <button class="btn btn-sm btn-plus rounded-circle bg-white text-dark" data-pid="${item.pid}">
                             <i class="fa fa-plus bg-white"></i>
                             </button>
                         </div>
@@ -91,6 +91,149 @@ function getQueryParam(name) {
       updateSummary(currentSubtotal); // 回復為原始價格
     }
   });
+  let currentSubtotal = 0;
+  let appliedCoupon = null;
+    
+  // ✅ 套用優惠券邏輯
+  function applyCoupon(code) {
+    appliedCoupon = code;
+    
+    let deliveryFee = 30;
+    let discountRate = 1;
+    
+    if (code === "CLAWWIN15") {
+      discountRate = 0.85;
+    } else if (code === "CLAWWIN20") {
+      discountRate = 0.8;
+    } else if (code === "CLAWSHIP") {
+      deliveryFee = 0;
+    }
+    
+    const discountedSubtotal = Math.round(currentSubtotal * discountRate);
+    const platformFee = Math.ceil(currentSubtotal * 0.05); // ✅ 始終以原始小計計算
+    const total = discountedSubtotal + platformFee + deliveryFee;
+    
+    document.querySelector(".subtotal").textContent = `$${discountedSubtotal}`;
+    document.querySelector(".platform-fee").textContent = `$${platformFee}`;
+    document.querySelector(".delivery-fee").textContent = `$${deliveryFee}`;
+    document.querySelector(".grand-total").textContent = `$${total}`;
+  }
+    
+
+  // ✅ 綁定所有事件
+  function bindCartEvents() {
+    document.querySelectorAll(".btn-minus").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const pid = btn.dataset.pid;
+        updateQuantity(pid, -1);
+      });
+    });
+  
+    document.querySelectorAll(".btn-plus").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const pid = btn.dataset.pid;
+        updateQuantity(pid, 1);
+      });
+    });
+  
+    document.querySelectorAll(".special-note").forEach(textarea => {
+      textarea.addEventListener("blur", () => updateSpecialNote(textarea));
+    });
+  
+    document.querySelectorAll("[data-remove]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const pid = btn.dataset.remove;
+        removeItem(pid);
+      });
+    });
+  }
+  
+  // ✅ 更新數量
+  function updateQuantity(pid, change) {
+    const input = document.querySelector(`.quantity-input[data-pid="${pid}"]`);
+    let quantity = parseInt(input.value) + change;
+    if (quantity < 1) quantity = 1;
+    input.value = quantity;
+  
+    fetch('update_quantity.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pid, quantity })
+    })
+      
+      .then(res => res.json())
+
+      .then(data => {
+        const row = input.closest("tr");
+  
+        if (data.deleted) {
+          row.remove();
+          updateSummary(data.subtotal || 0);
+          return;
+        }
+  
+        const totalPriceCell = row.querySelector(`.total-price[data-pid="${pid}"]`);
+        if (totalPriceCell && !isNaN(data.total)) {
+          totalPriceCell.textContent = `$${data.total}`;
+        }
+  
+        if (!isNaN(data.subtotal)) {
+          updateSummary(data.subtotal);
+        }
+      })
+      .catch(err => console.error('❌ 更新數量錯誤:', err));
+  }
+  
+  // ✅ 更新小計與總金額
+  function updateSummary(subtotal) {
+    currentSubtotal = subtotal; // 儲存未打折前的小計
+    let platformFee = Math.ceil(subtotal * 0.05);
+    let deliveryFee = 30;
+    let total = subtotal + platformFee + deliveryFee;
+  
+    // 如果已經有套用優惠券，重新套用
+    if (appliedCoupon) {
+      applyCoupon(appliedCoupon);
+      return;
+    }
+  
+    document.querySelector(".subtotal").textContent = `$${subtotal}`;
+    document.querySelector(".platform-fee").textContent = `$${platformFee}`;
+    document.querySelector(".delivery-fee").textContent = `$${deliveryFee}`;
+    document.querySelector(".grand-total").textContent = `$${total}`;
+  }
+  
+  
+  // ✅ 備註更新
+  function updateSpecialNote(textarea) {
+    const pid = textarea.dataset.pid;
+    const specialNote = textarea.value;
+  
+    fetch('update_special_note.php', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ pid, specialNote })
+    });
+  }
+  
+  // ✅ 移除商品
+  function removeItem(pid) {
+    fetch('remove_item.php', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ pid })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.redirect) {
+        window.location.href = data.redirect; // 手動跳轉
+      } else {
+        const mid = getQueryParam("mid");
+        loadCart(mid); // 重新載入購物車內容
+      }
+    });
+  }
+  
 
 
   function SubmitOrder(mid) {
@@ -173,140 +316,7 @@ function getQueryParam(name) {
   }
 
 
-  let currentSubtotal = 0;
-  let appliedCoupon = null;
-    
-  // ✅ 套用優惠券邏輯
-  function applyCoupon(code) {
-    appliedCoupon = code;
-    
-    let deliveryFee = 30;
-    let discountRate = 1;
-    
-    if (code === "CLAWWIN15") {
-      discountRate = 0.85;
-    } else if (code === "CLAWWIN20") {
-      discountRate = 0.8;
-    } else if (code === "CLAWSHIP") {
-      deliveryFee = 0;
-    }
-    
-    const discountedSubtotal = Math.round(currentSubtotal * discountRate);
-    const platformFee = Math.ceil(currentSubtotal * 0.05); // ✅ 始終以原始小計計算
-    const total = discountedSubtotal + platformFee + deliveryFee;
-    
-    document.querySelector(".subtotal").textContent = `$${discountedSubtotal}`;
-    document.querySelector(".platform-fee").textContent = `$${platformFee}`;
-    document.querySelector(".delivery-fee").textContent = `$${deliveryFee}`;
-    document.querySelector(".grand-total").textContent = `$${total}`;
-  }
-    
-
-  // ✅ 綁定所有事件
-  function bindCartEvents() {
-    document.querySelectorAll(".btn-minus").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const pid = btn.dataset.pid;
-        updateQuantity(pid, -1);
-      });
-    });
   
-    document.querySelectorAll(".btn-plus").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const pid = btn.dataset.pid;
-        updateQuantity(pid, 1);
-      });
-    });
-  
-    document.querySelectorAll(".special-note").forEach(textarea => {
-      textarea.addEventListener("blur", () => updateSpecialNote(textarea));
-    });
-  
-    document.querySelectorAll("[data-remove]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const pid = btn.dataset.remove;
-        removeItem(pid);
-      });
-    });
-  }
-  
-  // ✅ 更新數量
-  function updateQuantity(pid, change) {
-    const input = document.querySelector(`.quantity-input[data-pid="${pid}"]`);
-    let quantity = parseInt(input.value) + change;
-    if (quantity < 1) quantity = 1;
-    input.value = quantity;
-  
-    fetch('update_quantity.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pid, quantity })
-    })
-      .then(res => res.json())
-      .then(data => {
-        const row = input.closest("tr");
-  
-        if (data.deleted) {
-          row.remove();
-          updateSummary(data.subtotal || 0);
-          return;
-        }
-  
-        const totalPriceCell = row.querySelector(`.total-price[data-pid="${pid}"]`);
-        if (totalPriceCell && !isNaN(data.total)) {
-          totalPriceCell.textContent = `$${data.total.toFixed(2)}`;
-        }
-  
-        if (!isNaN(data.subtotal)) {
-          updateSummary(data.subtotal);
-        }
-      })
-      .catch(err => console.error('❌ 更新數量錯誤:', err));
-  }
-  
-  // ✅ 更新小計與總金額
-  function updateSummary(subtotal) {
-    currentSubtotal = subtotal; // 儲存未打折前的小計
-    let platformFee = Math.ceil(subtotal * 0.05);
-    let deliveryFee = 30;
-    let total = subtotal + platformFee + deliveryFee;
-  
-    // 如果已經有套用優惠券，重新套用
-    if (appliedCoupon) {
-      applyCoupon(appliedCoupon);
-      return;
-    }
-  
-    document.querySelector(".subtotal").textContent = `$${subtotal}`;
-    document.querySelector(".platform-fee").textContent = `$${platformFee}`;
-    document.querySelector(".delivery-fee").textContent = `$${deliveryFee}`;
-    document.querySelector(".grand-total").textContent = `$${total}`;
-  }
-  
-  
-  // ✅ 備註更新
-  function updateSpecialNote(textarea) {
-    const pid = textarea.dataset.pid;
-    const specialNote = textarea.value;
-  
-    fetch('update_special_note.php', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ pid, specialNote })
-    });
-  }
-  
-  // ✅ 移除商品
-  function removeItem(pid) {
-    fetch('remove_item.php', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ pid })
-    }).then(() => {
-      const mid = getQueryParam("mid");
-      loadCart(mid); // 重新載入購物車內容
-    });
-  }
   
   
 
