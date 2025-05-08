@@ -28,24 +28,6 @@ switch ($role) {
     default:
         die("Invalid role.");
 }
-
-// $stmt->bind_param("s", $id);
-// $bankStmt->bind_param("s", $id);
-// $stmt->execute();
-// $bankStmt->execute();
-
-// $userResult = $stmt->get_result();
-// $walletResult = $bankStmt->get_result();
-
-// if ($userResult->num_rows > 0) {
-//     $user = $userResult->fetch_assoc();
-// }
-// if ($walletResult->num_rows > 0) {
-//     $wallet = $walletResult->fetch_assoc();
-// }
-
-// $stmt->close();
-// $bankStmt->close();
 ?>
 
 <!DOCTYPE html>

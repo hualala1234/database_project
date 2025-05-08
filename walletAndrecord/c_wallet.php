@@ -21,7 +21,7 @@
             <p id="balance">
             <?php
             include('connect.php');
-            $id = $_GET['id'] ?? null;
+            $id = $_GET['cid'] ?? null;
             $role = $_GET['role'] ?? null;
 
             if ($id) {
