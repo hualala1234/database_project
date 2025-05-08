@@ -98,7 +98,7 @@
                 <a href="editCard.php?cardName=' . urlencode($cardId) . '&id=' . urlencode($id) . '&role='. urlencode($role).'">
                     <img class="edit" src="./image/pencil_white.png" alt="edit button" width="25" height="25">
                 </a>
-                <a href="deleteCard.php?cardName=' . urlencode($cardId) . '" onclick="return confirm(\'Are you sure you want to delete this card?\');">
+                <a href="deleteCard.php?cardName=' . urlencode($cardId) . '&id=' . urlencode($id) . '&role='. urlencode($role).'" onclick="return confirm(\'Are you sure you want to delete this card?\');">
                     <img class="delete" src="./image/trash_white.png" alt="delete button" width="25" height="25">
                 </a>
             </div>

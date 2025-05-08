@@ -22,6 +22,7 @@
                     <!-- <img id="add" src="./image/add.png" alt="add button" width="25" height="25"> -->
                 </div>
 
+                <!-- 錢包餘額 -->
                 <div class="balance card c_title" data-card-id="balance">
                     <span>Current balance：</span>
                     <p id="balance">
@@ -39,29 +40,29 @@
                     } else {
                         echo '未提供 ID';
                     }
-                    ?></p>
+                    ?>
+                    </p>
                 </div>
 
+                <!-- 所有卡片 -->
                 <?php
-
-            $sql = "SELECT * FROM card WHERE cid = $id";
-            $result = $conn->query($sql);
-            
-            
-            while ($row = $result->fetch_assoc()) {
-                // 動態生成每張卡片的唯一 ID
-                $cardId = $row['cardName']; // 使用 'id' 作為資料庫中每張卡片的唯一識別符
-                echo '<div class="cards">
-                <div id="card_' . $cardId . '" class="card" data-card-id="' . $cardId . '">
-                        <p class="c_title">' . $row['cardName'] . '</p>
-                        <div class="info">
-                            <p>Card Number: ' . $row['cardNumber'] . '</p>
-                            <p>Expiration Date: ' . $row['expirationDate'] . '</p>
+                $sql = "SELECT * FROM card WHERE cid = $id";
+                $result = $conn->query($sql);
+                
+                while ($row = $result->fetch_assoc()) {
+                    // 動態生成每張卡片的唯一 ID
+                    $cardId = $row['cardName']; // 使用 'id' 作為資料庫中每張卡片的唯一識別符
+                    echo '<div class="cards">
+                    <div id="card_' . $cardId . '" class="card" data-card-id="' . $cardId . '">
+                            <p class="c_title">' . $row['cardName'] . '</p>
+                            <div class="info">
+                                <p>Card Number: ' . $row['cardNumber'] . '</p>
+                                <p>Expiration Date: ' . $row['expirationDate'] . '</p>
+                            </div>
                         </div>
-                    </div>
-                </div>';
-            }                
-            ?>
+                    </div>';
+                }                
+                ?>
             </div>
         </div>    
 
@@ -73,7 +74,7 @@
                 <?php
                     // include('connect.php');
                     $sql = "
-                    SELECT t.transactionTime, t.totalPrice, t.paymentMethod, m.mName
+                    SELECT t.transactionTime, t.totalPrice, t.cardName, m.mName
                     FROM transaction t
                     LEFT JOIN merchant m ON t.mid = m.mid
                     WHERE t.cid = ?
@@ -90,33 +91,33 @@
                                 <th>Date</th>
                                 <th>Merchant</th>
                                 <th>Spend</th>
+                                <th>PaymentMethod</th>
                                 <th>Details</th>
                             </tr>
                         </thead>
-                        <tbody>';
+                        <tbody style="font-size: 20px;">';
 
                 while ($row = $result->fetch_assoc()) {
-                    $method = htmlspecialchars($row['paymentMethod']);
+                    $method = htmlspecialchars($row['cardName']);
                     echo '<tr data-method="' . $method . '">
-                            <td>' . htmlspecialchars($row['transactionTime']) . '</td>
-                            <td>' . htmlspecialchars($row['mName']) . '</td>
-                            <td>' . htmlspecialchars($row['totalPrice']) . '</td>
-                            <td>' . $method . '</td>
-                        </tr>';
+                        <td>' . htmlspecialchars($row['transactionTime']) . '</td>
+                        <td>' . htmlspecialchars($row['mName']) . '</td>
+                        <td>' . htmlspecialchars($row['totalPrice']) . '</td>
+                        <td>' . $method . '</td>
+                    </tr>';
                 }
 
                 echo '</tbody></table>'; 
                 ?>
+
                 <?php
-
-
                 // 查詢所有用wallet交易的紀錄
                 $walletBalance = "SELECT * FROM transaction t
                 LEFT JOIN merchant m ON t.mid = m.mid
                 WHERE cid = $id and paymentMethod = 'walletBalance'";
                 $result = $conn->query($walletBalance);
                 if ($result->num_rows > 0) {
-                    echo '<div class="transaction_group" id="transaction_balance" style="display: none;">
+                    echo '<div class="transaction_group" id="transaction_balance" style="display: show;">
                         <h3>Transactions for Wallet Balance</h3>';
                     echo '<table>
                             <thead style="font-size: 22px;">
@@ -124,6 +125,7 @@
                                     <th>Date</th>
                                     <th>Merchant</th>
                                     <th>Spend</th>
+                                    <th>PaymentMethod</th>
                                     <th>Details</th>
                                 </tr>
                             </thead>
@@ -148,14 +150,14 @@
                 while ($card = $cardResult->fetch_assoc()) {
                     $cardId = $card['cardName'];
                     // echo "<p>".$cardId."</p>";
-                    echo '<div class="transaction_group" id="transaction_' . $cardId . '" style="display: none;">
-                        <h3>Transactions for Card: ' . $card['cardNumber'] . '</h3>';
+                    echo '<div class="transaction_group" id="transaction_' . $cardId . '" style="display: show;">
+                        <h3>Transactions for Card: ' . $card['cardName'] . '</h3>';
 
-                    $t_sql = "SELECT t.transactionTime, t.totalPrice m.mName
+                    $t_sql = "SELECT t.transactionTime, t.totalPrice, m.mName
                     FROM `transaction` t 
-                    INNER JOIN `card` c ON t.cardName = c.cardName 
-                    INNER JOIN `merchant` m 
-                    WHERE c.cardName = '$cardId' 
+                    -- INNER JOIN `card` c ON t.cardName = c.cardName 
+                    INNER JOIN `merchant` m ON t.mid = m.mid 
+                    WHERE t.cardName = '$cardId' 
                     ORDER BY t.transactionTIme DESC";
 
                     $t_result = $conn->query($t_sql) or die("SQL Error: " . $conn->error . " | SQL: " . $t_sql);
@@ -167,6 +169,7 @@
                                         <th>Date</th>
                                         <th>Merchant</th>
                                         <th>Spend</th>
+                                        <th>PaymentMethod</th>
                                         <th>Details</th>
                                     </tr>
                                 </thead>
@@ -174,7 +177,7 @@
                         while ($t = $t_result->fetch_assoc()) {
                             echo '<tr>
                                     <td>' . $t['transactionTime'] . '</td>
-                                    <td>' . $row['mName']. '</td>
+                                    <td>' . $t['mName']. '</td>
                                     <td>' . $t['totalPrice'] . '</td>
                                 </tr>';
                         }

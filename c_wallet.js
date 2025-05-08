@@ -1,7 +1,15 @@
 document.addEventListener("DOMContentLoaded", function () {
+    // 跳轉到 addCard.php
     document.getElementById("add").addEventListener("click", function() {
-        // 跳轉到 addCard.php
-        window.location.href = "http://localhost/jb_project/addCard.php";
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get("id");
+        const role = urlParams.get("role");
+    
+        if (id && role) {
+            window.location.href = `http://localhost/jb_project/addCard.php?id=${encodeURIComponent(id)}&role=${encodeURIComponent(role)}`;
+        } else {
+            alert("缺少 id 或 role 參數！");
+        }
     });
 
     // let currentCardId = null;

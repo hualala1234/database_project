@@ -1,19 +1,10 @@
 <?php
 // 引入資料庫連線
-// include('connect.php');
-// db.php
-$host = "localhost"; // 資料庫主機
-$username = "root";  // 資料庫使用者
-$password = "";      // 資料庫密碼
-$dbname = "junglebite"; // 資料庫名稱
+include('connect.php');
+$id = $_GET['id']; // 或是從 $_SESSION['cid'];
+$role = $_GET['role']; 
+if (!isset($id)) die("Error: cid 未設定");
 
-// 建立與資料庫的連線
-$conn = new mysqli($host, $username, $password, $dbname);
-
-// 檢查連線是否成功
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
 // 檢查是否有表單提交
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // 取得表單資料
@@ -25,18 +16,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $expirationDate = $_POST['card-expiration-month'] . '-' . $_POST['card-expiration-year']; // 以 yyyy-mm 格式儲存
 
     // 準備 SQL 查詢語句來插入資料
-    $sql = "INSERT INTO card (cardHolder, cardName, cardNumber, cardType, cvv, expirationDate) 
-            VALUES (?, ?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO card (cid, cardHolder, cardName, cardNumber, cardType, cvv, expirationDate) 
+        VALUES (?, ?, ?, ?, ?, ?, ?)";
 
     // 準備語句並綁定參數
     if ($stmt = $conn->prepare($sql)) {
-        $stmt->bind_param("ssssss", $cardHolder, $cardName, $cardNumber, $cardType, $cvv, $expirationDate);
+      $stmt->bind_param("issssss", $id, $cardHolder, $cardName, $cardNumber, $cardType, $cvv, $expirationDate);
 
         // 執行插入操作
         if ($stmt->execute()) {
             // echo "Card added successfully!";
             // 資料新增成功後導向回 c_wallet.php
-            header("Location: ./c_wallet.php?id=<?= urlencode($id) ?>&role=<?= urlencode($role) ?>");
+            header("Location: ./c_wallet.php?id=" . urlencode($id) . "&role=" . urlencode($role));
             exit(); // 確保停止執行後續程式碼
         } else {
             echo "Error: " . $stmt->error;
@@ -134,7 +125,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       </div>
     </div> -->
     <style>label{font-size:13px;}</style>
-    <form class="form" autocomplete="off" novalidate method="POST">
+    <form class="form" autocomplete="off" novalidate method="POST" >
       <fieldset>
           <label for="card-name">Card Name</label>
           <input type="text" id="card-name" name="card-name" placeholder="card's name" required />

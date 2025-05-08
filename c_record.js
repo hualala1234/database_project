@@ -4,45 +4,45 @@ document.addEventListener("DOMContentLoaded", function () {
     //     window.location.href = "http://localhost/jb_project/image/testing.php";
     // });
 
-    // let currentCardId = null;
+    let currentCardId = null;
 
-    // document.querySelectorAll('.card').forEach(function(card) {
-    //     card.addEventListener('click', function () {
-    //         const cardId = this.getAttribute('data-card-id');
+    document.querySelectorAll('.card').forEach(function(card) {
+        card.addEventListener('click', function () {
+            const cardId = this.getAttribute('data-card-id');
 
-    //         // 如果是同一張卡片被重複點擊 → 顯示 transaction_all
-    //         if (currentCardId === cardId) {
-    //             // 顯示全部交易
-    //             document.getElementById('transaction_all').style.display = 'block';
+            // 如果是同一張卡片被重複點擊 → 顯示 transaction_all
+            if (currentCardId === cardId) {
+                // 顯示全部交易
+                document.getElementById('transaction_all').style.display = 'block';
 
-    //             // 隱藏其他交易區塊
-    //             document.querySelectorAll('.transaction_group').forEach(group => {
-    //                 if (group.id !== 'transaction_all') {
-    //                     group.style.display = 'none';
-    //                 }
-    //             });
+                // 隱藏其他交易區塊
+                document.querySelectorAll('.transaction_group').forEach(group => {
+                    if (group.id !== 'transaction_all') {
+                        group.style.display = 'none';
+                    }
+                });
 
-    //             // 清除選取狀態
-    //             document.querySelectorAll('.card').forEach(c => c.classList.remove('clicked'));
-    //             currentCardId = null;
-    //         } else {
-    //             // 顯示對應卡片交易區塊
-    //             document.getElementById('transaction_all').style.display = 'none';
-    //             document.querySelectorAll('.transaction_group').forEach(group => {
-    //                 group.style.display = 'none';
-    //             });
+                // 清除選取狀態
+                document.querySelectorAll('.card').forEach(c => c.classList.remove('clicked'));
+                currentCardId = null;
+            } else {
+                // 顯示對應卡片交易區塊
+                document.getElementById('transaction_all').style.display = 'none';
+                document.querySelectorAll('.transaction_group').forEach(group => {
+                    group.style.display = 'none';
+                });
 
-    //             const target = document.getElementById('transaction_' + cardId);
-    //             if (target) target.style.display = 'block';
+                const target = document.getElementById('transaction_' + cardId);
+                if (target) target.style.display = 'block';
 
-    //             // 更新樣式
-    //             document.querySelectorAll('.card').forEach(c => c.classList.remove('clicked'));
-    //             this.classList.add('clicked');
+                // 更新樣式
+                document.querySelectorAll('.card').forEach(c => c.classList.remove('clicked'));
+                this.classList.add('clicked');
 
-    //             currentCardId = cardId;
-    //         }
-    //     });
-    // });
+                currentCardId = cardId;
+            }
+        });
+    });
 
 
     // // click card to view the card

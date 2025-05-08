@@ -1,10 +1,7 @@
 <?php
 // connect to DB
-$host = "localhost";
-$username = "root";
-$password = "";
-$dbname = "junglebite";
-$conn = new mysqli($host, $username, $password, $dbname);
+include('connect.php');
+
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
@@ -32,6 +29,9 @@ $stmt->bind_param("s", $id);
 $stmt->execute();
 $result = $stmt->get_result();
 $row = $result->fetch_assoc();
+if (!$row) {
+    die("找不到帳號資料，請確認 $table 表中是否有 id = $id 的資料");
+}
 $number = str_split($row['accountNumber'] ?? '', 4);
 
 // 處理表單提交
@@ -50,6 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo "Error: " . $updateStmt->error;
     }
     $updateStmt->close();
+    echo "更新筆數：" . $updateStmt->affected_rows;
 }
 $stmt->close();
 ?>

@@ -117,9 +117,9 @@ switch ($role) {
                     if ($row = $result->fetch_assoc()) {
                         // 只輸出 bankCode 跟 accountNumber
                         echo '<div class="bank-info card">';
-                        echo '<p class="c_title" style="font-size: 22px; margin: 0; font-weight: bold;">Salary Account</p>';
-                        echo '<p>Bank Code: ' . htmlspecialchars($row['bankCode']) . '</p>';
-                        echo '<p>Account Number: ' . htmlspecialchars($row['accountNumber']) . '</p>';
+                        echo '<p class="c_title" style="font-size: 22px; margin: 0;margin-top:10px; font-weight: bold;">Salary Account</p>';
+                        echo '<p style="margin-top:35px;margin-bottom:10px"> Bank Code: ' . htmlspecialchars($row['bankCode']) . '</p>';
+                        echo '<p style="margin:0;">Number: ' . htmlspecialchars($row['accountNumber']) . '</p>';
                         echo '</div>';
                     } else {
                         echo '<p>No bank info found.</p>';
@@ -268,7 +268,7 @@ switch ($role) {
             echo '<div class="bank-info" style="padding: 75px 0px 0px 135px; color: white; font-size: 24px; font-weight: 800;"';
             echo '<p class="c_title" style="font-size: 30px; margin: 0; font-weight: bold;">Salary Account</p>';
             echo '<p>Bank Code: ' . htmlspecialchars($row['bankCode']) . '</p>';
-            echo '<p>Account Number: ' . htmlspecialchars($row['accountNumber']) . '</p>';
+            echo '<p>Number: ' . htmlspecialchars($row['accountNumber']) . '</p>';
             echo '</div>';
         } else {
             echo '<p>No bank info found.</p>';

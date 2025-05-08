@@ -10,7 +10,7 @@ body{
     /* align-items: center; */
     justify-content: center;
     background-color: #F5F5F5;
-    width: 35%;
+    width: 30%;
     height: 100%;
     border-radius: 10px;
     padding: 20px 0px;
@@ -55,14 +55,16 @@ img:hover {
     flex-direction: column;
     height: 150px;
     width: 230px;
-    padding: 20px 30px;
+    padding: 0px 25px;
     background-color: #FFF1D5;
     border-radius: 10px;
-    margin: 10px;
+    margin: 0;
+    margin-top: 20px;
 }
 .balance{
-    height: 90px;
+    height: 120px;
     width: 75%;
+    padding-top: 20px;
 }
 .card:hover{
     cursor: pointer;
@@ -76,6 +78,8 @@ img:hover {
 .c_title{
     font-size: 20px;
     font-weight: bold;
+    margin:0;
+    margin-top: 20px;
 }
 .info{
     margin-top: 20px;
@@ -141,7 +145,7 @@ img:hover {
     margin-top: 20px;
 }
 #right_container{
-    width: 60%;
+    width: 65%;
     background-color: floralwhite;
     padding: 15px;
     height: 100%; 
@@ -177,7 +181,7 @@ table{
     width: 100%;
 }
 
-.footer{
+/* .footer{
     margin-top: 30px;
     position: relative;
     bottom: 0;
@@ -192,7 +196,7 @@ table{
         padding: 0px;
     }
     padding-top: 25px;
-}
+} */
 
 /* addCard.css */
 #add_card_page{
@@ -247,4 +251,10 @@ label {
     display: flex;
     flex-direction: column;
     justify-content: center;
+}
+th{
+    padding:10px;
+}
+td{
+    padding:20px;
 }
