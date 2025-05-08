@@ -140,6 +140,7 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
                                         <a href="/database/customer/setting.php" class="dropdown-item">個人設定</a>
                                         <a href="/database_project/allergy/allergy.php" class="dropdown-item">過敏設定</a>
                                         <a href="../claw_machine/claw.php" class="dropdown-item">優惠券活動</a>
+                                        <a href="../walletAndrecord/c_wallet.php?id=<?php echo $cid; ?>&role=c" class="dropdown-item">錢包</a>
                                         <a href="friends.php" class="dropdown-item">我的好友</a>
                                     <?php elseif ($_SESSION['role'] === 'delivery_person'): ?>
                                         <a href="/database/customer/setting.php" class="dropdown-item">外送員設定</a>

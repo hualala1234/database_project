@@ -281,10 +281,23 @@ label {
     /* background-color: rgb(120, 167, 120); */
 }
 .transaction_group{
-    width: 100%;
+    /* width: 100%; */
     align-items: center;
     text-align: center;
     display: flex;
     flex-direction: column;
     justify-content: center;
+}
+.logo h1{
+    margin-left: 30px;
+    text-decoration: none !important;
+    color: #146E57 !important;
+    font-size: calc(1.375rem + 1.5vw);
+    font-weight: 800;
+    line-height: 1.2;
+    font-size: calc(1.375rem + 1.5vw);
+    margin-top: 0;
+    margin-bottom: .5rem;
+    font-family: "Raleway", sans-serif;
+    border-bottom: none;
 }

@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const role = urlParams.get("role");
     
         if (id && role) {
-            window.location.href = `http://localhost/jb_project/addCard.php?id=${encodeURIComponent(id)}&role=${encodeURIComponent(role)}`;
+            window.location.href = `http://localhost/database_project/walletAndrecord/addCard.php?id=${encodeURIComponent(id)}&role=${encodeURIComponent(role)}`;
         } else {
             alert("缺少 id 或 role 參數！");
         }

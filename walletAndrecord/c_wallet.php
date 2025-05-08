@@ -4,12 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./c_wallet.css">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Raleway:wght@600;800&display=swap" rel="stylesheet"> 
     <script src="./c_wallet.js"></script>
     <title>Customer Wallet</title>
 </head>
 <body>
     <div id="out_block">
         <div class="block1">
+            <a href="../customer/index.php?cid=<?php echo $id; ?>" class="logo" style="text-decoration:none;"><h1>Junglebite</h1></a>
             <img id="wallet" src="./image/wallet.png" alt="wallet icon" width="30" height="30">
             <h1>Wallet</h1><span style="font-size: 22px; margin: 0px; margin-left: 30px;">Welcome to your wallet!</span>
         </div>
@@ -74,7 +76,7 @@
         <?php
         include('connect.php');
         
-        $sql = "SELECT * FROM card WHERE cid='1'"; // 查詢資料表
+        $sql = "SELECT * FROM card WHERE cid=$id"; // 查詢資料表
         $result = $conn->query($sql);
         
         if (!$result) {
@@ -106,22 +108,5 @@
         }
         ?>
     </div>
-
-    <!-- <div id="editCard" style="display: block;">
-        <img id="closeedit" src="./image/cross.png" alt="close button" width="15" height="15">
-        <h3><input type="text" id="cardNameInput" placeholder="Card Name" /></h3>
-        <p><input type="text" id="bankCodeInput" placeholder="Bank Code" /></p>
-        <p><input type="text" id="cardNumberInput" placeholder="Card Number" /></p>
-        <p><input type="text" id="cardTypeInput" placeholder="Card Type" /></p>
-        <p><input type="text" id="expirationDateInput" placeholder="Expiration Date" /></p>
-        <p><input type="text" id="cvvInput" placeholder="Card CVV" /></p>
-        <input type="hidden" id="editCardId" value="">
-        <button id="submitChanges">Submit</button>
-    </div> -->
-
-    <!-- <div class="footer">
-        <p>© 2023 Your Company. All rights reserved.</p>
-        <p>Privacy Policy | Terms of Service</p>
-    </div> -->
 </body>
 </html>
