@@ -60,7 +60,7 @@ if ($mid !== '') {
         
         <!-- Navbar start -->
         <div class="container-fluid fixed-top">
-            <div class="container topbar bg-primary d-none d-lg-block">
+            <div class="container topbar bg-primary d-none d-lg-block" style="padding: 20px;">
                 <div class="d-flex justify-content-between">
                     <div class="top-info ps-2">
                     <!-- <i class="fas fa-map-marker-alt me-2 text-secondary"></i> <a href="#" class="text-white">客戶住址</a> -->
@@ -84,7 +84,7 @@ if ($mid !== '') {
                             <!-- <a href="index.php" class="nav-item nav-link active">Home</a> -->
                             <a href="merchant_shop.php?mid=<?php echo $mid; ?>" class="nav-item nav-link">店面資訊</a>
                             <a href="menu.php?mid=<?php echo $mid; ?>" class="nav-item nav-link">菜單管理</a>
-                            <a href="shop-detail.html" class="nav-item nav-link">訂單</a>
+                            <a href="order.php?mid=<?php echo $mid; ?>" class="nav-item nav-link">訂單</a>
                             <!-- <div class="nav-item dropdown">
                                 <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
                                 <div class="dropdown-menu m-0 bg-secondary rounded-0">
@@ -157,17 +157,18 @@ if ($mid !== '') {
                                 >
                                 <button 
                                     type="button" 
-                                    class=" py-3 px-4 rounded-pill text-white h-100 position-absolute" 
-                                    style="margin-left: 0.5rem; right: -5rem; background-color: #81C408; border:#81C408;"
+                                    id="search-btn"
+                                    class=" py-3 px-4 btn-primary rounded-pill text-white h-100 position-absolute" 
+                                    style="margin-left: 0.5rem; right: -5rem; border:0px solid; pointer-events: none;"
                                 >
                                     <i class="fa-solid fa-magnifying-glass"></i>
                                 </button>
                             </form>              
                         </div>
                         <div style="display:flex;">
-                            <button type="button" class="btn btn-secondary border-2 border-secondary py-3 px-3  text-white h-100" data-bs-toggle="modal" data-bs-target="#addCategoryModal"><i class="fa-solid fa-plus"></i> 新增類別</button>
-                            <button style="margin-left:0.7rem; background-color: #ff5d6d;" type="button" class="btn border-2 border-secondary py-3 px-3  text-white h-100" data-bs-toggle="modal" data-bs-target="#addProductModal"><i style="margin-right:0.2rem;" class="fa-solid fa-plus"></i>新增商品</button>
-                            <button style="margin-left:0.7rem; background-color: #ff5d6d;" type="button" class="btn border-2 border-secondary py-3 px-3  text-white h-100" data-bs-toggle="modal" data-bs-target="#editCategoryOrderModal"><i style="margin-right:0.2rem;" class="fa-solid fa-list"></i>編輯類別順序</button>
+                            <button type="button" style="background-color:#ffc446;"  class="btn btn-secondary  py-3 px-3  text-white h-100 menu-btn" data-bs-toggle="modal" data-bs-target="#addCategoryModal"><i class="fa-solid fa-plus"></i> 新增類別</button>
+                            <button style="margin-left:0.7rem; background-color: #f39964;" type="button" class="btn  py-3 px-3  text-white h-100 menu-btn" data-bs-toggle="modal" data-bs-target="#addProductModal"><i style="margin-right:0.2rem;" class="fa-solid fa-plus"></i>新增商品</button>
+                            <button style="margin-left:0.7rem; background-color: #82bbf2;" type="button" class="btn  py-3 px-3  text-white h-100 menu-btn" data-bs-toggle="modal" data-bs-target="#editCategoryOrderModal"><i style="margin-right:0.2rem;" class="fa-solid fa-list"></i>編輯類別順序</button>
 
                         </div>
                         <div id="addp" style="display:none;"></div>
@@ -191,7 +192,7 @@ if ($mid !== '') {
                                                 <input type="text" class="form-control" id="productCategoryName" name="productCategoryName" required placeholder="輸入類別名稱">
                                             </div>
                                             
-                                            <button type="submit" class="btn btn-primary mt-3">儲存</button>
+                                            <button type="submit" class="btn btn-primary mt-3 text-white">儲存</button>
                                         </form>
                                     </div>
                                 </div>
@@ -269,7 +270,7 @@ if ($mid !== '') {
                                                 <input type="file" class="form-control" id="productImage" name="productImage">
                                             </div>
 
-                                            <button type="submit" class="btn btn-primary mt-3">儲存</button>
+                                            <button type="submit" class="btn btn-primary mt-3 text-white">儲存</button>
                                         </form>
                                     </div>
                                 </div>
@@ -298,7 +299,7 @@ if ($mid !== '') {
                                         </ul>
                                     </div>
                                     <div class="modal-footer">
-                                        <button type="button" id="saveCategoryOrder" class="btn btn-primary">儲存排序</button>
+                                        <button type="button" id="saveCategoryOrder" class="btn btn-primary text-white">儲存排序</button>
                                     </div>
                                 </div>
                             </div>
@@ -332,14 +333,15 @@ if ($mid !== '') {
                                         aria-expanded="true" 
                                         aria-controls="collapse_' . $productCategoriesId . '" 
                                         data-category="' . $categoryName . '">
-                                            <span class="arrow"></span>
-                                            <span class="category-name">' . htmlspecialchars($categoryName) . '</span>
+                                            <span style="color:#fff;" class="arrow"></span>
+                                            <span style="color:#fff;!important" class="category-name">' . htmlspecialchars($categoryName) . '</span>
                                         </a>
                                         <h3 style="margin-left:0.5rem; cursor: pointer;" 
                                             data-bs-toggle="modal" 
                                             data-bs-target="#editCategoryModal_' . $productCategoriesId . '">
                                             <i class="fa-solid fa-pen"></i>
                                         </h3>
+                                        
                                         <h3 style="margin-left:0.5rem;">
                                             <i class="fa-solid fa-trash" style="cursor:pointer;" data-bs-toggle="modal" data-bs-target="#deleteCategoryModal_' . $productCategoriesId . '"></i>
                                         </h3>
@@ -363,7 +365,7 @@ if ($mid !== '') {
                                                             <input style=" font-weight: bold;" type="text" class="form-control" name="productCategoryName" value="' . htmlspecialchars($categoryName) . '" placeholder="輸入分類名稱">
                                                         </div>
                                                         <div class="form-element button_container mt-3">
-                                                            <input style=" font-weight: bold;" type="submit" class="btn btn-primary" name="updateCategory" value="儲存">
+                                                            <input style=" font-weight: bold;" type="submit" class="btn btn-primary text-white" name="updateCategory" value="儲存">
                                                         </div>
                                                     </form>
                                                 </div>
@@ -519,7 +521,7 @@ if ($mid !== '') {
 
                                                                 <div class="form-element button_container mt-3">
                                                                     
-                                                                    <input style=" font-weight: bold;" type="submit" class="btn btn-primary" name="updateProduct" id="saveButton_' . $productDetail['pid'] . '" value="儲存" disabled>
+                                                                    <input style=" font-weight: bold;" type="submit" class="btn btn-primary text-white" name="updateProduct" id="saveButton_' . $productDetail['pid'] . '" value="儲存" disabled>
 
                                                                 </div>
 
@@ -633,7 +635,7 @@ if ($mid !== '') {
 
 
     <!-- Back to Top -->
-    <a href="#" class="btn btn-primary border-3 border-primary rounded-circle back-to-top"><i class="fa fa-arrow-up"></i></a>   
+    <a href="#" style="background-color:#ffc446;" class="btn btn-primary border-3 border-primary rounded-circle back-to-top"><i class="fa fa-arrow-up"></i></a>   
     <script>
         function toggleDropdown() {
             var dropdown = document.getElementById("myDropdown");
@@ -666,6 +668,34 @@ if ($mid !== '') {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- 引入 jQuery UI -->
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+    <script>
+    $(function () {
+        // 啟用拖曳排序功能
+        $("#sortableCategoryList").sortable();
+
+        // 儲存按鈕點擊事件
+        $("#saveCategoryOrder").click(function () {
+            const sortedIDs = $("#sortableCategoryList li").map(function () {
+                return $(this).data("id");
+            }).get();
+
+            $.ajax({
+                url: 'update_category_order.php',
+                type: 'POST',
+                data: { order: sortedIDs },
+                success: function (response) {
+                    alert(response);
+                    location.reload(); // 成功後可重新整理或更新內容
+                },
+                error: function () {
+                    alert("儲存失敗！");
+                }
+            });
+        });
+    });
+    </script>
+
 
     </body>
 

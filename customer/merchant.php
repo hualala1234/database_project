@@ -5,6 +5,7 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
+
 $cid = isset($_SESSION["cid"]) ? $_SESSION["cid"] : '';
 if ($cid !== '') {
     $sql = "SELECT * FROM Customer WHERE cid = $cid";
@@ -12,18 +13,21 @@ if ($cid !== '') {
     $row = mysqli_fetch_array($result);
     
 }
-$cartCount = 0;
+
+$storeCount = 0;
 if (isset($_SESSION['cid'], $_SESSION['cartTime'])) {
-    $stmt = $conn->prepare("SELECT SUM(quantity) AS total FROM CartItem WHERE cid = ? AND cartTime = ?");
-    $stmt->bind_param("is", $_SESSION['cid'], $_SESSION['cartTime']);
+    $stmt = $conn->prepare("SELECT COUNT(DISTINCT mid) AS storeCount FROM CartItem WHERE cid = ? AND DATE(cartTime) = ?");
+    $stmt->bind_param("is", $_SESSION['cid'], $cartDate);  // $cartDate 是 '2025-05-06' 或與資料庫日期匹配的日期
+
     $stmt->execute();
-    $stmt->bind_result($cartCount);
+    $stmt->bind_result($storeCount);
     $stmt->fetch();
     $stmt->close();
 }
 
 // 處理表單提交更新地址
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_address_id'])) {
+
     $selected_address_id = $_POST['selected_address_id'];
     // 根據選擇的地址 ID 更新 session 中的地址
     $sql = "SELECT address_text FROM caddress WHERE address_id = ?";
@@ -222,7 +226,7 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
       </div>
       <div class="container px-0">
         <nav class="navbar navbar-light bg-white navbar-expand-xl">
-          <a href="merchant.php?cid=<?php echo $cid; ?>" class="navbar-brand"><h1 class="text-primary display-6">Junglebite</h1></a>
+          <a href="index.php?cid=<?php echo $cid; ?>" class="navbar-brand"><h1 class="text-primary display-6">Junglebite</h1></a>
           <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
             <span class="fa fa-bars text-primary"></span>
           </button>
@@ -2427,8 +2431,8 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
                 <textarea id="specialNote" class="form-control" rows="2"></textarea>
               </div>
               <div class="mb-3">
-                <label for="quantity" class="form-label">數量</label>
-                <input type="number" class="form-control" id="quantity" value="1" min="1">
+                <label for="Quantity" class="form-label">數量</label>
+                <input type="number" class="form-control" id="Quantity" value="1" min="1">
               </div>
               <button class="btn btn-primary w-100" onclick="addToCart()">加入購物車</button>
             </div>
@@ -2586,208 +2590,15 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
     </div>
 
 
-
-
-    
-    <script>
-    function toggleDropdown() {
-        var dropdown = document.getElementById("myDropdown");
-        dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
-    }
-    window.onclick = function(event) {
-        var dropdown = document.getElementById("myDropdown");
-        if (!event.target.closest('.dropdown') && dropdown && dropdown.style.display === "block") {
-            dropdown.style.display = "none";
-        }
-    }
-    </script>
-    <script>
-      document.querySelectorAll('a.category-item').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-          e.preventDefault();
-          const targetId = this.getAttribute('href').substring(1); // 去掉 #
-          const target = document.getElementById(targetId);
-          if (target) {
-            const offset = -5; // navbar 高度
-            const bodyRect = document.body.getBoundingClientRect().top;
-            const elementRect = target.getBoundingClientRect().top;
-            const elementPosition = elementRect - bodyRect;
-            const offsetPosition = elementPosition - offset;
-
-            window.scrollTo({
-              top: offsetPosition,
-              behavior: "smooth"
-            });
-          }
-        });
-      });
-    </script>
-    <script>
-      function openProductModal(name, description, price, imageUrl, pid, mid) {
-        document.getElementById('productModalLabel').textContent = name;
-        document.getElementById('modalProductDescription').textContent = description;
-        document.getElementById('modalProductPrice').textContent = 'NT$ ' + price;
-        document.getElementById('modalProductImage').src = imageUrl;
-        document.getElementById('specialNote').value = '';
-        document.getElementById('quantity').value = 1;
-        document.getElementById('modalPid').value = pid;
-        document.getElementById('modalMid').value = mid;
-      }
-    </script>
-    <script>
-      function addToCart() {
-        const pid = document.getElementById('modalPid').value;
-        const mid = document.getElementById('modalMid').value;
-        const quantity = parseInt(document.getElementById('quantity').value);
-        const note = document.getElementById('specialNote').value;
-
-        fetch('add_to_cart.php', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ pid, mid, quantity, note })
-        })
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            // ✅ 觸發 modal 裡面的關閉按鈕（等同使用者按關閉）
-            document.querySelector('#productModal .btn-close').click();
-
-            // 更新購物車數量
-            updateCartCount();
-            // ✅ 重新載入頁面以刷新購物車內容
-            window.location.reload();
-          }
-        });
-      }
-    </script>
-    <script>
-      function updateCartCount() {
-        fetch('cart_count.php')
-          .then(res => res.json())
-          .then(data => {
-            document.querySelector('.fa-cart-shopping + span').textContent = data.count;
-          });
-      }
-
-    </script>
-    <script>
-
-      function handleIncrease(pid, mid) {
-        const input = document.getElementById(`qty-${pid}-${mid}`);
-        const currentQty = parseInt(input.value);
-        updateQuantity(pid, mid, currentQty + 1);
-      }
-      function handleDecrease(pid, mid) {
-        const input = document.getElementById(`qty-${pid}-${mid}`);
-        const currentQty = parseInt(input.value);
-        if (currentQty > 1) {
-          updateQuantity(pid, mid, currentQty - 1);
-        }
-      }
-      function updateQuantity(pid, mid, newQty) {
-
-        
-        if (newQty < 1) return;
-
-        fetch('update_cart_item.php', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ pid, mid, quantity: newQty })
-        })
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            // 更新數量欄位
-            document.getElementById(`qty-${pid}-${mid}`).value = newQty;
-
-            // 更新小計
-            const itemDiv = document.getElementById(`cart-item-${pid}-${mid}`);
-            const price = parseFloat(itemDiv.dataset.price);
-            const subtotal = price * newQty;
-            document.getElementById(`subtotal-${pid}-${mid}`).textContent = `NT$${subtotal}`;
-
-            // 更新購物車 icon 上的數量
-            updateCartCount();
-          }
-        });
-      }
-
-      function removeItem(pid, mid) {
-        if (!confirm('確定要移除這項商品嗎？')) return;
-
-        fetch('remove_cart_item.php', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ pid, mid })
-        })
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            // 移除 DOM 元素
-            const item = document.getElementById(`cart-item-${pid}-${mid}`);
-            if (item) item.remove();
-
-            updateCartCount();
-          }
-        });
-      }
-      </script>
-      <script>
-        function openEditModal(pid, mid, quantity, note) {
-          
-          // 設定 modal 裡的值
-          document.getElementById('editPid').value = pid;
-          document.getElementById('editMid').value = mid;
-          document.getElementById('editQuantity').value = quantity;
-          document.getElementById('editNote').value = note;
-
-          // 顯示 modal
-          const modalEl = document.getElementById('editCartModal');
-          const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-          modal.show();
-        }
-
-        function saveEdit() {
-          const pid = document.getElementById('editPid').value;
-          const mid = document.getElementById('editMid').value;
-          const quantity = document.getElementById('editQuantity').value;
-          const note = document.getElementById('editNote').value;
-
-          fetch('update_cart.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ pid, mid, quantity, note })
-          })
-          .then(res => res.json())
-          .then(data => {
-            if (data.success) {
-              location.reload(); // 重新載入購物車
-            }
-          });
-        }
-        </script>
-
-
-
-    <script src="../js/jquery-1.11.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
-    <script src="../js/plugins.js"></script>
-    <script src="../js/script.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
-    <script src="../lib/easing/easing.min.js"></script>
-    <script src="../lib/waypoints/waypoints.min.js"></script>
-    <script src="../lib/lightbox/js/lightbox.min.js"></script>
-    <script src="../lib/owlcarousel/owl.carousel.min.js"></script>
-
-    <!-- Template Javascript -->
-    <script src="../js/main.js"></script>
-
-
     <!-- 🟦 Modal: 更換外送地址 -->
     <div class="modal fade" id="addressModal" tabindex="-1" aria-labelledby="addressModalLabel" aria-hidden="true">
         <div class="modal-dialog">
-            <form method="post" action="merchant.php">
+            <form method="post" action="merchant.php?mid=<?= htmlspecialchars($_GET['mid']) ?>">
+                <input type="hidden" name="action" value="change_address">
+                <input type="hidden" name="cartTime" value="<?= htmlspecialchars($cartTime) ?>">
+                <input type="hidden" name="cid" value="<?= htmlspecialchars($_SESSION['cid']) ?>">
+                <input type="hidden" name="pid" value="<?= htmlspecialchars($_GET['pid']) ?>">
+                <input type="hidden" name="mid" value="<?= htmlspecialchars($_GET['mid']) ?>">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="addressModalLabel">選擇外送地址</h5>
@@ -2814,6 +2625,41 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
             </form>
         </div>
     </div>
+
+    
+    <script>
+    function toggleDropdown() {
+        var dropdown = document.getElementById("myDropdown");
+        dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+    }
+    window.onclick = function(event) {
+        var dropdown = document.getElementById("myDropdown");
+        if (!event.target.closest('.dropdown') && dropdown && dropdown.style.display === "block") {
+            dropdown.style.display = "none";
+        }
+    }
+    </script>
+    
+
+
+
+    <script src="../js/jquery-1.11.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
+    <script src="../js/plugins.js"></script>
+    <script src="../js/script.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="../lib/easing/easing.min.js"></script>
+    <script src="../lib/waypoints/waypoints.min.js"></script>
+    <script src="../lib/lightbox/js/lightbox.min.js"></script>
+    <script src="../lib/owlcarousel/owl.carousel.min.js"></script>
+
+    <!-- Template Javascript -->
+    <script src="../js/main.js"></script>
+    <script src="cart.js"></script>
+
+
+    
 
   </body>
 </html>

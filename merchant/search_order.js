@@ -4,7 +4,7 @@ var manuallyCollapsed = [];
 $(document).ready(function () {
 
     // 初始化箭頭狀態
-    $(".category-toggle").each(function () {
+    $(".order-toggle").each(function () {
         var categoryId = $(this).attr("href").replace("#", "");
         var collapseEl = $("#" + categoryId);
         var arrow = $(this).find(".arrow");
@@ -18,7 +18,7 @@ $(document).ready(function () {
     });
 
     // 點擊分類按鈕時：切換收起狀態 + 更新箭頭 + 更新 manuallyCollapsed 陣列
-    $(".category-toggle").on("click", function () {
+    $(".order-toggle").on("click", function () {
         var categoryId = $(this).attr("href").replace("#", "");
         var collapseEl = $("#" + categoryId);
         var arrow = $(this).find(".arrow");
@@ -32,8 +32,8 @@ $(document).ready(function () {
                 if (index > -1) manuallyCollapsed.splice(index, 1);
             } else {
                 arrow.text("▼");
-                if (!manuallyCollapsed.includes(categoryId)) {
-                    manuallyCollapsed.push(categoryId);
+                if (!manuallyCollapsed.includes(tranId)) {
+                    manuallyCollapsed.push(tranId);
                 }
             }
         }, 350); // 需與 Bootstrap 動畫時間一致
@@ -45,10 +45,10 @@ $(document).ready(function () {
             var categoryId = $(this).attr("id");
             if (manuallyCollapsed.includes(categoryId)) {
                 $(this).collapse('hide');
-                $(`.category-toggle[href="#${categoryId}"] .arrow`).text("▼");
+                $(`.order-toggle[href="#${categoryId}"] .arrow`).text("▼");
             } else {
                 $(this).collapse('show');
-                $(`.category-toggle[href="#${categoryId}"] .arrow`).text("▲");
+                $(`.order-toggle[href="#${categoryId}"] .arrow`).text("▲");
             }
         });
     }
@@ -59,7 +59,7 @@ $(document).ready(function () {
         var hasVisible = false;
 
         // 還原所有分類與商品的原始內容
-        $(".product-title h4:first-child, .category-toggle").each(function () {
+        $(".product-title h4:first-child, .order-toggle").each(function () {
             var $this = $(this);
             if (!$this.data("original-html")) {
                 $this.data("original-html", $this.html());
@@ -69,14 +69,14 @@ $(document).ready(function () {
 
         if (value === "") {
             $(".product-title").show();
-            $(".category-toggle").closest(".gap-1").show();
+            $(".order-toggle").closest(".gap-1").show();
             $(".collapse").show();
             $(".no-data-row").remove();
             applyManualCollapseState(); // 使用者清空搜尋時還原手動狀態
             return;
         }
 
-        $(".category-toggle").each(function () {
+        $(".order-toggle").each(function () {
             var categoryButton = $(this);
             var categoryId = categoryButton.attr("href");
             var productList = $(categoryId).find(".product-title");
@@ -88,7 +88,7 @@ $(document).ready(function () {
 
             if (originalText.toLowerCase().includes(value)) {
                 var highlightedCategory = originalText.replace(regex, function (match) {
-                    return `<mark style="background-color: #FFB524; padding:0; color:#fff!important;">${match}</mark>`;
+                    return `<mark style="background-color: #FFB524; padding:0;">${match}</mark>`;
                 });
 
                 categoryButton.html('<span class="arrow text-white">▲</span> ' + highlightedCategory);
@@ -105,7 +105,7 @@ $(document).ready(function () {
                     }
                     var originalProductText = title.data("original-text");
                     var highlightedProduct = originalProductText.replace(regex, function (match) {
-                        return `<mark style="background-color: #FFB524; padding:0; color:#fff!important;">${match}</mark>`;
+                        return `<mark style="background-color: #FFB524; padding:0;" class="text-white">${match}</mark>`;
                     });
                     title.html(highlightedProduct);
                 });

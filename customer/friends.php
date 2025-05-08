@@ -3,7 +3,7 @@ session_start();
 
 // 資料庫連線設定
 $host = 'localhost';
-$dbname = 'database';
+$dbname = 'junglebite';
 $user = 'root';
 $pass = '';
 

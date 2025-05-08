@@ -10,7 +10,7 @@ if (!isset($_SESSION['cid'])) {
 
 // 1. 資料庫連線設定
 $host = 'localhost';
-$dbname = 'database';
+$dbname = 'junglebite';
 $username = 'root';
 $password = '';
 

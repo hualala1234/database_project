@@ -36,10 +36,8 @@ if (isset($_POST["updateMerchant"])) {
     if (isset($_POST['restaurantCategories'])) {
         $newCategories = $_POST['restaurantCategories'];
 
-        // 先清除餐廳的所有類別
         mysqli_query($conn, "DELETE FROM RestaurantCategories WHERE mid = $mid");
 
-        // 再新增新的類別
         foreach ($newCategories as $categoryId) {
             $categoryId = mysqli_real_escape_string($conn, $categoryId);
             $sqlInsert = "INSERT INTO RestaurantCategories (mid, categoryId) 
@@ -48,23 +46,33 @@ if (isset($_POST["updateMerchant"])) {
         }
     }
 
-    // Handle business hours data
+    // 取得營業時間 JSON
     if (!empty($_POST['hoursJson'])) {
         $businessHours = mysqli_real_escape_string($conn, $_POST['hoursJson']);
     }
-    
 
-    // Other code for image upload and categories...
+    // 更新商店資訊（根據是否有圖片上傳選擇 SQL）
+    if (!empty($mPicture)) {
+        $sqlUpdate = "UPDATE merchant 
+                      SET mName = '$mName', mAddress = '$mAddress', mPicture = '$mPicture', businessHours = '$businessHours' 
+                      WHERE mid = '$mid'";
+    } else {
+        $sqlUpdate = "UPDATE merchant 
+                      SET mName = '$mName', mAddress = '$mAddress', businessHours = '$businessHours' 
+                      WHERE mid = '$mid'";
+    }
 
-    // Update business hours in the database
-    $sqlUpdate = "UPDATE merchant SET businessHours = '$businessHours' WHERE mid = '$mid'";
-    mysqli_query($conn, $sqlUpdate);
+    // 執行更新並檢查錯誤
+    if (!mysqli_query($conn, $sqlUpdate)) {
+        echo "更新失敗：" . mysqli_error($conn);
+        exit;
+    }
 
-
-    // 成功跳轉
+    // 成功後跳轉
     header("Location: merchant/merchant_shop.php?mid=$mid");
     exit();
 }
+
 ?>
 
 
@@ -362,30 +370,3 @@ if (isset($_POST['deleteCategory'])) {
 }
 ?>
 
-<!-- 更改商品類別排序 -->
-<?php
-include "dbh.php"; // 你的資料庫連線
-
-if (isset($_POST['productCategoryName']) && isset($_POST['mid'])) {
-    $name = mysqli_real_escape_string($conn, $_POST['productCategoryName']);
-    $mid = intval($_POST['mid']);
-
-    // 查詢該 mid 下的最大 sort_order
-    $query = "SELECT IFNULL(MAX(sort_order), 0) AS max_order FROM ProductCategoryList WHERE mid = $mid";
-    $result = mysqli_query($conn, $query);
-    $row = mysqli_fetch_assoc($result);
-    $newSortOrder = $row['max_order'] + 1;
-
-    // 新增資料
-    $insertSql = "INSERT INTO ProductCategoryList (productCategoryName, mid, sort_order) 
-                  VALUES ('$name', $mid, $newSortOrder)";
-    
-    if (mysqli_query($conn, $insertSql)) {
-        echo "新增成功，sort_order = $newSortOrder";
-    } else {
-        echo "錯誤：" . mysqli_error($conn);
-    }
-} else {
-    echo "缺少必要參數。";
-}
-?>
