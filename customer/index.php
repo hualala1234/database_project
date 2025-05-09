@@ -121,6 +121,11 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
                                 onmouseover="this.src='./wallet_hover.png'" 
                                 onmouseout="this.src='./wallet.png'">
                         </a>
+                        <a href="../walletAndrecord/c_record.php?cid=<?php echo $cid; ?>&role=c">
+                            <img class="trans" src="./trans.png" alt="trans icon" width="40" height="40" style="margin-left: 20px;"
+                                onmouseover="this.src='./trans_hover.png'" 
+                                onmouseout="this.src='./trans.png'">
+                        </a>
 
                         <div class="d-flex m-3 me-0">
                             <a href="#" class="position-relative me-4 my-auto" data-bs-toggle="modal" data-bs-target="#cartModal">
@@ -145,6 +150,7 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
                                         <a href="/database_project/allergy/allergy.php" class="dropdown-item">過敏設定</a>
                                         <a href="../claw_machine/claw.php" class="dropdown-item">優惠券活動</a>
                                         <a href="../walletAndrecord/c_wallet.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">錢包</a>
+                                        <a href="../walletAndrecord/c_record.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">交易紀錄</a>
                                         <a href="friends.php" class="dropdown-item">我的好友</a>
                                     <?php elseif ($_SESSION['role'] === 'delivery_person'): ?>
                                         <a href="/database/customer/setting.php" class="dropdown-item">外送員設定</a>
