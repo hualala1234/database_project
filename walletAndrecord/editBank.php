@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $updateStmt->bind_param("sss", $bankCode, $accountNumber, $id);
 
     if ($updateStmt->execute()) {
-        header("Location: ./{$role}_wallet.php?id={$id}&role={$role}");
+        header("Location: ./{$role}_wallet.php?cid={$id}&role={$role}");
         exit();
     } else {
         echo "Error: " . $updateStmt->error;

@@ -67,6 +67,35 @@ body {
     opacity: 0.91;
     margin-bottom: 30px;
 }
+.scroll-cards{
+    width: 106%;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+}
+#block2 {
+    width: 90%;
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto; /* 開啟橫向捲軸 */
+    white-space: nowrap; /* 禁止換行，卡片會橫向擠在一起 */
+    padding: 10px;
+    gap: 16px; /* 卡片之間的間距，可調整 */
+    scrollbar-width: thin; /* Firefox 可見小捲軸 */
+  }
+  
+  /* 若想要美化滾動條，可加上這段（for Chrome） */
+  #block2::-webkit-scrollbar {
+    height: 8px;
+  }
+  #block2::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 4px;
+  }
+  #block2::-webkit-scrollbar-track {
+    background-color: #f1f1f1;
+  }
+  
 img {
     margin: 0px 2px 5px 2px;
 }
@@ -85,6 +114,8 @@ img:hover {
     border-radius: 10px;
     margin: 10px;
 }
+
+  
 .card:hover{
     cursor: pointer;
     background-color: #FFE4B5;
@@ -94,7 +125,7 @@ img:hover {
     font-size: 28px;
     font-weight: bold;
     margin-bottom: 0px;
-    margin-top: 15px;
+    margin-top: 5px;
 }
 .info{
     margin-top: 20px;

@@ -71,7 +71,7 @@ if (!$id) die("未提供 cid");
           <table style="width:100%; border-collapse:collapse;">
             <thead style="font-size: 22px;">
               <tr>
-                <th>Date</th><th>Merchant</th><th>Spend</th><th>PaymentMethod</th>
+                <th>Date</th><th>Merchant</th><th>Spend</th><th>PaymentMethod</th><th>Rating&Comment</th>
               </tr>
             </thead>
             <tbody style="font-size: 20px;">
@@ -89,7 +89,7 @@ if (!$id) die("未提供 cid");
               $result = $stmt->get_result();
               while ($row = $result->fetch_assoc()) {
                   echo "<tr>
-                          <td>{$row['transactionTime']}</td>
+                          <td style='padding:20px 0px;'>{$row['transactionTime']}</td>
                           <td>{$row['mName']}</td>
                           <td>{$row['totalPrice']}</td>
                           <td>{$row['cardName']}</td>
@@ -105,7 +105,7 @@ if (!$id) die("未提供 cid");
           <h3>Transactions for Wallet Balance</h3>
           <table>
             <thead style="font-size: 22px;">
-              <tr><th>Date</th><th>Merchant</th><th>Spend</th></tr>
+              <tr><th>Date</th><th>Merchant</th><th>Spend</th><th>Rating&Comment</th></tr>
             </thead>
             <tbody style="font-size: 20px;">
               <?php
@@ -135,7 +135,7 @@ if (!$id) die("未提供 cid");
                     <h3>Transactions for Card: ' . htmlspecialchars($cardId) . '</h3>
                     <table>
                       <thead style="font-size: 22px;">
-                        <tr><th>Date</th><th>Merchant</th><th>Spend</th></tr>
+                        <tr><th>Date</th><th>Merchant</th><th>Spend</th><th>Rating&Comment</th></tr>
                       </thead>
                       <tbody style="font-size: 20px;">';
             $t_sql = "SELECT t.transactionTime, t.totalPrice, m.mName

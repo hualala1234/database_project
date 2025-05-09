@@ -11,7 +11,7 @@
 <body>
     <div id="out_block">
         <div class="block1">
-            <a href="../customer/index.php?cid=<?php echo $id; ?>" class="logo" style="text-decoration:none;"><h1>Junglebite</h1></a>
+            <a href="../customer/index.php" class="logo" style="text-decoration:none;"><h1>Junglebite</h1></a>
             <img id="wallet" src="./image/wallet.png" alt="wallet icon" width="30" height="30">
             <h1>Wallet</h1><span style="font-size: 22px; margin: 0px; margin-left: 30px;">Welcome to your wallet!</span>
         </div>
