@@ -29,7 +29,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($stmt->execute()) {
             // echo "Card added successfully!";
             // 資料新增成功後導向回 c_wallet.php
-            header("Location: ./c_wallet.php?id=" . urlencode($id) . "&role=" . urlencode($role));
+            header("Location: ./c_wallet.php?cid=" . urlencode($id) . "&role=" . urlencode($role));
             exit(); // 確保停止執行後續程式碼
         } else {
             echo "Error: " . $stmt->error;

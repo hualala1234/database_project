@@ -57,7 +57,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->bind_param("ssssss", $cardHolder, $cardNumber, $cardType, $cvv, $expirationDate, $cardName);
 
         if ($stmt->execute()) {
-          header("Location: ./c_wallet.php?id=" . urlencode($id) . "&role=" . urlencode($role));
+          header("Location: ./c_wallet.php?cid=" . urlencode($id) . "&role=" . urlencode($role));
             exit();
         } else {
             echo "Error: " . $stmt->error;
