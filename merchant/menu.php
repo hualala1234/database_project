@@ -668,6 +668,34 @@ if ($mid !== '') {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- 引入 jQuery UI -->
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+    <script>
+    $(function () {
+        // 啟用拖曳排序功能
+        $("#sortableCategoryList").sortable();
+
+        // 儲存按鈕點擊事件
+        $("#saveCategoryOrder").click(function () {
+            const sortedIDs = $("#sortableCategoryList li").map(function () {
+                return $(this).data("id");
+            }).get();
+
+            $.ajax({
+                url: 'update_category_order.php',
+                type: 'POST',
+                data: { order: sortedIDs },
+                success: function (response) {
+                    alert(response);
+                    location.reload(); // 成功後可重新整理或更新內容
+                },
+                error: function () {
+                    alert("儲存失敗！");
+                }
+            });
+        });
+    });
+    </script>
+
 
     </body>
 

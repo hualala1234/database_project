@@ -1,6 +1,7 @@
 <?php
 session_start();
 $cid = $_SESSION['cid'] ?? '';
+
 ?>
 
 <!DOCTYPE html>
