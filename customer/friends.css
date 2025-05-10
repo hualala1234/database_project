@@ -1,15 +1,21 @@
 @import url('https://fonts.googleapis.com/css2?family=Winky+Rough:ital,wght@0,300..900;1,300..900&display=swap');
 
-.header_friends {
-    position: fixed; /* 固定在螢幕上 */
-    top: 0;           /* 頂到最上面 */
-    left: 0;          /* 貼左邊 */
-    width: 100% !important;      /* 寬度拉滿 */
-    background-color: #a5d6a7 !important;
-    /* padding: 20px; */
-    text-align: center;
-    z-index: 1000;    /* 疊在最上層，避免被其他東西蓋掉 */
+
+.friend-list {
+    /* display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between; */
+    display: grid;
+    grid-template-columns: repeat(3,  1fr);
+    column-gap: 50px;              /* 欄與欄、列與列間距 */
+    justify-items: start;   /* 讓每格內容（.friend-card）置中 */
+    row-gap: 30px; 
+    padding: 0 50px;         /* 如果要左右留點內距 */
+    /* 下面这两行让 grid 最大宽度不超过 960px（3 × 300px）并水平居中 */
+    max-width: 1200px;
+    margin: 0 auto;
 }
+
 
 
 .home-icon {
@@ -67,11 +73,18 @@
     padding: 4px 10px;
     cursor: pointer;
 }
+
 input[type="email"] {
-    padding: 5px;
+    padding: 10px;
     font-size: 16px;
-    width: 300px;
+    width: 65%;
+    border: 2px solid #146e57;
+    border-radius: 8px;
+    background-color: #fafffa;
+    margin-right: 10px;
+    color: #2e4d2c;
 }
+
 .error {
     color: red;
     margin-top: 10px;
@@ -82,24 +95,20 @@ input[type="email"] {
     height: 100px;
     object-fit: cover;
     border-radius: 10px;
+    margin-bottom: 10px;
 }
 
-.friend-list {
-    display: flex;
-    flex-wrap: wrap; /* 換行 */
-    justify-content: space-between; /* 三個之間平均分配空間 */
-    gap: 20px; /* 每個卡片間距 */
-    
-}
+
 
 body {
     font-family: 'Segoe UI', sans-serif;
     background-color: #e1f3e278;
     padding: 40px;
     /* max-width: 800px; */
-    margin: 50px auto 0 auto; /* 上 50px，自動左右置中 */
+    margin: 50px auto 0 auto !important; /* 上 50px，自動左右置中 */
     color: #333;
     /* position: absolute; 移除這一行 */
+
 }
 
 h2 {
@@ -111,15 +120,24 @@ h2 {
 
 .friend-card {
     background-color: #f4fff4;
-    border: 2px solid #a5d6a7;
-    border-radius: 15px;
+    border: 2px solid #146e57 !important;
+    border-radius: 15px; 
     padding: 20px;
     margin-bottom: 25px;
     box-shadow: 0 4px 8px rgba(51, 77, 51, 0.15);
     position: relative;
     margin: 20px;
-    width: calc(25% - 20px); /* 三個一排，扣掉間距 */
+    /* width: calc((100% - 100px) / 4); space-between 會平均分配空隙 */
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;             /* 滿足 minmax 的最小寬度 */
+    max-width: 300px;
+} 
+
+.friend-card p{
+    color: black;
 }
 
 .friend-imageURL {
@@ -136,16 +154,7 @@ form[action=""] {
     margin-top: 20px;
 }
 
-input[type="email"] {
-    padding: 10px;
-    font-size: 16px;
-    width: 65%;
-    border: 2px solid #81c784;
-    border-radius: 8px;
-    background-color: #fafffa;
-    margin-right: 10px;
-    color: #2e4d2c;
-}
+
 
 .add-button,
 .delete-button {
@@ -158,7 +167,7 @@ input[type="email"] {
 }
 
 .add-button {
-    background-color: #66bb6a;
+    background-color: #146e57;
     color: white;
 }
 
