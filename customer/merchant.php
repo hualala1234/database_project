@@ -379,9 +379,9 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
                 $catId = $category['productCategoriesId'];
                 $catName = htmlspecialchars($category['productCategoryName']); // 安全輸出
                 echo '
-                <div class="swiper-slide">
+                <div class="swiper-slide" style="width: auto:!important;">
                   <a href="#category_' . $catId . '" class="nav-link category-item">
-                    <h3 class="category-title">' . $catName . '</h3>
+                    <h3 class="category-title" style="margin-top:8px;">' . $catName . '</h3>
                   </a>
                 </div>';
             }
@@ -415,7 +415,7 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
                   <div class="tab-class text-center">
                     <div class="row">
                       <div class="col-lg-12">
-                        <div class="row g4">
+                        <div class="g4 row">
                           
                         </div>
                       </div>
@@ -424,7 +424,7 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
                       <div class="tab-pane active show">
                         <div class="row g4">
                           <div class="col-lg-12">
-                            <div class="row g4">';
+                            <div class="g4" style="display:flex; justify-content: flex-start; flex-wrap: wrap;">';
 
                 // 取得這個分類下的商品
                 $sql_products = "SELECT p.* FROM Product p 
@@ -444,24 +444,29 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
                         $jsPDescription = addslashes($pDescription);
                         $jsPrice = $price;
                         $jsPicture = '../' . $picture;
+                        $shortDescription = mb_substr($pDescription, 0, 40, 'UTF-8'); // 只取前30字
+                        if (mb_strlen($pDescription, 'UTF-8') > 40) {
+                            $shortDescription .= '...'; // 加上省略號
+                        }
 
                         
                         echo '
-                          <div class="col-md-6 col-lg-4 col-xl-3 my-3">
-                            <div class="h-100 d-flex flex-column rounded position-relative fruite-item"
-                                style="cursor: pointer;"
+                          <div class="col-md-6 col-lg-6 col-xl-6 my-3" style="height: 200px; display:flex; flex-direction: row;">
+                            <div class="h-100 rounded position-relative fruite-item"
+                                style="cursor: pointer; display:flex; width: 95%;"
                                 onclick="openProductModal(\'' . $jsPName . '\', \'' . $jsPDescription . '\', \'' . $jsPrice . '\', \'' . $jsPicture . '\', ' . $pid . ', ' . $mid . ')"
                                 data-bs-toggle="modal" data-bs-target="#productModal">
                                 <div class="fruite-img">
-                                <img src="../' . $picture . '" class="img-fluid w-100 rounded-top" alt="' . $pName . '">
-                              </div>
-                              <div class="p-4 border border-secondary border-top-0 rounded-bottom d-flex flex-column flex-grow-1 text-start">
-                                <h4>' . $pName . '</h4>
-                                <h5>$' . $price . '</h5>
-                                <div class="text-muted flex-grow-1 d-flex">
-                                  <h5>' . (!empty($pDescription) ? $pDescription : '&nbsp;') . '</h5>
+                                  <img src="../' . $picture . '" class="img-fluid w-100 rounded-start" alt="' . $pName . '">
+                                
                                 </div>
-                              </div>
+                                <div class="p-4 border border-secondary border-top-0 rounded-end d-flex flex-column flex-grow-1 text-start" style="width:279.4px;">
+                                  <h5>' . $pName . '</h5>
+                                  <h5>$' . $price . '</h5>
+                                  <div class="text-muted flex-grow-1 d-flex">
+                                    <h6 style="color:#747d88; font-weight:normal;">' . (!empty($shortDescription) ? $shortDescription : '&nbsp;') . '</h6>
+                                  </div>
+                                </div>
                             </div>
                           </div>
                         ';

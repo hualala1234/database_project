@@ -60,7 +60,7 @@ try {
     $stmt->execute([
         ':message' => $matchedKeyword,
         ':code' => $input['prizeCode'],
-        ':created_at' => $input['time'],
+        ':created_at' => date('Y-m-d H:i:s'),  // ✅ 安全又簡單
         ':cid' => $cid,
     ]);
 

@@ -57,7 +57,17 @@ if ($mid !== '') {
         </div> -->
         <!-- Spinner End -->
 
-        
+        <?php
+        $sqlNewOrderCount = "SELECT COUNT(DISTINCT o.tranId) AS newOrderCount
+                            FROM `Orders` o
+                            JOIN `Transaction` t ON o.tranId = t.tranId
+                            WHERE o.mid = $mid AND t.orderStatus = 'new'";
+        $resultNewOrderCount = mysqli_query($conn, $sqlNewOrderCount);
+        $newOrderCount = 0;
+        if ($row = mysqli_fetch_assoc($resultNewOrderCount)) {
+            $newOrderCount = $row['newOrderCount'];
+        }
+        ?>
         <!-- Navbar start -->
         <div class="container-fluid fixed-top">
             <div class="container topbar bg-primary d-none d-lg-block" style="padding: 20px;">
@@ -84,7 +94,15 @@ if ($mid !== '') {
                             <!-- <a href="index.php" class="nav-item nav-link active">Home</a> -->
                             <a href="merchant_shop.php?mid=<?php echo $mid; ?>" class="nav-item nav-link">店面資訊</a>
                             <a href="menu.php?mid=<?php echo $mid; ?>" class="nav-item nav-link">菜單管理</a>
-                            <a href="order.php?mid=<?php echo $mid; ?>" class="nav-item nav-link">訂單</a>
+                            <a href="order.php?mid=<?= $mid; ?>" class="nav-item nav-link position-relative">
+                                訂單
+                                <?php if ($newOrderCount > 0): ?>
+                                    <span class="position-absolute bg-warning rounded-circle d-flex align-items-center justify-content-center text-dark fw-bold"
+                                        style="top: 7px; right: -4px; height: 20px; min-width: 20px; font-size: 0.75rem;">
+                                        <?= $newOrderCount ?>
+                                    </span>
+                                <?php endif; ?>
+                            </a>
                             <!-- <div class="nav-item dropdown">
                                 <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
                                 <div class="dropdown-menu m-0 bg-secondary rounded-0">

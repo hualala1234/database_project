@@ -66,6 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt2 = $conn->prepare($sql2);
         $stmt2->bind_param("i", $tranId);
         $stmt2->execute();
+        $stmt2->close();
 
     }
 
