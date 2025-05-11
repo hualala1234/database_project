@@ -28,17 +28,17 @@ if (!$id) die("未提供 cid");
     <div id="block2">
             <!-- 錢包餘額 -->
             <div class="balance card c_title" data-card-id="balance">
-            <span>Current balance：</span>
-            <p id="balance">
-                <?php
-                $result = $conn->query("SELECT balance FROM wallet WHERE cid = $id");
-                if ($result && $row = $result->fetch_assoc()) {
-                    echo htmlspecialchars($row['balance']) . ' NTD';
-                } else {
-                    echo '0 NTD';
-                }
-                ?>
-            </p>
+                <span>Current balance：</span>
+                <p id="balance">
+                    <?php
+                    $result = $conn->query("SELECT balance FROM wallet WHERE cid = $id");
+                    if ($result && $row = $result->fetch_assoc()) {
+                        echo htmlspecialchars($row['balance']) . ' NTD';
+                    } else {
+                        echo '0 NTD';
+                    }
+                    ?>
+                </p>
             </div>
 
             <!-- 卡片列表 -->
@@ -66,6 +66,7 @@ if (!$id) die("未提供 cid");
         <div id="transaction_list" style="display:flex; justify-content:flex-start;">
 
         <div id="transaction_all">
+            
         <?php
         include('connect.php');
         // 所有交易紀錄
@@ -170,7 +171,7 @@ if (!$id) die("未提供 cid");
         ?>
         </div>
         <!-- 錢包交易 -->
-        <div class="transaction_group" id="transaction_balance" style="display:block;">
+        <div class="transaction_group" id="transaction_balance" style="display:none;">
           <h3>Transactions for Wallet Balance</h3>
           <table>
           <table style="width:100%; border-collapse:collapse;">
@@ -278,7 +279,7 @@ if (!$id) die("未提供 cid");
         $cardResult = $conn->query("SELECT DISTINCT cardName FROM card WHERE cid = $id");
         while ($card = $cardResult->fetch_assoc()) {
             $cardId = $card['cardName'];
-            echo '<div class="transaction_group" id="transaction_' . $cardId . '" style="display:block;">
+            echo '<div class="transaction_group" id="transaction_' . $cardId . '" style="display:none;">
                     <h3>Transactions for Card: ' . htmlspecialchars($cardId) . '</h3>
                     <table style="width:100%; border-collapse:collapse;">
                       <thead style="font-size: 22px;">
@@ -363,7 +364,7 @@ if (!$id) die("未提供 cid");
                                 data-type="dComment">' . $dsafeShortComment . '</td>
                         </tr>';
                     echo '<script>console.log("mComment: ' . $msafeFullComment . '");</script>';
-                } 
+                }
             }
             else {
                 $cName = 'this customer'; // 預設值（避免 null）
@@ -375,8 +376,9 @@ if (!$id) die("未提供 cid");
                 echo '<style="color:gray;">Go place your order now!😽<a href="../customer/index.php" class="logo" style="text-decoration:none;">click to order</a>';
             }
         }
-        ?>
-      </div>      
+        ?></tbody>
+        </table>
+      </div>    
 
         <!-- Modal -->
         <div id="commentModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:white; padding:30px; border-radius:12px; box-shadow:0 2px 15px rgba(0,0,0,0.4); z-index:1000; min-width:300px; text-align:center;">
@@ -403,7 +405,7 @@ if (!$id) die("未提供 cid");
                 <p>Privacy Policy | Terms of Service</p>
     </div> -->
 
-    <script src="./d_wallet.js" type="text/javascript"></script>
+    <!-- <script src="./d_wallet.js" type="text/javascript"></script> -->
     <script>// 點擊顯示完整評論
     document.addEventListener("DOMContentLoaded", function () {
         document.querySelectorAll('.comment-cell').forEach(function(cell) {

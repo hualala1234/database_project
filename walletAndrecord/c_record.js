@@ -13,21 +13,26 @@ document.addEventListener("DOMContentLoaded", function () {
             // 如果是同一張卡片被重複點擊 → 顯示 transaction_all
             if (currentCardId === cardId) {
                 // 顯示全部交易
-                document.getElementById('transaction_all').style.display = 'block';
+                const all = document.getElementById('transaction_all');
+                console.log(all);
+                if (all) all.style.display = 'block';console.log("block1");
+                document.getElementById('transaction_all').style.display = 'block';console.log("block1");
 
                 // 隱藏其他交易區塊
                 document.querySelectorAll('.transaction_group').forEach(group => {
                     if (group.id !== 'transaction_all') {
                         group.style.display = 'none';
+                        console.log(group.id,"none");
                     }
                 });
 
                 // 清除選取狀態
                 document.querySelectorAll('.card').forEach(c => c.classList.remove('clicked'));
                 currentCardId = null;
+                // return;
             } else {
                 // 顯示對應卡片交易區塊
-                document.getElementById('transaction_all').style.display = 'none';
+                // document.getElementById('transaction_all').style.display = 'none';
                 document.querySelectorAll('.transaction_group').forEach(group => {
                     group.style.display = 'none';
                 });
