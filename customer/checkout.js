@@ -103,6 +103,8 @@ function getQueryParam(name) {
     
     if (code === "CLAWWIN15") {
       discountRate = 0.85;
+    } else if (code === "CLAWWIN30") {
+      discountRate = 0.7;
     } else if (code === "CLAWWIN20") {
       discountRate = 0.8;
     } else if (code === "CLAWSHIP") {
