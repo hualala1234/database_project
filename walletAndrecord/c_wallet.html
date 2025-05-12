@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="c_wallet.css">
+    <script src="c_wallet.js" type="text/javascript"></script>
+    <title>Wallet</title>
+</head>
+<body>
+    <div class="block1">
+        <img id="wallet" src="./image/wallet.png" alt="wallet icon" width="30" height="30">
+        <h1>Wallet</h1><span style="font-size: 22px; margin: 0px; margin-left: 30px;">Welcome to your wallet!</span>
+    </div>
+    <div id="container">
+        <!-- 左半部 -->
+        <div id="menu">
+            <div class="block2">
+                <div id="add_card" style="margin-top: 10px;">
+                    <h2 class="word" style="font-size: 23px;margin: 10px 0 10px 0">My cards</h2>
+                    <img id="add" src="./image/add.png" alt="add button" width="25" height="25">
+                </div>
+
+                <div class="balance card c_title">
+                    Current balance：
+                    <span id="balance">1000</span> NTD
+                </div>
+
+                <div class="cards">
+                    <div id="card1" class="card">
+                        <p class="c_title">cardNumber 1</p>
+                        <div class="info">
+                            <p>cardName 1</p>
+                            <p>expiryDate 1</p>
+                        </div>
+                    </div>
+                    <div id="card2" class="card">
+                        <p class="c_title">cardNumber 2</p>
+                        <div class="info">
+                            <p>cardName 2</p>
+                            <p>expiryDate 2</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>    
+
+        <!-- 右半部 -->
+        <div id="right_container">
+            <div id="card1" class="card" style="margin: 0;">
+                <h3>Card_Name 1</h3>
+                <div class="change">
+                    <img id="edit" src="./image/pencil.png" alt="edit button" width="25" height="25">
+                    <img id="delete" src="./image/trash.png" alt="delete button" width="25" height="25">
+                </div>
+            </div>
+            <h2 class="word">History Transactions:</h2>
+            <div id="transaction_list">
+                <div class="transaction">
+                    <table>
+                        <thead style="font-size: 22px;">
+                            <tr>
+                                <th>Date</th>
+                                <th>Merchant</th>
+                                <th>Spend</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody style="font-size: 20px;">
+                            <tr>
+                                <td>01/02/2016</td>
+                                <td>Apple</td>
+                                <td>£205.25</td>
+                                <td>detail</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 顯示卡片資訊 -->
+    <div id="showCard">
+        <img id="closeshow" src="./image/cross.png" alt="close button" width="15" height="15">
+        <h3>Card Name</h3>
+        <p>Bank Code：</p>
+        <p>Card Number：</p>
+        <p>Card Type：</p>
+        <p>Expiration Date：</p>
+        <p>Card CVV：</p>
+        <div class="change">
+            <img id="edit" src="./image/pencil.png" alt="edit button" width="25" height="25">
+            <img id="delete" src="./image/trash.png" alt="delete button" width="25" height="25">
+        </div>
+    </div>
+    <div id="editCard" style="display: none;">
+        <h3><input type="text" id="cardNameInput" placeholder="Card Name" /></h3>
+        <p><input type="text" id="bankCodeInput" placeholder="Bank Code" /></p>
+        <p><input type="text" id="cardNumberInput" placeholder="Card Number" /></p>
+        <p><input type="text" id="cardTypeInput" placeholder="Card Type" /></p>
+        <p><input type="text" id="expirationDateInput" placeholder="Expiration Date" /></p>
+        <p><input type="text" id="cvvInput" placeholder="Card CVV" /></p>
+        <button id="submitChanges">Submit</button>
+    </div>
+
+    <div class="footer">
+        <p>© 2023 Your Company. All rights reserved.</p>
+        <p>Privacy Policy | Terms of Service</p>
+    </div>
+
+
+    <!-- Add Card package -->
+    <div id="add_card_page">
+        <img id="closeadd" src="./image/cross.png" alt="close button" width="15" height="15">
+        <div class="block11">
+            <img src="./image/credit-card.png" alt="credit card icon" width="35" height="35">
+            <h1>Add Card</h1>
+        </div>
+        <div id="card_detial">
+            <label>Card Name：</label>
+                <input type="text" id="cardName" required>
+                <br>
+            <label>Bank Code：</label>
+                <input type="number" id="bankCode" required>
+                <br>
+            <label>Card Type：</label>
+                <input type="radio" name="c_type" value="credit">Visa</option>
+                <input type="radio" name="c_type" value="debit">MasterCared</option>
+                <input type="radio" name="c_type" value="JSB">JSB</option>
+                <br>
+            <label>Card Number：</label>
+                <input type="number" id="cardNumber" required>
+                <br>
+            <label>Expiration Date：</label>
+                <input type="month" id="expirationDate" required>
+                <br>
+            <label>Card CVV：</label>
+                <input type="number" id="cardCVV" required>
+                <br>
+            <button id="submit">Submit</button>
+        </div>
+    </div>
+</body>
+</html>

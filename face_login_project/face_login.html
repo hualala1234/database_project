@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Face ID 登入</title>
+</head>
+<body>
+  <h2>Face ID 登入</h2>
+  <video id="video" width="320" height="240" autoplay></video>
+  <canvas id="canvas" width="320" height="240" style="display:none;"></canvas>
+  <br>
+  <button onclick="captureAndLogin()">Face ID Login</button>
+
+  <script>
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => {
+        document.getElementById('video').srcObject = stream;
+      })
+      .catch(err => {
+        alert("相機錯誤：" + err);
+      });
+  
+    function captureAndLogin() {
+      const canvas = document.getElementById('canvas');
+      const video = document.getElementById('video');
+      canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+  
+      canvas.toBlob(blob => {
+        if (!blob) {
+          console.error("❗ 無法擷取影像（blob 為 null）");
+          alert("⚠️ 擷取影像失敗！");
+          return;
+        }
+  
+        console.log("✅ 擷取影像成功，大小：" + blob.size + " bytes");
+        console.log(blob);  // 👉 這一行是關鍵
+  
+        const formData = new FormData();
+        formData.append('image', blob, 'capture.jpg');
+  
+        fetch('http://localhost/jb_project/face_login_project/face_login_api.php', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.text())  // 用 text() 先接起來看完整內容
+        .then(text => {
+          console.log("📥 Server Response (原始文字):", text);
+
+          try {
+            const data = JSON.parse(text);
+            console.log('✔️ 已成功進入 JSON 處理邏輯', data);
+
+            if (data.login) {
+              console.log('✅ 登入成功，cid =', data.cid);
+              window.location.href = 'm_wallet.php?cid=' + data.cid;
+            } else {
+              console.warn('❌ 辨識失敗，錯誤資訊：', data.error || '無');
+              alert("辨識失敗：" + (data.error || "無"));
+            }
+          } catch (e) {
+            console.error("❗ JSON 解析錯誤：", e);
+            alert("⚠️ 後端回傳不是合法 JSON，請開 Console 檢查 Server Response！");
+          }
+        })
+        .catch(err => {
+          console.error("❌ fetch 發生錯誤：", err);
+          alert("⚠️ 無法聯繫後端：" + err);
+        });
+
+      }, 'image/jpeg');
+    }
+  </script>
+  
+</body>
+</html>
