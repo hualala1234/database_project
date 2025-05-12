@@ -357,8 +357,8 @@ span#current-address {
 .fruite .fruite-item .fruite-img {
     overflow: hidden;
     transition: 0.5s;
-    border-radius: 10px 10px 0 0;
-    ;
+
+    
 }
 
 .fruite .fruite-item .fruite-img img {

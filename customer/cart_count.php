@@ -13,7 +13,7 @@ $cid = $_SESSION['cid'];
 $cartTime = $_SESSION['cartTime'] ?? '';
 
 if ($cartTime) {
-    $stmt = $conn->prepare("SELECT COUNT(DISTINCT mid) AS storeCount FROM CartItem WHERE cid = ? AND cartTime = ?");
+    $stmt = $conn->prepare("SELECT SUM(quantity) AS storeCount FROM CartItem WHERE cid = ? AND cartTime = ?");
     $stmt->bind_param("is", $cid, $cartTime);
     $stmt->execute();
     $result = $stmt->get_result()->fetch_assoc();

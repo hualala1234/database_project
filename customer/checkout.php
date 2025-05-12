@@ -288,7 +288,7 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
                                         <label class="form-check-label text-dark" for="Shipping-1">新增信用卡</label>
                                     </div>
                                     <div class="form-check text-start me-4">
-                                        <input type="radio" class="form-check-input bg-primary border-0" id="Shipping-cash" name="paymentMethod" value="cㄘ">
+                                        <input type="radio" class="form-check-input bg-primary border-0" id="Shipping-cash" name="paymentMethod" value="cash">
                                         <label class="form-check-label text-dark" for="Shipping-3">貨到付款</label>
                                     </div>
                                 </div>
