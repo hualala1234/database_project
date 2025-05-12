@@ -342,7 +342,7 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
                         <div id="tab-0" class="tab-pane fade show p-0 active">
                             <div class="row g-4">
                                 <div class="col-lg-12">
-                                    <div class="row g-4">
+                                    <div class="g-4 row" >
                                         <?php
                                         $sqlAll = "
                                             SELECT m.*, 
@@ -364,9 +364,12 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
                                                             <img src="../' . $row["mPicture"] . '" class="img-fluid w-100 rounded-top" alt="">
                                                         </div>
                                                         <div class="text-white bg-secondary px-3 py-1 rounded position-absolute" style="top: 10px; left: 10px;">' . htmlspecialchars($row["categoryNames"] ?? '未分類') . '</div>
-                                                        <div class="p-4 border border-secondary border-top-0 rounded-bottom">
-                                                            <h4>' . htmlspecialchars($row["mName"]) . '</h4>
-                                                            <p>' . htmlspecialchars($row["mAddress"]) . '</p>
+                                                        <div class="p-4 border border-secondary border-top-0 rounded-bottom" style="height:175px; display:flex;flex-direction: column; justify-content: space-between; ">
+                                                            <div>
+                                                                <h5>' . htmlspecialchars($row["mName"]) . '</h5>
+                                                                <p>' . htmlspecialchars($row["mAddress"]) . '</p>
+                                                            </div>
+                                                            
                                                             <div class="d-flex justify-content-between flex-lg-wrap">
                                                                 <p class="text-dark fs-5 fw-bold mb-0">❤ ' . $row["favoritesCount"] . '</p>
                                                             </div>
@@ -416,12 +419,16 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
                                     <div class="col-md-6 col-lg-4 col-xl-3">
                                         <div class="rounded position-relative fruite-item" style="cursor: pointer;" onclick="location.href=\'merchant.php?mid=' . urlencode($m["mid"]) . '\'">
                                             <div class="fruite-img">
-                                                <img src="../' . $m["mPicture"] . '" class="img-fluid rounded-top" alt="">
+                                                <img src="../' . $m["mPicture"] . '" class="img-fluid rounded-top w-100" alt="">
                                             </div>
+                                           
                                             <div class="text-white bg-secondary px-3 py-1 rounded position-absolute" style="top: 10px; left: 10px;">' . htmlspecialchars($catName) . '</div>
-                                            <div class="p-4 border border-secondary border-top-0 rounded-bottom">
-                                                <h4>' . htmlspecialchars($m["mName"]) . '</h4>
-                                                <p>' . htmlspecialchars($m["mAddress"]) . '</p>
+                                            <div class="p-4 border border-secondary border-top-0 rounded-bottom"style="height:175px; display:flex;flex-direction: column; justify-content: space-between; ">
+                                                <div>
+                                                    <h4>' . htmlspecialchars($m["mName"]) . '</h4>
+                                                    <p>' . htmlspecialchars($m["mAddress"]) . '</p>
+                                                </div>
+                                                
                                                 <div class="d-flex justify-content-between flex-lg-wrap">
                                                     <p class="text-dark fs-5 fw-bold mb-0">❤ ' . $m["favoritesCount"] . '</p>
                                                 </div>

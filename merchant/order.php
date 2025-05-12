@@ -60,6 +60,17 @@ if ($mid !== '') {
             <div class="spinner-grow text-primary" role="status"></div>
         </div> -->
         <!-- Spinner End -->
+        <?php
+        $sqlNewOrderCount = "SELECT COUNT(DISTINCT o.tranId) AS newOrderCount
+                            FROM `Orders` o
+                            JOIN `Transaction` t ON o.tranId = t.tranId
+                            WHERE o.mid = $mid AND t.orderStatus = 'new'";
+        $resultNewOrderCount = mysqli_query($conn, $sqlNewOrderCount);
+        $newOrderCount = 0;
+        if ($row = mysqli_fetch_assoc($resultNewOrderCount)) {
+            $newOrderCount = $row['newOrderCount'];
+        }
+        ?>
 
         
         <!-- Navbar start -->
@@ -90,10 +101,12 @@ if ($mid !== '') {
                             <a href="menu.php?mid=<?php echo $mid; ?>" class="nav-item nav-link">菜單管理</a>
                             <a href="order.php?mid=<?= $mid; ?>" class="nav-item nav-link position-relative">
                                 訂單
-                                <span class="position-absolute bg-warning rounded-circle d-flex align-items-center justify-content-center text-dark fw-bold"
-                                    style="top: 7px; right: -4px; height: 20px; min-width: 20px; font-size: 0.75rem;">
-                                    3
-                                </span>
+                                <?php if ($newOrderCount > 0): ?>
+                                    <span class="position-absolute bg-warning rounded-circle d-flex align-items-center justify-content-center text-dark fw-bold"
+                                        style="top: 7px; right: -4px; height: 20px; min-width: 20px; font-size: 0.75rem;">
+                                        <?= $newOrderCount ?>
+                                    </span>
+                                <?php endif; ?>
                             </a>
 
                             <!-- <div class="nav-item dropdown">
@@ -241,7 +254,7 @@ if ($mid !== '') {
                                             <form method="POST" action="handle_order.php" style="display:flex; align-items: center;">
                                                 <input type="hidden" name="tranId" value="<?= $tranId ?>">
                                                 <h5 class="text-muted me-5">備註：<?= htmlspecialchars($order['tNote']) ?></h5>
-                                                <button name="action" value="accept" class="btn btn-primary text-white py-1">接受</button>
+                                                <button name="action" value="accept" class="btn btn-success text-white py-1">接受</button>
                                                 <button name="action" value="reject" class="btn btn-danger py-1 ms-2">拒絕</button>
                                             </form>
                                                                                 
@@ -274,7 +287,7 @@ if ($mid !== '') {
                                                     <form method="post" action="handle_order.php" class="d-flex gap-2">
                                                         <input type="hidden" name="tranId" value="<?= $tranId ?>">
                                                         <input type="hidden" name="cid" value="<?= $order['items'][0]['cid'] ?>">
-                                                        <button name="action" value="accept" class="btn btn-primary text-white">接受</button>
+                                                        <button name="action" value="accept" class="btn btn-success text-white">接受</button>
                                                         <button name="action" value="reject" class="btn btn-danger">拒絕</button>
                                                     </form>
                                                 </div>
@@ -350,7 +363,7 @@ if ($mid !== '') {
                                             <form method="POST" action="handle_order.php" style="display:flex; align-items: center;">
                                                 <input type="hidden" name="tranId" value="<?= $tranId ?>">
                                                 <h5 class="text-muted" style="margin-right:5.5rem;">備註：<?= htmlspecialchars($order['tNote']) ?></h5>
-                                                <button name="action" value="done" class="btn btn-primary text-white py-1 me-4">出餐</button>
+                                                <button name="action" value="done" class="btn btn-success text-white py-1 me-4">出餐</button>
                                             </form>
 
                                         </div>
@@ -489,7 +502,7 @@ if ($mid !== '') {
                                                     <form method="post" action="handle_order.php" class="d-flex gap-2">
                                                         <input type="hidden" name="tranId" value="<?= $tranId ?>">
                                                         <input type="hidden" name="cid" value="<?= $order['items'][0]['cid'] ?>">
-                                                        <button name="action" value="take" class="btn btn-primary text-white">領取</button>
+                                                        <button name="action" value="take" class="btn btn-success text-white">領取</button>
                                                         
                                                     </form>
                                                 </div>
