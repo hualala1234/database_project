@@ -93,7 +93,7 @@ window.addEventListener('DOMContentLoaded', () => {
     #block1{
       display: flex;
       flex-direction:column;
-      justify-content:center;
+      justify-content:flex-start;
       margin-right:30px;
     }
     #content{
@@ -106,7 +106,7 @@ window.addEventListener('DOMContentLoaded', () => {
 <body>
   <div id="content">
     <div id="block1">
-      <h1>🍽️ JungleBite 圖搜圖系統</h1>
+      <h1>🍽️ 圖搜圖系統</h1>
 
       <div class="upload-section">
         <form id="uploadForm" enctype="multipart/form-data">
