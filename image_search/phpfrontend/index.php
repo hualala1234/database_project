@@ -1,3 +1,13 @@
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('cid') && urlParams.get('role') === 'c') {
+        // 自動觸發圖片選擇器
+        document.getElementById('imageInput').click();
+    }
+});
+</script>
+
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -9,6 +19,9 @@
       background: #f9f9f9;
       padding: 40px;
       text-align: center;
+      background-image: url('../../walletAndrecord/image/forest.png');
+      background-repeat: no-repeat;
+      background-size: cover;
     }
 
     h1 {
@@ -77,22 +90,34 @@
     .card:hover {
       transform: scale(1.05);
     }
+    #block1{
+      display: flex;
+      flex-direction:column;
+      justify-content:center;
+      margin-right:30px;
+    }
+    #content{
+      display: flex;
+      /* flex-wrap:wrap; */
+      flex-direction:row;
+    }
   </style>
 </head>
 <body>
+  <div id="content">
+    <div id="block1">
+      <h1>🍽️ JungleBite 圖搜圖系統</h1>
 
-  <h1>🍽️ JungleBite 圖搜圖系統</h1>
-
-  <div class="upload-section">
-    <form id="uploadForm" enctype="multipart/form-data">
-      <input type="file" id="imageInput" name="image" accept="image/*" required><br>
-      <img id="preview" alt="預覽圖會顯示在這裡"><br>
-      <button type="submit">🔍 開始搜尋</button>
-    </form>
+      <div class="upload-section">
+        <form id="uploadForm" enctype="multipart/form-data">
+          <input type="file" id="imageInput" name="image" accept="image/*" required><br>
+          <img id="preview" alt="預覽圖會顯示在這裡"><br>
+          <button type="submit">🔍 開始搜尋</button>
+        </form>
+      </div>
+    </div>
+    <div id="results" class="result-container"></div>
   </div>
-
-  <div id="results" class="result-container"></div>
-
   <script>
     document.getElementById('imageInput').onchange = function(event) {
       const reader = new FileReader();

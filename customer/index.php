@@ -110,6 +110,11 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
                         <span class="fa fa-bars text-primary"></span>
                     </button>
                     <div class="collapse navbar-collapse bg-white" id="navbarCollapse">
+                        <a href="../image_search/phpfrontend/index.php?cid=<?php echo $cid; ?>&role=c">
+                            <img class="camara" src="./camara.png" alt="camara icon" width="40" height="40" style="margin-left: 20px;"
+                                onmouseover="this.src='./camara_hover.png'" 
+                                onmouseout="this.src='./camara.png'">
+                        </a>
                         <div class="navbar-nav mx-auto">
                             <div class="position-relative mx-auto">
                                 <input class="form-control border-2 border-secondary  py-3 px-4 rounded-pill" style="width: 30rem;" type="number" placeholder="Search">
