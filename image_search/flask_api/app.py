@@ -93,7 +93,7 @@ def search_image():
     vector = feature_model.predict(feat_array)[0].reshape(1, -1)
 
     # 相似搜尋
-    D, I = index.search(vector, 3)
+    D, I = index.search(vector, 8)
     results = []
     for i in I[0]:
         item = image_info[i].copy()
