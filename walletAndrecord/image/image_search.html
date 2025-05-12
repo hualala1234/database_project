@@ -1,0 +1,45 @@
+<!-- image_search.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="./image_search.js" type="text/javascript"></script>
+    <title>以圖搜圖 - JungleBite</title>
+</head>
+<body>
+    <h2>上傳圖片找相似餐點</h2>
+    <input type="file" id="imageInput" accept="image/*"><br><br>
+    <img id="preview" style="max-width:300px;"><br><br>
+    <button onclick="searchImage()">搜尋相似食物</button>
+
+    <div id="results"></div>
+
+    <script>
+        document.getElementById('imageInput').onchange = function(event) {
+            const reader = new FileReader();
+            reader.onload = function(){
+                document.getElementById('preview').src = reader.result;
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        };
+
+        function searchImage() {
+            const file = document.getElementById('imageInput').files[0];
+            const formData = new FormData();
+            formData.append('image', file);
+
+            fetch('http://localhost:5000/search', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                let html = '<h3>推薦結果：</h3>';
+                data.results.forEach(item => {
+                    html += `<div><img src="${item.image_url}" width="150"><p>${item.name}</p></div>`;
+                });
+                document.getElementById('results').innerHTML = html;
+            });
+        }
+    </script>
+</body>
+</html>
