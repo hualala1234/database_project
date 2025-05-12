@@ -39,7 +39,7 @@ if ($dIdExists && $emailExists) {
             <script>
                 setTimeout(function() {
                     window.history.back();
-                }, 4000); // 4000 毫秒＝4 秒
+                }, 2000); // 2000 毫秒＝2 秒
             </script>
         ";
 } elseif ($dIdExists) {
@@ -53,7 +53,7 @@ if ($dIdExists && $emailExists) {
             <script>
                 setTimeout(function() {
                     window.history.back();
-                }, 4000); // 4000 毫秒＝4 秒
+                }, 2000); // 2000 毫秒＝2 秒
             </script>
         ";
 } elseif ($emailExists) {
@@ -67,7 +67,7 @@ if ($dIdExists && $emailExists) {
             <script>
                 setTimeout(function() {
                     window.history.back();
-                }, 4000); // 4000 毫秒＝4 秒
+                }, 2000); // 2000 毫秒＝2 秒
             </script>
         ";
 } else {
@@ -103,6 +103,18 @@ if ($dIdExists && $emailExists) {
     $stmt->bind_param("ssssss",  $fullname, $email, $password, $address, $imageURL, $role);
 
     if ($stmt->execute()) {
+        // ✅ 插入成功，取得剛建立的 deliveryperson 的 did
+        $did = $conn->insert_id;
+
+        // 👉 插入 dBank 的資料（預設 bankCode 與 accountNumber 為空）
+        $sql_dBank = "INSERT INTO dBank (did, bankCode, accountNumber) VALUES (?, '', '')";
+        $stmt_dBank = $conn->prepare($sql_dBank);
+        if (!$stmt_dBank) {
+            die("Prepare failed for dBank: " . $conn->error); // ← 這行會顯示 SQL 錯在哪
+        }
+        $stmt_dBank->bind_param("i", $did);
+        $stmt_dBank->execute();
+        $stmt_dBank->close();
         echo "
             <h2 style='color: green;'>註冊成功！2 秒後將自動跳轉到登入頁面。</h2>
             <script>

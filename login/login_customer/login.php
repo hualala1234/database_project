@@ -28,7 +28,11 @@ if ($_SERVER["REQUEST_METHOD"]=="POST"){
             $_SESSION['login_success'] = "登入成功！";
             $_SESSION['role'] = 'customer';
 
-
+            if ($walletCheckResult->num_rows == 0) {
+                // 若不存在，則建立 wallet 資料（初始餘額為 0）
+                $createWalletSql = "INSERT INTO wallet (cid,role, balance) VALUES ('$cid','c', 0)";
+                $conn->query($createWalletSql);
+            }
 
             // 跳回原本頁面
             header("Location: ../../customer/index.php?cid=$cid");

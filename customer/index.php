@@ -110,15 +110,29 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
                         <span class="fa fa-bars text-primary"></span>
                     </button>
                     <div class="collapse navbar-collapse bg-white" id="navbarCollapse">
+                        <a href="../image_search/phpfrontend/index.php?cid=<?php echo $cid; ?>&role=c">
+                            <img class="camara" src="./camara.png" alt="camara icon" width="40" height="40" style="margin-left: 20px;"
+                                onmouseover="this.src='./camara_hover.png'" 
+                                onmouseout="this.src='./camara.png'">
+                        </a>
                         <div class="navbar-nav mx-auto">
                             <div class="position-relative mx-auto">
                                 <input class="form-control border-2 border-secondary  py-3 px-4 rounded-pill" style="width: 30rem;" type="number" placeholder="Search">
                                 <button type="submit" class="btn btn-primary border-2 border-secondary py-3 px-4 position-absolute rounded-pill text-white h-100" style="top: 0; left: 82.5%;">搜尋</button>
                             </div>
-                                        
                         </div>
+                        <a href="../walletAndrecord/c_wallet.php?cid=<?php echo $cid; ?>&role=c">
+                            <img class="wallet" src="./wallet.png" alt="wallet icon" width="40" height="40"
+                                onmouseover="this.src='./wallet_hover.png'" 
+                                onmouseout="this.src='./wallet.png'">
+                        </a>
+                        <a href="../walletAndrecord/c_record.php?cid=<?php echo $cid; ?>&role=c">
+                            <img class="trans" src="./trans.png" alt="trans icon" width="40" height="40" style="margin-left: 20px;"
+                                onmouseover="this.src='./trans_hover.png'" 
+                                onmouseout="this.src='./trans.png'">
+                        </a>
+
                         <div class="d-flex m-3 me-0">
-                                        
                             <a href="#" class="position-relative me-4 my-auto" data-bs-toggle="modal" data-bs-target="#cartModal">
                                 <i class="fa-solid fa-cart-shopping fa-2x"></i>
                                 <span id="cart-count" class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 22px; height: 20px; min-width: 20px;">
@@ -140,6 +154,8 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
                                         <a href="/database/customer/setting.php" class="dropdown-item">個人設定</a>
                                         <a href="/database_project/allergy/allergy.php" class="dropdown-item">過敏設定</a>
                                         <a href="../claw_machine/claw.php" class="dropdown-item">優惠券活動</a>
+                                        <a href="../walletAndrecord/c_wallet.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">錢包</a>
+                                        <a href="../walletAndrecord/c_record.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">交易紀錄</a>
                                         <a href="friends.php" class="dropdown-item">我的好友</a>
                                     <?php elseif ($_SESSION['role'] === 'delivery_person'): ?>
                                         <a href="/database/customer/setting.php" class="dropdown-item">外送員設定</a>

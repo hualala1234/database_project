@@ -114,6 +114,8 @@ if (!empty($row['businessHours'])) {
                             <!-- <a href="index.php" class="nav-item nav-link active">Home</a> -->
                             <a href="merchant_shop.php?mid=<?php echo $mid; ?>" class="nav-item nav-link">店面資訊</a>
                             <a href="menu.php?mid=<?php echo $mid; ?>" class="nav-item nav-link">菜單管理</a>
+
+
                             <a href="order.php?mid=<?= $mid; ?>" class="nav-item nav-link position-relative">
                                 訂單
                                 <?php if ($newOrderCount > 0): ?>
@@ -123,6 +125,7 @@ if (!empty($row['businessHours'])) {
                                     </span>
                                 <?php endif; ?>
                             </a>
+
                             <!-- <div class="nav-item dropdown">
                                 <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
                                 <div class="dropdown-menu m-0 bg-secondary rounded-0">
