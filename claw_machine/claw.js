@@ -496,8 +496,17 @@ const { height: machineBottomHeight, top: machineBottomTop } = document
         time: new Date().toISOString()
       })
     })
-    .then(response => response.json())
-    .then(data => {
+    .then(response => response.text()) // 先讀純文字
+    .then(text => {
+      console.log('Raw response:', text); // 👈 觀察伺服器實際回傳的內容
+      let data;
+      try {
+        data = JSON.parse(text); // 手動轉 JSON
+      } catch (e) {
+        console.error('JSON parse error:', e);
+        return;
+      }
+  
       if (data.status === 'error') {
         const couponImg = document.getElementById('couponImage');
         if (couponImg) {
@@ -510,7 +519,7 @@ const { height: machineBottomHeight, top: machineBottomTop } = document
       }
   
       console.log('Prize saved:', data);
-      launchConfetti(); // ✅ 顯示特效（你若有這函式）
+      launchConfetti();
   
       popup.classList.add('show');
       setTimeout(() => {
@@ -521,6 +530,7 @@ const { height: machineBottomHeight, top: machineBottomTop } = document
       console.error('Error saving prize:', error);
     });
   }
+  
   
   
   // 以上有改過
