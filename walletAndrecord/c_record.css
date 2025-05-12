@@ -129,6 +129,7 @@ img:hover {
     border-radius: 10px;
     margin: 20px 0px 10px 0px;
     /* margin-top: 20px; */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 .balance{
     height: 120px;
@@ -228,6 +229,7 @@ img:hover {
     border-radius: 10px;
     display: flex;
     flex-direction: column;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     
 }
 .fill-height {

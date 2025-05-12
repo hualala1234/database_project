@@ -73,6 +73,7 @@ img:hover {
     background-color: #FFF1D5;
     border-radius: 10px;
     margin: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 .balance{
     height: 92px;
