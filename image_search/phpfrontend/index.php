@@ -94,7 +94,7 @@ window.addEventListener('DOMContentLoaded', () => {
       display: flex;
       flex-direction:column;
       justify-content:flex-start;
-      margin-right:30px;
+      margin:0px 60px;
     }
     #content{
       display: flex;
@@ -143,7 +143,9 @@ window.addEventListener('DOMContentLoaded', () => {
         data.results.forEach(item => {
           html += `
             <div class="card">
-              <img src="${item.image_url}" alt="${item.name}">
+              <a href="${item.merchant_url}">
+                <img src="${item.image_url}" alt="${item.name}">
+              </a>
               <p>${item.name}</p>
             </div>
           `;
