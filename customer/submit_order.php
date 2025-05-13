@@ -79,7 +79,7 @@ try {
     // ✅ 9. 若用錢包付從錢包扣錢
     if ($paymentMethod === 'wallet') {
         // 扣除顧客錢包的金額
-        $stmt4 = $conn->prepare("UPDATE cwallet SET balance = balance - ? WHERE cid = ?");
+        $stmt4 = $conn->prepare("UPDATE wallet SET balance = balance - ? WHERE cid = ?");
         $stmt4->bind_param("ii", $totalPrice, $cid);
         $stmt4->execute();
     }

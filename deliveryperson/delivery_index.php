@@ -12,6 +12,17 @@ $did = $_SESSION['did'] ?? null;
 if (!$did) {
     die("未登入外送員帳號。");
 }
+// ✅ 查詢該外送員已接受的訂單數量
+$newOrderCount = 0;
+$sql = "SELECT COUNT(*) AS count FROM dOrders WHERE did = ? AND orderStatus = 'accept'";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $did);
+$stmt->execute();
+$result = $stmt->get_result();
+if ($row = $result->fetch_assoc()) {
+    $newOrderCount = $row['count'];
+}
+$stmt->close();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -87,7 +98,15 @@ if (!$did) {
                         <div class="collapse navbar-collapse bg-white" id="navbarCollapse">
                             <div class="navbar-nav mx-auto">
                                 <a href="delivery_index.php?did=<?php echo $did; ?>" class="nav-item nav-link active">現有訂單</a>
-                                <a href="delivery_index.php?did=<?php echo $did; ?>" class="nav-item nav-link">已接單</a>
+                                <a href="delivery_order.php?did=<?php echo $did; ?>" class="nav-item nav-link position-relative">
+                                    已接單
+                                    <?php if ($newOrderCount > 0): ?>
+                                        <span class="position-absolute bg-warning rounded-circle d-flex align-items-center justify-content-center text-dark fw-bold"
+                                            style="top: 7px; right: -4px; height: 20px; min-width: 20px; font-size: 0.75rem;">
+                                            <?= $newOrderCount ?>
+                                        </span>
+                                    <?php endif; ?>
+                                </a>
                                 <!-- <a href="menu.php?mid=<?php echo $mid; ?>" class="nav-item nav-link">菜單管理</a>
                                 <a href="order.php?mid=<?= $mid; ?>" class="nav-item nav-link position-relative">
                                     訂單
@@ -175,15 +194,17 @@ if (!$did) {
                                 </button>
                             </form>              
                         </div>
+                        
+                        <!-- 現有訂單 -->
                         <?php
                         // 撈尚未被略過、可接的訂單
                         $sql = "
-                            SELECT t.tranId, t.cid, t.mid, t.totalPrice, t.address_text,
-                                c.cName AS customerName, mAddress, t.paymentMethod
+                            SELECT DISTINCT t.tranId AS tranId, t.cid, t.mid, t.totalPrice, t.address_text,
+                                c.cName AS customerName, m.mAddress, t.paymentMethod
                             FROM Transaction t
                             JOIN customer c ON t.cid = c.cid
                             JOIN merchant m ON t.mid = m.mid
-                            WHERE t.orderStatus = 'take'
+                            WHERE t.orderStatus IN ('making', 'done')
                             AND t.tranId NOT IN (
                                 SELECT tranId FROM DeliverySkip WHERE did = ?
                             )
@@ -194,70 +215,133 @@ if (!$did) {
                         $result = $stmt->get_result();
                         $takeOrders = $result->fetch_all(MYSQLI_ASSOC);
                         $stmt->close();
+
                         ?>
+
                         <!-- 現有訂單 -->
                         <div id="currentOrders" class="section container">
-                            
                             <?php if (empty($takeOrders)): ?>
                                 <p class="text-muted">目前沒有可接的訂單。</p>
                             <?php else: ?>
-                                <?php foreach ($takeOrders as $order): ?>
+                                <?php foreach ($takeOrders as $order): 
+                                // 撈每筆訂單的商品資料
+                                
+                                    $tranId = $order['tranId'];
+                                    $itemSql = "
+                                        SELECT r.*, p.pName, p.pPicture
+                                        FROM Record r
+                                        JOIN Product p ON r.pid = p.pid
+                                        WHERE r.tranId = ?
+                                    ";
+                                    $itemStmt = $conn->prepare($itemSql);
+                                    $itemStmt->bind_param("i", $tranId);
+                                    $itemStmt->execute();
+                                    $itemResult = $itemStmt->get_result();
+                                    $order['items'] = $itemResult->fetch_all(MYSQLI_ASSOC);
+                                    $itemStmt->close();
+                                ?>
                                     <div class="card my-2">
-                                        <div class="card-body d-flex justify-content-between align-items-center" style="border: 2px solid #45595b; border-radius: 10px;">
-                                            <div>
-                                                <?= htmlspecialchars($order['mAddress']) ?> → <?= htmlspecialchars($order['customerName']) ?> 
-                                                <span>總金額：$<?= htmlspecialchars($order['totalPrice']) ?></span>
+                                        <div class="card-body d-flex justify-content-between align-items-center" style="border: 2px solid #45595b; border-radius: 10px; flex-direction:column;">
+                                            <div style="display:flex; flex-direction:row; align-items:flex-end;">
+                                                <h4>
+                                                    
+                                                    <span style="text-decoration:underline; cursor:pointer; margin:0 1rem;"
+                                                        data-bs-toggle="modal"     
+                                                        data-bs-target="#orderModal_<?= htmlspecialchars($order['tranId']) ?>">
+                                                        <i class="fa-solid fa-note-sticky"></i>
+                                                        #<?= htmlspecialchars($order['tranId']) ?>   
                                                 
-                                                
+                                                    </span>
+                                                    <?= htmlspecialchars($order['mAddress']) ?> → <?= htmlspecialchars($order['address_text']) ?> 
+                                                </h4>
+                                                <div class="d-flex gap-2">
+                                                    <form method="post" action="handle_order.php">
+                                                        <input type="hidden" name="tranId" value="<?= htmlspecialchars($order['tranId']) ?>">
+                                                        <button name="action" value="accept" class="btn btn-success text-white ms-4">接受</button>
+                                                        <button name="action" value="reject" class="btn btn-danger">拒絕</button>
+                                                    </form>
+                                                </div>
+
                                             </div>
-                                            <div class="d-flex gap-2">
-                                                <button name="action" value="accept" class="btn btn-success text-white">接受</button>
-                                                <button name="action" value="reject" class="btn btn-danger">拒絕</button>
+                                            <!-- 卡片中新增區塊 -->
+                                            <span id="duration_<?= $order['tranId'] ?>" class="text-muted">預估時間載入中...</span>
+                                            <div id="map_<?= $order['tranId'] ?>" style="height: 300px; width: 100%; margin-top: 1rem;"></div>
+
+
+                                        </div>
+                                        
+                                    </div>
+
+                                    <!-- Modal -->
+                                    <div class="modal fade" id="orderModal_<?= htmlspecialchars($order['tranId']) ?>" tabindex="-1" aria-labelledby="orderModalLabel_<?= htmlspecialchars($order['tranId']) ?>" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="orderModalLabel_<?= htmlspecialchars($order['tranId']) ?>">訂單詳細內容</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <h5 class="text-muted" style="text-align:left;">
+                                                        消費者：<?= htmlspecialchars($order['customerName']) ?>       
+                                                    </h5>
+                                                    
+                                                    <ul class="list-group mb-3">
+                                                        <?php foreach ($order['items'] as $item): ?>
+                                                            <li class="list-group-item d-flex justify-content-between align-items-start">
+                                                                <div class="ms-2 me-auto">
+                                                                    <div class="fw-bold" style="text-align:start;">
+                                                                        <?= htmlspecialchars($item['quantity']) ?> 份
+                                                                        <span class="ms-3"><?= htmlspecialchars($item['pName']) ?></span>
+                                                                    </div>                                                                                                                                       
+                                                                </div>
+                                                                <span>
+                                                                    $<?= htmlspecialchars($item['price'] * $item['quantity']) ?>
+                                                                    <div style="text-align:end;" class="text-muted">
+                                                                        備註：<?= htmlspecialchars($item['pComment'] ?? '無') ?>
+                                                                    </div>
+                                                                </span>
+                                                            </li>
+                                                        <?php endforeach; ?>
+                                                    </ul>
+                                                    <div style="display:flex; justify-content: space-between;">
+                                                        <h5 class="text-muted">
+                                                            付款方式：
+                                                            <?php 
+                                                                if ($order['paymentMethod'] === 'cash') {
+                                                                    echo '貨到付款';
+                                                                } elseif ($order['paymentMethod'] === 'wallet') {
+                                                                    echo '錢包';
+                                                                } else {
+                                                                    echo '卡片';
+                                                                }
+                                                            ?>
+                                                        </h5>
+                                                        <h5>總金額：$<?= htmlspecialchars($order['totalPrice']) ?> </h5>
+                                                    </div>
+                                                    
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <form method="post" action="handle_order.php" class="d-flex gap-2">
+                                                        <input type="hidden" name="tranId" value="<?= htmlspecialchars($order['tranId']) ?>">
+                                                        <button name="action" value="accept" class="btn btn-success text-white">接受</button>
+                                                        <button name="action" value="reject" class="btn btn-danger">拒絕</button>
+                                                    </form>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
+
                                 <?php endforeach; ?>
                             <?php endif; ?>
                         </div>
-                        <?php
-                        // 撈已接單訂單（不過濾 did，是所有外送員的接單）
-                        $sqlMaking = "
-                            SELECT t.tranId, t.cid, t.mid, t.totalPrice, t.address_text, t.tNote,
-                                c.cName AS customerName,
-                                m.mName AS merchantName
-                            FROM Transaction t
-                            JOIN customer c ON t.cid = c.cid
-                            JOIN merchant m ON t.mid = m.mid
-                            WHERE t.orderStatus = 'takeaway'
-                        ";
-                        $resultMaking = $conn->query($sqlMaking);
-                        $makingOrders = $resultMaking->fetch_all(MYSQLI_ASSOC);
-                        ?>
-                        
 
-                        <!-- 已接單 -->
-                        <div id="acceptedOrders" class="section container">
-                            <h3>已接單</h3>
-                            <?php if (empty($makingOrders)): ?>
-                                <p class="text-muted">尚無接單紀錄。</p>
-                            <?php else: ?>
-                                <?php foreach ($makingOrders as $order): ?>
-                                    <div class="card my-2">
-                                        <div class="card-body">
-                                            <?= htmlspecialchars($order['merchantName']) ?> → <?= htmlspecialchars($order['customerName']) ?> 
-                                            總金額：$<?= htmlspecialchars($order['totalPrice']) ?>，送至 <?= htmlspecialchars($order['address_text']) ?>
-                                            <?php if (!empty($order['tNote'])): ?>
-                                                （備註：<?= htmlspecialchars($order['tNote']) ?>）
-                                            <?php endif; ?>
-                                        </div>
-                                    </div>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </div>                        
-                    </div>
+                        
+                        
+                    </div>                        
                 </div>
+            </div>
                     <!-- Back to Top -->
-                <a href="#" class="btn btn-primary border-3 border-primary rounded-circle back-to-top"><i class="fa fa-arrow-up"></i></a>   
+            <a href="#" class="btn btn-primary border-3 border-primary rounded-circle back-to-top"><i class="fa fa-arrow-up"></i></a>   
         </div>
          
 
@@ -294,22 +378,80 @@ if (!$did) {
     <!-- 引入 jQuery UI -->
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
     <script src="search_order.js"></script>
+    <!-- 引入 google map API -->
+    <!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBTVTFQCTTjWiWW9w0OmIE5_OfyfrekW6E"></script> -->
     <script>
-    function toggleStatus(button) {
-        const statusInput = document.getElementById('statusState');
-        if (button.textContent.includes('OFFLINE')) {
-            button.textContent = '目前狀態：ONLINE';
-            button.classList.remove('btn-outline-primary');
-            button.classList.add('btn-outline-success');
-            statusInput.value = 'ONLINE';
+    function initMapForOrder(tranId, origin, destination) {
+        const mapElement = document.getElementById("map_" + tranId);
+        if (!mapElement) return;
+
+        const map = new google.maps.Map(mapElement, {
+            zoom: 13,
+            center: { lat: 22.6273, lng: 120.3014 }, // 高雄中心點
+        });
+
+        const directionsService = new google.maps.DirectionsService();
+        const directionsRenderer = new google.maps.DirectionsRenderer();
+        directionsRenderer.setMap(map);
+
+        // 抓外送員目前位置
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function (position) {
+                const currentLocation = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude,
+                };
+
+                directionsService.route({
+                    origin: currentLocation,
+                    destination: destination,
+                    waypoints: [
+                        { location: origin, stopover: true }
+                    ],
+                    travelMode: google.maps.TravelMode.DRIVING,
+                    drivingOptions: {
+                        departureTime: new Date()
+                    }
+                }, function (response, status) {
+                    if (status === "OK") {
+                        directionsRenderer.setDirections(response);
+                        const duration = response.routes[0].legs.reduce((total, leg) => total + leg.duration.value, 0);
+                        const minutes = Math.round(duration / 60);
+                        document.getElementById("duration_" + tranId).innerText = "預估時間：約 " + minutes + " 分鐘";
+                        // ✅ 新增：總距離
+                        const totalDistance = legs.reduce((sum, leg) => sum + leg.distance.value, 0); // 單位：公尺
+                        const km = (totalDistance / 1000).toFixed(1); // 公里格式化為小數點1位
+
+                        // ✅ 顯示時間與距離
+                        document.getElementById("duration_" + tranId).innerText =
+                            "預估時間：約 " + minutes + " 分鐘，距離：約 " + km + " 公里";
+                    } else {
+                        console.error("路線規劃失敗:", status);
+                        document.getElementById("duration_" + tranId).innerText = "無法取得時間";
+                    }
+                });
+            }, function (error) {
+                console.error("無法取得位置：", error.message);
+                document.getElementById("duration_" + tranId).innerText = "無法取得目前位置";
+            });
         } else {
-            button.textContent = '目前狀態：OFFLINE';
-            button.classList.remove('btn-outline-success');
-            button.classList.add('btn-outline-primary');
-            statusInput.value = 'OFFLINE';
+            console.error("此瀏覽器不支援定位");
+            document.getElementById("duration_" + tranId).innerText = "此裝置不支援定位";
         }
     }
+    </script>
 
+    <script>
+    // 頁面載入後逐一初始化地圖與路線
+    document.addEventListener("DOMContentLoaded", function () {
+        <?php foreach ($takeOrders as $order): 
+            $origin = json_encode($order['mAddress']);
+            $dest = json_encode($order['address_text']);
+            $tranId = $order['tranId'];
+        ?>
+            initMapForOrder(<?= $tranId ?>, <?= $origin ?>, <?= $dest ?>);
+        <?php endforeach; ?>
+    });
     </script>
     </body>
 </html>

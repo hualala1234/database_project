@@ -224,7 +224,7 @@ if (!empty($row['businessHours'])) {
                                         <span style="color: red;">*</span>
                                     </div>
 
-                                    <div style="display:flex; justify-content: center;">
+                                    <div style="display:flex; flex-wrap: wrap;">
                                     <?php
                                         // 抓所有可用的類別
                                         while ($category = mysqli_fetch_assoc($resultCategories)):

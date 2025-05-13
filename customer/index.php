@@ -117,8 +117,8 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
                         </a>
                         <div class="navbar-nav mx-auto">
                             <div class="position-relative mx-auto">
-                                <input class="form-control border-2 border-secondary  py-3 px-4 rounded-pill" style="width: 30rem;" type="number" placeholder="Search">
-                                <button type="submit" class="btn btn-primary border-2 border-secondary py-3 px-4 position-absolute rounded-pill text-white h-100" style="top: 0; left: 82.5%;">搜尋</button>
+                                <input class="form-control border-2 border-secondary  py-3 px-4 rounded-pill" style="width: 20rem;" type="number" placeholder="Search">
+                                <button type="submit" class="btn btn-primary border-2 border-secondary py-3 px-4 position-absolute rounded-pill text-white h-100" style="top: 0; left: 73.5%;">搜尋</button>
                             </div>
                         </div>
                         <a href="../walletAndrecord/c_wallet.php?cid=<?php echo $cid; ?>&role=c">
@@ -150,7 +150,7 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
 
                                     <?php if ($_SESSION['role'] === 'merchant'): ?>
                                         <a href="/database/merchant/setting.php" class="dropdown-item">商家設定</a>
-                                    <?php elseif ($_SESSION['role'] === 'customer'): ?>
+                                    <?php elseif ($_SESSION['role'] === 'c'): ?>
                                         <a href="/database/customer/setting.php" class="dropdown-item">個人設定</a>
                                         <a href="/database_project/allergy/allergy.php" class="dropdown-item">過敏設定</a>
                                         <a href="../claw_machine/claw.php" class="dropdown-item">優惠券活動</a>
