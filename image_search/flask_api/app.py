@@ -102,6 +102,8 @@ def predict_label(img):
 
 @app.route('/search', methods=['POST'])
 def search_image():
+    cid = request.form.get('cid')  # ✅ 取得使用者 ID
+    print(f"✅ 收到圖片來自 customer {cid}")
     file = request.files['image']
     img = Image.open(io.BytesIO(file.read())).convert('RGB')
 
