@@ -65,118 +65,102 @@ if (isset($_SESSION['cid'])) {
     <!-- 引入 Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC&display=swap" rel="stylesheet">
-    <style>
-    body {
-        font-family: 'Noto Sans TC', sans-serif;
-        background-color: #e6f2e6; /* 淺綠背景 */
-        color: #2e3d27; /* 深綠褐色文字 */
-    }
 
-    h3 {
-        margin-bottom: 20px;
-        color: #355e3b; /* 森林綠 */
-    }
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="" name="keywords">
+    <meta content="" name="description">
 
-    .container {
-        background-color: #f5fbef; /* 很淡的草綠色 */
-        padding: 40px;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(34, 51, 34, 0.1);
-        max-width: 800px;
-    }
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Raleway:wght@600;800&display=swap" rel="stylesheet"> 
 
-    .allergen-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-        gap: 20px;
-        margin-top: 20px;
-    }
+    <!-- Icon Font Stylesheet -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://kit.fontawesome.com/ea478a1bc4.js" crossorigin="anonymous"></script>
 
-    .allergen-item {
-        background-color: #cce3cc; /* 草地綠 */
-        padding: 10px;
-        border-radius: 10px;
-        text-align: center;
-        box-shadow: 0 2px 5px rgba(50, 75, 50, 0.05);
-        transition: transform 0.2s;
-    }
+    <!-- Libraries Stylesheet -->
+    <link href="../lib/lightbox/css/lightbox.min.css" rel="stylesheet">
+    <link href="../lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
 
-    .allergen-item:hover {
-        transform: scale(1.03);
-        background-color: #b5d6b5; /* hover時變深綠 */
-    }
-
-    .allergen-item img {
-        margin-bottom: 10px;
-        width: 180px;
-    }
-
-    .modal-content {
-        border-radius: 12px;
-        background-color: #f0f5f0;
-    }
-
-    #other-allergen {
-        width: 80%;
-        margin: 10px auto;
-        display: block;
-        padding: 10px;
-        border-radius: 8px;
-        border: 1px solid #8fb88f; /* 淡綠邊框 */
-        background-color: #f9fff9;
-    }
-
-    ul {
-        padding-left: 20px;
-    }
-
-    ul li {
-        margin-bottom: 5px;
-    }
-
-    .modal-title {
-        font-weight: bold;
-        color: #2e4b2e;
-    }
-
-    button.btn-primary {
-        background-color: #3b7a3b; /* 深叢林綠 */
-        border-color: #3b7a3b;
-    }
-
-    button.btn-primary:hover {
-        background-color: #2f612f; /* hover 更深 */
-    }
-
-    button.btn-secondary {
-        background-color: #8a9f8a;
-        border-color: #8a9f8a;
-    }
-
-    button.btn-secondary:hover {
-        background-color: #768976;
-    }
-
-    .container.mt-5 {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        position: relative;
-        top: 200px;
-    }
-</style>
+    <link href="../css/style.css" rel="stylesheet">
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <!-- 引入 jQuery UI CSS（使得排序元素顯示為拖曳狀態） -->
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
 
 </head>
 <body>
+    <!-- Navbar start -->
+    <div class="container-fluid fixed-top">
+        <div class="container topbar bg-primary d-none d-lg-block" style="padding: 20px;">
+            <div class="d-flex justify-content-between">
+                <div class="top-info ps-2">
+                </div>        
+            </div>
+        </div>
+        <div class="container px-0">
+            <nav class="navbar navbar-light bg-white navbar-expand-xl">
+                <a href="merchant_shop.php?mid=<?php echo $mid; ?>" class="navbar-brand"><h1 class="text-primary display-6">Junglebite 過敏設定</h1></a>
+                <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                    <span class="fa fa-bars text-primary"></span>
+                </button>
+                <div class="collapse navbar-collapse bg-white" id="navbarCollapse" style="display: flex; flex-direction: row-reverse;">
+                    
+                    <div class="d-flex m-3 me-0">
+                        <!-- <button class="btn-search btn border border-secondary btn-md-square rounded-circle bg-white me-4" data-bs-toggle="modal" data-bs-target="#searchModal"><i class="fas fa-search text-primary"></i></button> -->
+                        <!-- <a href="#" class="position-relative me-4 my-auto">
+                            <i class="fa fa-shopping-bag fa-2x"></i>
+                            <span class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 15px; height: 20px; min-width: 20px;">3</span>
+                        </a> -->
+                        <?php if (isset($_SESSION['login_success'])): ?>
+                        <!-- ✅ 已登入的顯示 -->
+                        <div class="dropdown" style="position: relative; display: inline-block;">
+                            <a href="javascript:void(0);" class="my-auto" onclick="toggleDropdown()">
+                            <img src="  ../login/success.png" alt="Success" style="width: 40px; height: 40px; filter: brightness(0) saturate(100%) invert(42%) sepia(91%) saturate(356%) hue-rotate(71deg) brightness(94%) contrast(92%);">
+                            </a>
 
-    <div class="header_allergy">
-        <p>allergens you have</p>
-        <a href="customer\index.php">
-            <img src="home.png" alt="Home" class="home-icon">
-        </a>    
+                            <div id="myDropdown" class="dropdown-content" style="display: none; position: absolute; background-color: white; min-width: 120px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 1; right: 0; border-radius: 8px;">
+
+                                <?php if ($_SESSION['role'] === 'merchant'): ?>
+                                    <a href="/database/merchant/setting.php" class="dropdown-item">商家設定</a>
+                                <?php elseif ($_SESSION['role'] === 'customer'): ?>
+                                    <a href="../login/login_customer/setting.php" class="dropdown-item">個人設定</a>
+                                    <!-- <a href="/database_project/allergy/allergy.php" class="dropdown-item">過敏設定</a> -->
+                                    <a href="../claw_machine/claw.php" class="dropdown-item">優惠券活動</a>
+                                    <a href="../walletAndrecord/c_wallet.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">錢包</a>
+                                    <a href="../walletAndrecord/c_record.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">交易紀錄</a>
+                                    <a href="friends.php" class="dropdown-item">我的好友</a>
+                                    <a href="/database_project/customer/reservation.php" class="dropdown-item">我要訂位</a>
+                                <?php elseif ($_SESSION['role'] === 'delivery_person'): ?>
+                                    <a href="/database/customer/setting.php" class="dropdown-item">外送員設定</a>
+                                <?php elseif ($_SESSION['role'] === 'platform'): ?>
+                                    <a href="/database/customer/setting.php" class="dropdown-item">平台設定</a>
+                                <?php endif; ?>
+                                    <a href="/database_project/login/login_customer/logout.php" class="dropdown-item">Logout</a>
+
+
+                            </div>
+                        </div>
+                        <?php else: ?>
+                        <!-- ❌ 未登入的顯示 -->
+                        <a href="/database_project/login/before_login.php" class="my-auto">
+                            <i class="fas fa-user fa-2x"></i>
+                        </a>
+                        <?php endif; ?>
+                    </div>
+
+                </div>
+            </nav>
+        </div>
     </div>
+    <!-- Navbar End -->
+    
 
-    <div class="container mt-5">
+    <div class="allergy-container mt-5">
         <h3>歡迎, <?php echo htmlspecialchars($customer_name); ?></h3>
         <p>您的客戶編號 (CID): <?php echo htmlspecialchars($customer_id); ?></p>
         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#allergyModal">編輯過敏原</button>
@@ -306,5 +290,21 @@ if (isset($_SESSION['cid'])) {
 
     <!-- 引入 Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleDropdown() {
+            const dropdown = document.getElementById("myDropdown");
+            dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+        }
+
+        // 點擊頁面其他地方自動收起下拉選單
+        window.onclick = function(event) {
+            if (!event.target.matches('.my-auto') && !event.target.closest('.dropdown')) {
+                var dropdown = document.getElementById("myDropdown");
+                if (dropdown && dropdown.style.display === "block") {
+                    dropdown.style.display = "none";
+                }
+            }
+        }
+    </script>
 </body>
 </html>
