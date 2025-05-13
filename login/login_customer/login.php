@@ -26,7 +26,7 @@ if ($_SERVER["REQUEST_METHOD"]=="POST"){
             $_SESSION['email'] = $user['email'];
             $_SESSION['fullname'] = $user['cName'];
             $_SESSION['login_success'] = "登入成功！";
-            $_SESSION['role'] = 'customer';
+            $_SESSION['role'] = 'c';
 
             if ($walletCheckResult->num_rows == 0) {
                 // 若不存在，則建立 wallet 資料（初始餘額為 0）

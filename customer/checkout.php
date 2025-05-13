@@ -346,6 +346,7 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
         <div class="modal fade" id="addCardModal" tabindex="-1" aria-labelledby="addCardModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <form action="insert_card.php" method="post">
+                    <input type="hidden" name="mid" value="<?= $mid ?>">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title" id="addCardModalLabel">新增信用卡資訊</h5>
