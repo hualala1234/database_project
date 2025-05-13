@@ -1,0 +1,27 @@
+[PHP] generate_chart.php 啟動
+[Error] 讀取 user_score_data_unknown.csv 失敗: [Errno 2] No such file or directory: 'user_score_data_unknown.csv'\n[Error] 讀取 user_score_data_unknown.csv 失敗: [Errno 2] No such file or directory: 'user_score_data_unknown.csv'\n[PHP] generate_chart.php 啟動
+[PHP] generate_chart.php 啟動
+[PHP] generate_chart.php 啟動
+[PHP] generate_chart.php 啟動
+[PHP] generate_chart.php 啟動
+[PHP] generate_chart.php 啟動
+[PHP] generate_chart.php 啟動
+[PHP] generate_chart.php 啟動
+[PHP] generate_chart.php 啟動
+[PHP] generate_chart.php 啟動
+[PHP] generate_chart.php 啟動
+[PHP] generate_chart.php 啟動
+[PHP] generate_chart.php 啟動
+[PHP] generate_chart.php 啟動
+[PHP] generate_chart.php 啟動
+[PHP] generate_chart.php 啟動
+[PHP] generate_chart.php 啟動
+[PHP] generate_chart.php 啟動
+[PHP] generate_chart.php 啟動
+[PHP] generate_chart.php 啟動
+[PHP] generate_chart.php 啟動
+[PHP] generate_chart.php 啟動
+[PHP] generate_chart.php 啟動
+[PHP] generate_chart.php 啟動
+[PHP] generate_chart.php 啟動
+[PHP] generate_chart.php 啟動
