@@ -2,7 +2,7 @@
 session_start();
 
 if (isset($_SESSION['cid'])) {
-    $customer_id = $_SESSION['cid'];
+    $cid = $_SESSION['cid'];
     
     // 連接資料庫
     $conn = new mysqli('localhost', 'root', '', 'junglebite');
@@ -16,7 +16,7 @@ if (isset($_SESSION['cid'])) {
     if (!$stmt) {
         die("SQL 語句錯誤：" . $conn->error);
     }
-    $stmt->bind_param("s", $customer_id);
+    $stmt->bind_param("s", $cid);
     $stmt->execute();
     $result = $stmt->get_result();
 
@@ -31,7 +31,7 @@ if (isset($_SESSION['cid'])) {
     if (!$stmt) {
         die("SQL 語句錯誤：" . $conn->error);
     }
-    $stmt->bind_param("s", $customer_id);
+    $stmt->bind_param("s",$cid);
     $stmt->execute();
     $result = $stmt->get_result();
 
@@ -104,7 +104,7 @@ if (isset($_SESSION['cid'])) {
         </div>
         <div class="container px-0">
             <nav class="navbar navbar-light bg-white navbar-expand-xl">
-                <a href="merchant_shop.php?mid=<?php echo $mid; ?>" class="navbar-brand"><h1 class="text-primary display-6">Junglebite 過敏設定</h1></a>
+                <a href="../customer/index.php?cid=<?php echo $cid; ?>" class="navbar-brand"><h1 class="text-primary display-6">Junglebite過敏設定</h1></a>
                 <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                     <span class="fa fa-bars text-primary"></span>
                 </button>
@@ -162,7 +162,7 @@ if (isset($_SESSION['cid'])) {
 
     <div class="allergy-container mt-5">
         <h3>歡迎, <?php echo htmlspecialchars($customer_name); ?></h3>
-        <p>您的客戶編號 (CID): <?php echo htmlspecialchars($customer_id); ?></p>
+        <p>您的客戶編號 (CID): <?php echo htmlspecialchars($cid); ?></p>
         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#allergyModal">編輯過敏原</button>
 
         <!-- 顯示已存入的過敏原資料 -->
@@ -193,7 +193,7 @@ if (isset($_SESSION['cid'])) {
                 </div>
                 <div class="modal-body">
                     <form id="allergyForm" action="db_allergy.php" method="POST">
-                        <input type="hidden" name="customer_id" value="<?php echo $customer_id; ?>">
+                        <input type="hidden" name="cid" value="<?php echo $cid; ?>">
                         <fieldset>
                             <legend>請勾選您的食物過敏原：</legend>
                             <div class="allergen-grid">
