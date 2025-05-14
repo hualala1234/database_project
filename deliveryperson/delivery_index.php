@@ -208,9 +208,12 @@ $stmt->close();
                             AND t.tranId NOT IN (
                                 SELECT tranId FROM DeliverySkip WHERE did = ?
                             )
+                            AND t.tranId NOT IN (
+                                SELECT tranId FROM dOrders WHERE did = ?
+                            )
                         ";
                         $stmt = $conn->prepare($sql);
-                        $stmt->bind_param("i", $did);
+                        $stmt->bind_param("ii", $did, $did);
                         $stmt->execute();
                         $result = $stmt->get_result();
                         $takeOrders = $result->fetch_all(MYSQLI_ASSOC);

@@ -78,10 +78,10 @@ if (!empty($row['businessHours'])) {
         <!-- Spinner End -->
 
         <?php
-        $sqlNewOrderCount = "SELECT COUNT(DISTINCT o.tranId) AS newOrderCount
-                            FROM `Orders` o
-                            JOIN `Transaction` t ON o.tranId = t.tranId
-                            WHERE o.mid = $mid AND t.orderStatus = 'new'";
+        $sqlNewOrderCount = "SELECT COUNT(DISTINCT r.tranId) AS newOrderCount
+                            FROM `Record` r
+                            JOIN `Transaction` t ON r.tranId = t.tranId
+                            WHERE t.orderStatus = 'new'";
         $resultNewOrderCount = mysqli_query($conn, $sqlNewOrderCount);
         $newOrderCount = 0;
         if ($row = mysqli_fetch_assoc($resultNewOrderCount)) {

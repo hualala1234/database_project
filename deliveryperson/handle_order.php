@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
         if ($insertSuccess) {
             // 更新 Transaction 表：orderStatus = 'takeaway'、did = ?
-            $update = $conn->prepare("UPDATE Transaction SET orderStatus = 'takeaway', did = ? WHERE tranId = ?");
+            $update = $conn->prepare("UPDATE Transaction SET  did = ? WHERE tranId = ?");
             $update->bind_param("ii", $did, $tranId);
             $update->execute();
             $update->close();
