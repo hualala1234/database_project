@@ -374,7 +374,7 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
         <div class="row sticky-top" style="top: 160px; z-index: 1020;">
           <div class="col-12">
             <!-- 滑動容器 -->
-            <div class="category-scroll-wrapper overflow-auto border-top border-bottom sticky-top" style="white-space: nowrap;">
+            <div class="category-scroll-wrapper overflow-auto border-top border-bottom sticky-top py-2" style="white-space: nowrap;">
 
               <?php
               while ($category = mysqli_fetch_assoc($result)) {
