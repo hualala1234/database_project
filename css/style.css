@@ -638,3 +638,12 @@ span.address-label.text-white {
     cursor: pointer;
     margin-right: 0.25rem;
 }
+
+.category-item {
+    transition: transform 0.2s ease;
+    cursor: pointer;
+}
+
+.category-item:hover {
+    transform: translateY(-5px); /* 往上移動 5px */
+}
