@@ -205,9 +205,18 @@ $stmt->close()
                             JOIN Transaction t ON t.tranId = d.tranId
                             JOIN customer c ON t.cid = c.cid
                             JOIN merchant m ON t.mid = m.mid
-                            WHERE d.orderStatus = 'accept' AND t.did = ?
+                            WHERE d.orderStatus != 'arrived'
+                            AND d.did = ?
+                            AND NOT EXISTS (
+                                SELECT 1
+                                FROM DeliverySkip ds
+                                WHERE ds.did = d.did AND ds.tranId = d.tranId
+                            )
                             ORDER BY d.tranId
                         ";
+
+
+                    
 
                         $stmt = $conn->prepare($sql);
                         $stmt->bind_param("i", $did);
@@ -419,6 +428,12 @@ $stmt->close()
                     lat: position.coords.latitude,
                     lng: position.coords.longitude,
                 };
+                // ✅ 新增：將位置送到後端
+                fetch('update_location.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(currentLocation)
+                });
 
                 directionsService.route({
                     origin: currentLocation,
@@ -433,6 +448,7 @@ $stmt->close()
                 }, function (response, status) {
                     if (status === "OK") {
                         directionsRenderer.setDirections(response);
+                        const legs = response.routes[0].legs;
                         const duration = response.routes[0].legs.reduce((total, leg) => total + leg.duration.value, 0);
                         const minutes = Math.round(duration / 60);
                         document.getElementById("duration_" + tranId).innerText = "預估時間：約 " + minutes + " 分鐘";

@@ -15,58 +15,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->execute();
     $stmt->close();
 
-    // 2. 撈出該筆交易所有商品（從 Orders）
-    $sql = "SELECT o.pid, o.cid, o.quantity, p.price
-            FROM Orders o
-            JOIN Product p ON o.pid = p.pid
-            WHERE o.tranId = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $tranId);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    // 3. 將每筆商品資料插入 Record
-    $insertSql = "INSERT INTO Record (tranId, pid, cid, quantity, price) VALUES (?, ?, ?, ?, ?)";
-    $insertStmt = $conn->prepare($insertSql);
-
-    while ($row = $result->fetch_assoc()) {
-        $insertStmt->bind_param("iiiii", $tranId, $row['pid'], $row['cid'], $row['quantity'], $row['price']);
-        $insertStmt->execute();
-    }
-
-    $stmt->close();
-    $insertStmt->close();
+    
     } elseif ($action === 'reject') {
-        // 拒絕訂單，刪除 Orders 中該筆交易編號所有商品
-        $sql = "DELETE FROM Orders WHERE tranId = ?";
+        
+        // 將 Transaction 的 orderStatus 改為 'reject'
+        $sql = "UPDATE Transaction SET orderStatus = 'reject' WHERE tranId = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("i", $tranId);
         $stmt->execute();
 
-        // 可選：刪除 Transaction 資料（若沒有用處）
-        $sql2 = "DELETE FROM Transaction WHERE tranId = ?";
-        $stmt2 = $conn->prepare($sql2);
-        $stmt2->bind_param("i", $tranId);
-        $stmt2->execute();
     }elseif ($action === 'done') {
         // 完成訂單，更新 Transaction 狀態為 completed
         $sql = "UPDATE Transaction SET orderStatus = 'done' WHERE tranId = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("i", $tranId);
         $stmt->execute();
-    }elseif ($action === 'take') {
+    }elseif ($action === 'takeaway') {
         // 完成訂單，更新 Transaction 狀態為 completed
-        $sql = "UPDATE Transaction SET orderStatus = 'take' WHERE tranId = ?";
+        $sql = "UPDATE Transaction SET orderStatus = 'takeaway' WHERE tranId = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("i", $tranId);
         $stmt->execute();
 
-        // 刪除 Orders 中該筆交易編號所有商品
-        $sql2 = "DELETE FROM Orders WHERE tranId = ?";
+        // 插入 dOrders 的 takeTime
+        $sql2 = "UPDATE dOrders SET takeTime = NOW(), orderStatus = 'takeaway' WHERE tranId = ?";
         $stmt2 = $conn->prepare($sql2);
         $stmt2->bind_param("i", $tranId);
         $stmt2->execute();
-        $stmt2->close();
 
     }
 

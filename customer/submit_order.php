@@ -44,10 +44,10 @@ try {
     // ✅ 6. 插入 Transaction 表（補上所有欄位）
     $stmt = $conn->prepare("
         INSERT INTO Transaction 
-        (cid, mid, address_text, transactionTime, paymentMethod, totalPrice, tNote, id) 
-        VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?, ?)
+        (cid, mid, address_text, transactionTime, paymentMethod, totalPrice, tNote, id, couponCode ) 
+        VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?, ?, ?)
     ");
-    $stmt->bind_param("iissssi", $cid, $mid, $address, $paymentMethod, $totalPrice, $tNote, $couponId);
+    $stmt->bind_param("iissssis", $cid, $mid, $address, $paymentMethod, $totalPrice, $tNote, $couponId, $couponCode );
     $stmt->execute();
 
     $transactionId = $stmt->insert_id;
@@ -59,13 +59,12 @@ try {
         $quantity = $item['quantity'];
         $specialNote = $item['specialNote'] ?? '';
         
+        // 插入 Record（預設 pRating 和 pComment 為 NULL）
         $stmt = $conn->prepare("
-        INSERT INTO Orders (cid, cartTime, pid, price, quantity, mid, specialNote, tranId) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO Record (tranId, pid, cid, quantity, price) 
+        VALUES (?, ?, ?, ?, ?)
         ");
-        $stmt->bind_param("isiiiisi", $cid, $cartTime, $pid, $price, $quantity, $mid, $specialNote, $transactionId);
-    
-
+        $stmt->bind_param("iiiii", $transactionId, $pid, $cid, $quantity, $price);
         $stmt->execute();
     }
 

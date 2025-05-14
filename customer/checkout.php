@@ -311,14 +311,19 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
                                 <!-- <h1 class="display-6 mb-4">Cart <span class="fw-normal">Total</span></h1> -->
                                 <div class="d-flex justify-content-between mb-4">
                                     <h5 class="mb-0 me-4 text-dark">小計</h5>
-                                    <p class="mb-0 subtotal"></p>
+                                    <p class="mb-0">
+                                        <span class="original-subtotal text-muted text-decoration-line-through me-2 d-none"></span>
+                                        <span class="subtotal"></span>
+                                    </p>
                                 </div>
                                 <div class="d-flex justify-content-between">
                                     <h5 class="mb-0 me-4 text-dark">外送費</h5>
-                                    <div class="">
-                                        <p class="mb-0 delivery-fee"></p>
-                                    </div>
+                                    <p class="mb-0">
+                                        <span class="original-delivery-fee text-muted text-decoration-line-through me-2 d-none"></span>
+                                        <span class="delivery-fee"></span>
+                                    </p>
                                 </div>
+
                                 <div class="d-flex justify-content-between my-2">
                                     <h5 class="mb-0 me-4 text-dark">平台服務費</h5>
                                     <div class="">

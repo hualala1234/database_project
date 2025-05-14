@@ -625,3 +625,16 @@ span.address-label.text-white {
     background-color: #146E57!important;  /* hover 時保持一樣 */
     color: white;
 }
+
+
+.subtotal,
+.delivery-fee {
+  color: #747d88; /* 預設顏色 */
+}
+
+.star-rating i {
+    font-size: 1.5rem;
+    color: #ffb524;
+    cursor: pointer;
+    margin-right: 0.25rem;
+}

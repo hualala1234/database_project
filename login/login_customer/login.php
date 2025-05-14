@@ -5,7 +5,6 @@ include "../../dbh.php";
 $wrong_password = "Enter your password";
 $error_email = "Enter your email";
 
-// $_SESSION['cid'] = $row['cid'];
 
 if ($_SERVER["REQUEST_METHOD"]=="POST"){
 
@@ -27,6 +26,10 @@ if ($_SERVER["REQUEST_METHOD"]=="POST"){
             $_SESSION['fullname'] = $user['cName'];
             $_SESSION['login_success'] = "登入成功！";
             $_SESSION['role'] = 'c';
+
+            // 檢查該使用者是否已有錢包
+            $walletCheckSql = "SELECT * FROM wallet WHERE cid = '$cid' AND role = 'c'";
+            $walletCheckResult = $conn->query($walletCheckSql);
 
             if ($walletCheckResult->num_rows == 0) {
                 // 若不存在，則建立 wallet 資料（初始餘額為 0）
