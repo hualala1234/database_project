@@ -57,8 +57,8 @@ $cid = $_SESSION['cid'] ?? '';
                 </div>
             </div>
             <div class="container px-0">
-                <nav class="navbar navbar-light bg-white navbar-expand-xl">
-                    <a href="merchant_shop.php?mid=<?php echo $mid; ?>" class="navbar-brand"><h1 class="text-primary display-6">Junglebite 優惠活動</h1></a>
+                <nav class="navbar navbar-light bg-white navbar-expand-xl ">
+                  <a href="../customer/index.php?cid=<?php echo $cid; ?>" class="navbar-brand text-decoration-none"><h1 class="text-primary display-6">Junglebite 優惠活動</h1></a>
                     <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                         <span class="fa fa-bars text-primary"></span>
                     </button>
@@ -82,10 +82,13 @@ $cid = $_SESSION['cid'] ?? '';
                                     <?php if ($_SESSION['role'] === 'merchant'): ?>
                                         <a href="/database/merchant/setting.php" class="dropdown-item">商家設定</a>
                                     <?php elseif ($_SESSION['role'] === 'customer'): ?>
-                                        <a href="../login/login_customer/setting_2.php" class="dropdown-item">個人設定</a>
+                                        <a href="../login/login_customer/setting.php" class="dropdown-item">個人設定</a>
                                         <a href="/database_project/allergy/allergy.php" class="dropdown-item">過敏設定</a>
                                         <!-- <a href="../claw_machine/claw.php" class="dropdown-item">優惠券活動</a> -->
-                                        <!-- <a href="friends.php" class="dropdown-item">我的好友</a> -->
+                                        <a href="../walletAndrecord/c_wallet.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">錢包</a>
+                                        <a href="../walletAndrecord/c_record.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">交易紀錄</a>
+                                        <a href="friends.php" class="dropdown-item">我的好友</a>
+                                        <a href="/database_project/customer/reservation.php" class="dropdown-item">我要訂位</a>
                                     <?php elseif ($_SESSION['role'] === 'delivery_person'): ?>
                                         <a href="/database/customer/setting.php" class="dropdown-item">外送員設定</a>
                                     <?php elseif ($_SESSION['role'] === 'platform'): ?>
