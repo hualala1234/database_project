@@ -48,12 +48,81 @@ $cid = $_SESSION['cid'] ?? '';
 <body>
     
 
-  <!-- Navbar start -->
-  <div class="container-fluid fixed-top">
-          <div class="container topbar bg-primary d-none d-lg-block" style="padding: 20px;">
-              <div class="d-flex justify-content-between">
-                  <div class="top-info ps-2">
-                  </div>        
+
+    <!-- Navbar start -->
+    <div class="container-fluid fixed-top">
+            <div class="container topbar bg-primary d-none d-lg-block" style="padding: 20px;">
+                <div class="d-flex justify-content-between">
+                    <div class="top-info ps-2">
+                    </div>        
+                </div>
+            </div>
+            <div class="container px-0">
+                <nav class="navbar navbar-light bg-white navbar-expand-xl ">
+                  <a href="../customer/index.php?cid=<?php echo $cid; ?>" class="navbar-brand text-decoration-none"><h1 class="text-primary display-6">Junglebite 優惠活動</h1></a>
+                    <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                        <span class="fa fa-bars text-primary"></span>
+                    </button>
+                    <div class="collapse navbar-collapse bg-white" id="navbarCollapse" style="display: flex; flex-direction: row-reverse;">
+                        
+                        <div class="d-flex m-3 me-0">
+                            <!-- <button class="btn-search btn border border-secondary btn-md-square rounded-circle bg-white me-4" data-bs-toggle="modal" data-bs-target="#searchModal"><i class="fas fa-search text-primary"></i></button> -->
+                            <!-- <a href="#" class="position-relative me-4 my-auto">
+                                <i class="fa fa-shopping-bag fa-2x"></i>
+                                <span class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 15px; height: 20px; min-width: 20px;">3</span>
+                            </a> -->
+                            <?php if (isset($_SESSION['login_success'])): ?>
+                            <!-- ✅ 已登入的顯示 -->
+                            <div class="dropdown" style="position: relative; display: inline-block;">
+                                <a href="javascript:void(0);" class="my-auto" onclick="toggleDropdown()">
+                                <img src="  ../login/success.png" alt="Success" style="width: 40px; height: 40px; filter: brightness(0) saturate(100%) invert(42%) sepia(91%) saturate(356%) hue-rotate(71deg) brightness(94%) contrast(92%);">
+                                </a>
+
+                                <div id="myDropdown" class="dropdown-content" style="display: none; position: absolute; background-color: white; min-width: 120px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 1; right: 0; border-radius: 8px;">
+
+                                    <?php if ($_SESSION['role'] === 'merchant'): ?>
+                                        <a href="/database/merchant/setting.php" class="dropdown-item">商家設定</a>
+                                    <?php elseif ($_SESSION['role'] === 'customer'): ?>
+                                        <a href="../login/login_customer/setting.php" class="dropdown-item">個人設定</a>
+                                        <a href="/database_project/allergy/allergy.php" class="dropdown-item">過敏設定</a>
+                                        <!-- <a href="../claw_machine/claw.php" class="dropdown-item">優惠券活動</a> -->
+                                        <a href="../walletAndrecord/c_wallet.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">錢包</a>
+                                        <a href="../walletAndrecord/c_record.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">交易紀錄</a>
+                                        <a href="friends.php" class="dropdown-item">我的好友</a>
+                                        <a href="/database_project/customer/reservation.php" class="dropdown-item">我要訂位</a>
+                                    <?php elseif ($_SESSION['role'] === 'delivery_person'): ?>
+                                        <a href="/database/customer/setting.php" class="dropdown-item">外送員設定</a>
+                                    <?php elseif ($_SESSION['role'] === 'platform'): ?>
+                                        <a href="/database/customer/setting.php" class="dropdown-item">平台設定</a>
+                                    <?php endif; ?>
+                                        <a href="/database_project/login/login_customer/logout.php" class="dropdown-item">Logout</a>
+
+
+                                </div>
+                            </div>
+                            <?php else: ?>
+                            <!-- ❌ 未登入的顯示 -->
+                            <a href="/database_project/login/before_login.php" class="my-auto">
+                                <i class="fas fa-user fa-2x"></i>
+                            </a>
+                            <?php endif; ?>
+                        </div>
+
+                    </div>
+                </nav>
+            </div>
+        </div>
+        <!-- Navbar End -->
+
+    <div class="wrapper">
+      <div class="collection-box pix"></div>
+      <div class="claw-machine">
+        <div class="box pix">
+          <div class="machine-top pix">
+            <div class="arm-joint pix">
+              <div class="arm pix">
+                <div class="claws pix"></div>
+
               </div>
           </div>
           <div class="container px-0">

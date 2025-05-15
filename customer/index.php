@@ -44,6 +44,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_address_id']
 // 取得目前使用的地址（如果有從 modal 選擇過）
 $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選擇地址');
 
+//訂單進度
+$sql = "
+SELECT t.*, d.dpName, d.latitude AS dLatitude, d.longitude AS dLongitude, o.orderStatus AS deliveryStatus, o.arrivePicture
+FROM Transaction t
+LEFT JOIN deliveryperson d ON t.did = d.did
+LEFT JOIN dOrders o ON o.tranId = t.tranId
+WHERE t.cid = ? 
+  AND t.orderStatus != 'complete'
+  AND t.orderStatus != 'rejectConfirm'
+";
+
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $cid);
+$stmt->execute();
+$result = $stmt->get_result();
+$orders = $result->fetch_all(MYSQLI_ASSOC);
+
+
+
+
 ?>
 
 
@@ -78,6 +98,8 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
 
         <!-- Template Stylesheet -->
         <link href="../css/style.css" rel="stylesheet">
+
+
 
     </head>
 
@@ -117,11 +139,11 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
                         </a>
                         <div class="navbar-nav mx-auto">
                             <div class="position-relative mx-auto">
-                                <input class="form-control border-2 border-secondary  py-3 px-4 rounded-pill" style="width: 30rem;" type="number" placeholder="Search">
-                                <button type="submit" class="btn btn-primary border-2 border-secondary py-3 px-4 position-absolute rounded-pill text-white h-100" style="top: 0; left: 82.5%;">搜尋</button>
+                                <input class="form-control border-2 border-secondary  py-3 px-4 rounded-pill" style="width: 20rem;" type="number" placeholder="Search">
+                                <button type="submit" class="btn btn-primary border-2 border-secondary py-3 px-4 position-absolute rounded-pill text-white h-100" style="top: 0; left: 73.5%;">搜尋</button>
                             </div>
                         </div>
-                        <a href="../walletAndrecord/c_wallet.php?cid=<?php echo $cid; ?>&role=c">
+                        <!-- <a href="../walletAndrecord/c_wallet.php?cid=<?php echo $cid; ?>&role=c">
                             <img class="wallet" src="./wallet.png" alt="wallet icon" width="40" height="40"
                                 onmouseover="this.src='./wallet_hover.png'" 
                                 onmouseout="this.src='./wallet.png'">
@@ -130,10 +152,21 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
                             <img class="trans" src="./trans.png" alt="trans icon" width="40" height="40" style="margin-left: 20px;"
                                 onmouseover="this.src='./trans_hover.png'" 
                                 onmouseout="this.src='./trans.png'">
-                        </a>
+                        </a> -->
+                        
 
-                        <div class="d-flex m-3 me-0">
-                            <a href="#" class="position-relative me-4 my-auto" data-bs-toggle="modal" data-bs-target="#cartModal">
+
+                        <div class="d-flex m-3 me-0" style="align-items: center;">
+                            <?php if (count($orders) > 0): ?>
+                            <a href="#" data-bs-toggle="modal" data-bs-target="#multiOrderModal">
+                                <i class="fa-solid fa-motorcycle fa-2x"></i>
+                                <span id="order-count" class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: 27px; right: 120px; height: 20px; min-width: 20px;">
+                                    <?= count($orders) ?>
+                                </span>
+                            </a>
+                            <?php endif; ?>
+
+                            <a href="#" class="position-relative me-4 ms-4 my-auto" data-bs-toggle="modal" data-bs-target="#cartModal">
                                 <i class="fa-solid fa-cart-shopping fa-2x"></i>
                                 <span id="cart-count" class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 22px; height: 20px; min-width: 20px;">
                                     <?= isset($cartCount) ? $cartCount : '0' ?>
@@ -150,7 +183,7 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
 
                                     <?php if ($_SESSION['role'] === 'merchant'): ?>
                                         <a href="/database/merchant/setting.php" class="dropdown-item">商家設定</a>
-                                    <?php elseif ($_SESSION['role'] === 'customer'): ?>
+                                    <?php elseif ($_SESSION['role'] === 'c'): ?>
                                         <a href="/database/customer/setting.php" class="dropdown-item">個人設定</a>
                                         <a href="/database_project/allergy/allergy.php" class="dropdown-item">過敏設定</a>
                                         <a href="../claw_machine/claw.php" class="dropdown-item">優惠券活動</a>
@@ -301,41 +334,42 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
         
             <div class="container py-5">
                 <div class="tab-class text-center">
-                    <div class="row g-4">
+                    <div class="g-4">
                         <div class="col-lg-4 text-start">
                             <h1>商家類別</h1>
                         </div>
-                        <div class="col-lg-8 text-end">
-                        <ul class="nav nav-pills d-inline-flex text-center mb-5">
-                            <!-- 所有商品 tab -->
-                            <li class="nav-item">
-                                <a class="d-flex m-2 py-2 bg-light rounded-pill active" data-bs-toggle="pill" href="#tab-0">
-                                    <span class="text-dark" style="width: 130px;">所有商品</span>
-                                </a>
-                            </li>
 
-                            <?php
-                            // 從 RestaurantCategoryList 取出所有類別
-                            $sqlCategories = "SELECT categoryId, categoryName FROM RestaurantCategoryList ORDER BY categoryId";
-                            $result = $conn->query($sqlCategories);
-                            $first = true;
-
-                            while ($row = $result->fetch_assoc()) {
-                                $tabId = "tab-" . $row["categoryId"];
-                                $name = $row["categoryName"];
-                                $activeClass = $first ? "" : ""; // 第一個分類不再設 active
-                                echo '
-                                <li class="nav-item">
-                                    <a class="d-flex m-2 py-2 bg-light rounded-pill ' . $activeClass . '" data-bs-toggle="pill" href="#' . $tabId . '">
-                                        <span class="text-dark" style="width: 130px;">' . htmlspecialchars($name) . '</span>
+                        <!-- 可橫向滑動容器 -->
+                        <div class="overflow-auto mb-4" style="white-space: nowrap;">
+                            <ul class="nav nav-pills d-inline-block" style="list-style: none; white-space: nowrap; padding-left: 0;">
+                                <!-- 所有商品 tab -->
+                                <li class="nav-item d-inline-block">
+                                    <a class="d-flex m-2 py-2 bg-light rounded-pill active" data-bs-toggle="pill" href="#tab-0">
+                                        <span class="text-dark" style="width: 130px;">所有商品</span>
                                     </a>
-                                </li>';
-                                $first = false;
-                            }
-                            ?>
-                        </ul>
+                                </li>
+
+                                <?php
+                                $sqlCategories = "SELECT categoryId, categoryName FROM RestaurantCategoryList ORDER BY categoryId";
+                                $result = $conn->query($sqlCategories);
+                                $first = true;
+
+                                while ($row = $result->fetch_assoc()) {
+                                    $tabId = "tab-" . $row["categoryId"];
+                                    $name = $row["categoryName"];
+                                    echo '
+                                    <li class="nav-item d-inline-block">
+                                        <a class="d-flex m-2 py-2 bg-light rounded-pill" data-bs-toggle="pill" href="#' . $tabId . '">
+                                            <span class="text-dark" style="width: 130px;">' . htmlspecialchars($name) . '</span>
+                                        </a>
+                                    </li>';
+                                    $first = false;
+                                }
+                                ?>
+                            </ul>
+                        </div>
                     </div>
-                    </div>
+
 
                     <div class="tab-content">
                         <!-- 所有商品 -->
@@ -1220,6 +1254,323 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
         <!-- Back to Top -->
         <a href="#" class="btn btn-primary border-3 border-primary rounded-circle back-to-top"><i class="fa fa-arrow-up"></i></a>   
 
+    
+    <!-- 訂單進度 -->
+    <div class="modal fade" id="multiOrderModal" tabindex="-1" aria-labelledby="multiOrderModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="multiOrderModalLabel">目前外送中訂單</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+            </div>
+
+            <div class="modal-body">
+                <?php foreach ($orders as $order): ?>
+                <div class="border rounded p-3 mb-4 shadow-sm">
+                    <h6>#<?= $order['tranId'] ?>：<?= htmlspecialchars($order['address_text']) ?></h6>
+                    <?php
+                    // 原始狀態
+                    $status = $order['orderStatus'];
+                    $deliveryStatus = $order['deliveryStatus'];
+
+                    // 根據複合條件調整顯示用的狀態
+                    if ($status === 'takeaway' && $deliveryStatus === 'arrived') {
+                        $displayStatus = 'arrived'; // 已送達（待確認）
+                    } elseif ($status === 'done' && $deliveryStatus === 'accept') {
+                        $displayStatus = 'done'; // 等待外送員取餐
+                    } elseif ($status === 'making' && $deliveryStatus === 'accept') {
+                        $displayStatus = 'making'; // 商家製作中
+                    } else {
+                        $displayStatus = $status; // 預設使用 Transaction 的狀態
+                    }
+
+                    // 顯示文字對照
+                    $statusMap = [
+                        'new' => '等待商家接單',
+                        'making' => '商家製作中',
+                        'done' => '等待外送員取餐',
+                        'takeaway' => '配送中',
+                        'arrived' => '已送達（待確認）',
+                        'reject' => '已被拒單'
+                    ];
+                    
+                    ?>
+                    <p><strong>目前狀態：</strong>
+                        <?= $statusMap[$displayStatus] ?? '未知狀態' ?>
+                    </p>
+
+                    
+                    <?php
+                    $tranId = $order['tranId'];
+                    // 資料從 Record 表撈
+                    $detailsSql = "
+                    SELECT r.*, p.pName 
+                    FROM Record r
+                    JOIN Product p ON r.pid = p.pid
+                    WHERE r.tranId = ?
+                    ";
+                    
+                    
+                    $detailsStmt = $conn->prepare($detailsSql);
+                    $detailsStmt->bind_param("i", $tranId);
+                    $detailsStmt->execute();
+                    $detailsResult = $detailsStmt->get_result();
+                    $items = $detailsResult->fetch_all(MYSQLI_ASSOC);
+
+                    // 計算小計
+                    $subtotal = 0;
+                    foreach ($items as $item) {
+                        $subtotal += $item['salePrice'];
+                    }
+
+                    // 外送費與優惠邏輯
+                    $deliveryFee = 30;
+                    $serviceFee = $subtotal * 0.05;
+                    $discountRate = 1.0;
+                    // 預設優惠說明
+                    $couponDescription = '沒有使用';
+
+                    // 計算優惠折扣與免運
+                    switch ($order['couponCode']) {
+                        case 'CLAWWIN15':
+                            $discountRate = 0.85;
+                            $couponDescription = 'CLAWWIN15（15%折扣）';
+                            break;
+                        case 'CLAWWIN20':
+                            $discountRate = 0.80;
+                            $couponDescription = 'CLAWWIN20（20%折扣）';
+                            break;
+                        case 'CLAWWIN30':
+                            $discountRate = 0.70;
+                            $couponDescription = 'CLAWWIN30（30%折扣）';
+                            break;
+                        default:
+                            $discountRate = 1.0;
+                            break;
+                    }
+
+                    if ($order['couponCode'] === 'CLAWSHIP') {
+                        $deliveryFee = 0;
+                        $couponDescription = 'CLAWSHIP（免運費）';
+                    }
+
+                    $total = $subtotal * $discountRate + $deliveryFee + $serviceFee;
+                    ?>
+
+
+
+                    <?php if (
+                        ($status === 'takeaway') && $deliveryStatus === 'accept'
+                        // 配送中或已送達時顯示外送員名稱
+                    ): ?>
+                        <?php if (!empty($order['dpName'])): ?>
+                            <p><strong>外送員：</strong><?= htmlspecialchars($order['dpName']) ?></p>
+                        <?php else: ?>
+                            <p><strong>外送員：</strong>尚未指派</p>
+                        <?php endif; ?>
+                    <?php endif; ?>
+
+                    <button class="btn btn-outline-primary my-2" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOrder<?= $order['tranId'] ?>">
+                        顯示訂單明細
+                    </button>
+
+                    <div class="collapse" id="collapseOrder<?= $order['tranId'] ?>">
+                        <div class="card card-body">
+                            <h6>訂購明細：</h6>
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>商品名稱</th>
+                                        <th>數量</th>
+                                        <th>單價</th>
+                                        <th>總價</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($items as $item): ?>
+                                    <tr>
+                                        <td><?= htmlspecialchars($item['pName']) ?></td>
+                                        <td><?= $item['quantity'] ?></td>
+                                        <td>$<?= $item['price'] ?></td>
+                                        <td>$<?= $item['salePrice'] ?></td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+
+                            <p><strong>優惠券：</strong> <?= $couponDescription ?></p>
+                            <!-- 小計顯示（含優惠） -->
+                            <p><strong>小計：</strong>
+                                <?php if ($discountRate < 1.0): ?>
+                                    <del>$<?= number_format($subtotal, 0) ?></del>
+                                    <span class="text-success">$<?= number_format($subtotal * $discountRate, 0) ?></span>
+                                    
+                                <?php else: ?>
+                                    $<?= number_format($subtotal, 0) ?>
+                                <?php endif; ?>
+                            </p>
+
+                            <!-- 運費顯示（含 CLAWSHIP） -->
+                            <p><strong>運費：</strong>
+                                <?php if ($order['couponCode'] === 'CLAWSHIP'): ?>
+                                    <del>$30</del>
+                                    <span class="text-success">$0</span>
+                                    
+                                <?php else: ?>
+                                    $<?= number_format($deliveryFee, 0) ?>
+                                <?php endif; ?>
+                            </p>
+                            <p><strong>平台服務費（5%）：</strong> $<?= number_format($serviceFee, 0) ?></p>
+                            <p><strong>總金額：</strong> $<?= number_format($total, 0) ?></p>
+                            <?php
+                            $paymentDisplay = '';
+                            if ($order['paymentMethod'] === 'cash') {
+                                $paymentDisplay = '貨到付款';
+                            } elseif ($order['paymentMethod'] === 'wallet') {
+                                $paymentDisplay = '錢包付款';
+                            } else {
+                                $paymentDisplay = htmlspecialchars($order['paymentMethod']);
+                            }
+                            ?>
+                            <p><strong>付款方式：</strong> <?= $paymentDisplay ?></p>
+
+                        </div>
+                    </div>
+
+                    <?php if ($displayStatus === 'takeaway' && !empty($order['dLatitude']) && !empty($order['dLongitude']) && !empty($order['address_text'])): ?>
+                        <div class="my-3">
+                            <h6>配送路線：</h6>
+                            <div id="map<?= $order['tranId'] ?>" style="height: 300px;" class="rounded shadow mb-2"></div>
+                            <!-- 顯示預估抵達時間與距離 -->
+                            <div id="infoBox<?= $order['tranId'] ?>" class="text-muted small ps-2"></div>
+                        </div>
+                        <script>
+                            document.addEventListener("DOMContentLoaded", function () {
+                                initMapAndRouteByAddress(
+                                    <?= $order['tranId'] ?>,
+                                    <?= $order['dLatitude'] ?>,
+                                    <?= $order['dLongitude'] ?>,
+                                    <?= json_encode($order['address_text']) ?>
+                                );
+                            });
+                        </script>
+                    <?php endif; ?>
+
+
+                    <?php if ($displayStatus === 'arrived'): ?>
+                        <button class="btn btn-success my-2" type="button" data-bs-toggle="collapse" data-bs-target="#ratingSection<?= $order['tranId'] ?>">
+                            確認訂單
+                        </button>
+
+                        <div class="collapse mb-2" id="ratingSection<?= $order['tranId'] ?>">
+                            <div class="card card-body">
+                                <h6>訂單確認與評價</h6>
+                                <!-- 送達照片 -->
+                                <?php if (!empty($order['arrivePicture'])): ?>
+                                    <div class="text-center my-3">
+                                        <img src="../<?= htmlspecialchars($order['arrivePicture']) ?>" 
+                                            alt="到達照片" 
+                                            class="img-fluid rounded shadow"
+                                            style="max-width: 300px;">
+                                    </div>
+                                <?php endif; ?>
+
+                                <form method="post" action="submit_review.php">
+                                    <input type="hidden" name="tranId" value="<?= $order['tranId'] ?>">
+
+                                    <!-- 商家評分 -->
+                                    <label>商家評分：</label>
+                                    <div class="star-rating" data-name="mRating">
+                                        <i class="bi bi-star" data-value="1"></i>
+                                        <i class="bi bi-star" data-value="2"></i>
+                                        <i class="bi bi-star" data-value="3"></i>
+                                        <i class="bi bi-star" data-value="4"></i>
+                                        <i class="bi bi-star" data-value="5"></i>
+                                        <input type="hidden" name="mRating" value="">
+                                    </div>
+                                    <textarea name="mComment" class="form-control mb-3" placeholder="商家評論"></textarea>
+
+                                    <!-- 外送員評分 -->
+                                    <label>外送員評分：</label>
+                                    <div class="star-rating" data-name="dRating">
+                                        <i class="bi bi-star" data-value="1"></i>
+                                        <i class="bi bi-star" data-value="2"></i>
+                                        <i class="bi bi-star" data-value="3"></i>
+                                        <i class="bi bi-star" data-value="4"></i>
+                                        <i class="bi bi-star" data-value="5"></i>
+                                        <input type="hidden" name="dRating" value="">
+                                    </div>
+                                    <textarea name="dComment" class="form-control mb-3" placeholder="外送員評論"></textarea>
+
+                                    <!-- 商品評分（每一項都要） -->
+                                    <?php foreach ($items as $item): ?>
+                                        <div class="mb-3 border rounded p-2">
+                                            <p><strong><?= htmlspecialchars($item['pName']) ?></strong></p>
+                                            <input type="hidden" name="pids[]" value="<?= $item['pid'] ?>">
+                                            <label>商品評分：</label>
+                                            <div class="star-rating" data-name="pRating[<?= $item['pid'] ?>]">
+                                                <i class="bi bi-star" data-value="1"></i>
+                                                <i class="bi bi-star" data-value="2"></i>
+                                                <i class="bi bi-star" data-value="3"></i>
+                                                <i class="bi bi-star" data-value="4"></i>
+                                                <i class="bi bi-star" data-value="5"></i>
+                                                <input type="hidden" name="pRating[<?= $item['pid'] ?>]" value="">
+                                            </div>
+
+                                            <textarea name="pComment[<?= $item['pid'] ?>]" class="form-control" placeholder="商品評論"></textarea>
+                                        </div>
+                                    <?php endforeach; ?>
+
+                                    <button type="submit" class="btn btn-primary text-white">送出評價</button>
+                                </form>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+
+
+                    <!-- 外送進度條 -->
+                    <div class="progress mb-2" style="height: 25px;">
+                    <?php
+                    $progressValues = [
+                        'new' => 10,
+                        'making' => 30,
+                        'done' => 50,
+                        'takeaway' => 80,
+                        'arrived' => 100,
+                        'reject' => 0
+                    ];
+                    $progress = $progressValues[$status] ?? 0;
+
+                    // 當 orderStatus 為 'takeaway' 且 deliveryStatus 為 'arrived' 時，設定進度為 100%
+                    if ($order['orderStatus'] === 'takeaway' && $order['deliveryStatus'] === 'arrived') {
+                        $progress = 100;
+                    }
+
+                    $progressColor = $status === 'reject' ? 'bg-danger' : 'bg-success';
+                    ?>
+                        <div class="progress-bar <?= $progressColor ?>" role="progressbar" style="width: <?= $progress ?>%;">
+                            <?= $progress ?>%
+                        </div>
+                    </div>
+                    <?php if ($status === 'reject'): ?>
+                    <form method="post" action="confirm_reject.php" class="mt-3">
+                        <input type="hidden" name="tranId" value="<?= $order['tranId'] ?>">
+                        <button type="submit" class="btn btn-outline-danger">
+                        確認拒單
+                        </button>
+                    </form>
+                    <?php endif; ?>
+
+                    <!-- 如果要加入詳細資訊或圖片可以加在這裡 -->
+
+                </div>
+                <?php endforeach; ?>
+            </div>
+
+            
+        </div>
+    </div>
     <script>
     function toggleDropdown() {
         var dropdown = document.getElementById("myDropdown");
@@ -1245,6 +1596,81 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
     <!-- Template Javascript -->
     <script src="../js/main.js"></script>
     <script src="cart.js"></script>
+    <!-- google map api -->
+    <!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBTVTFQCTTjWiWW9w0OmIE5_OfyfrekW6E"></script> -->
+    <script>
+    function geocodeAddress(address, callback) {
+        const geocoder = new google.maps.Geocoder();
+        geocoder.geocode({ address: address }, function(results, status) {
+            if (status === "OK") {
+                const location = results[0].geometry.location;
+                callback(location.lat(), location.lng());
+            } else {
+                console.error("Geocode failed: " + status);
+            }
+        });
+    }
+    </script>
+    <script>
+    function initMapAndRouteByAddress(tranId, dLat, dLng, customerAddress) {
+        geocodeAddress(customerAddress, function(cLat, cLng) {
+            const map = new google.maps.Map(document.getElementById("map" + tranId), {
+                zoom: 14,
+                center: { lat: parseFloat(dLat), lng: parseFloat(dLng) },
+            });
+
+            const directionsService = new google.maps.DirectionsService();
+            const directionsRenderer = new google.maps.DirectionsRenderer({ map: map });
+
+            directionsService.route(
+                {
+                    origin: { lat: parseFloat(dLat), lng: parseFloat(dLng) },
+                    destination: { lat: parseFloat(cLat), lng: parseFloat(cLng) },
+                    travelMode: google.maps.TravelMode.DRIVING,
+                },
+                (response, status) => {
+                    if (status === "OK") {
+                        directionsRenderer.setDirections(response);
+                        const leg = response.routes[0].legs[0];
+                        const estimate = leg.duration.text;
+                        const distance = leg.distance.text;
+
+                        // 將預估時間與距離顯示在下方區塊
+                        const infoDiv = document.getElementById("infoBox" + tranId);
+                        infoDiv.innerHTML = `<strong>預估抵達時間：</strong> ${estimate}，距離：約 ${distance}`;
+                    } else {
+                        console.error("Directions request failed: " + status);
+                    }
+                }
+            );
+        });
+    }
+
+    </script>
+
+
+    <!-- 星星 -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.star-rating').forEach(function (ratingDiv) {
+            const stars = ratingDiv.querySelectorAll('i');
+            const input = ratingDiv.querySelector('input[type="hidden"]');
+
+            stars.forEach(function (star, idx) {
+                star.addEventListener('click', function () {
+                    const value = star.getAttribute('data-value');
+                    input.value = value;
+
+                    stars.forEach((s, i) => {
+                        s.classList.toggle('bi-star-fill', i < value);
+                        s.classList.toggle('bi-star', i >= value);
+                    });
+                });
+            });
+        });
+    });
+    </script>
+
 
     <!-- 🟦 Modal: 更換外送地址 -->
     <div class="modal fade" id="addressModal" tabindex="-1" aria-labelledby="addressModalLabel" aria-hidden="true">
@@ -1276,6 +1702,10 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
             </form>
         </div>
     </div>
+
+    
+
+
 
 
     </body>

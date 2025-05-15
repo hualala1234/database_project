@@ -61,15 +61,14 @@ if ($mid !== '') {
         </div> -->
         <!-- Spinner End -->
         <?php
-        $sqlNewOrderCount = "SELECT COUNT(DISTINCT o.tranId) AS newOrderCount
-                            FROM `Orders` o
-                            JOIN `Transaction` t ON o.tranId = t.tranId
-                            WHERE o.mid = $mid AND t.orderStatus = 'new'";
-        $resultNewOrderCount = mysqli_query($conn, $sqlNewOrderCount);
-        $newOrderCount = 0;
-        if ($row = mysqli_fetch_assoc($resultNewOrderCount)) {
+            $sqlNewOrderCount = "SELECT COUNT(DISTINCT t.tranId) AS newOrderCount
+                    FROM `Transaction` t 
+                    WHERE t.orderStatus = 'new' AND t.mid = $mid" ;
+            $resultNewOrderCount = mysqli_query($conn, $sqlNewOrderCount);
+            $newOrderCount = 0;
+            if ($row = mysqli_fetch_assoc($resultNewOrderCount)) {
             $newOrderCount = $row['newOrderCount'];
-        }
+            }
         ?>
 
         
@@ -203,12 +202,12 @@ if ($mid !== '') {
                             </a>
                         </div>
                         <?php
-                        $sqlOrdersNew = "SELECT o.*, c.cName, p.pName, t.transactionTime, t.tNote
-                                    FROM `Orders` o
-                                    JOIN `Product` p ON o.pid = p.pid
-                                    JOIN `Customer` c ON o.cid = c.cid
-                                    JOIN `Transaction` t ON o.tranId = t.tranId 
-                                    WHERE o.mid = $mid AND t.orderStatus = 'new'
+                        $sqlOrdersNew = "SELECT r.*, c.cName, p.pName, t.transactionTime, t.tNote
+                                    FROM `Record` r
+                                    JOIN `Product` p ON r.pid = p.pid
+                                    JOIN `Customer` c ON r.cid = c.cid
+                                    JOIN `Transaction` t ON r.tranId = t.tranId 
+                                    WHERE t.orderStatus = 'new' AND t.mid = $mid
                                     ORDER BY t.transactionTime ASC";
                         $resultOrders = mysqli_query($conn, $sqlOrdersNew);
 
@@ -312,12 +311,12 @@ if ($mid !== '') {
                             </a>
                         </div>
                         <?php
-                        $sqlOrdersMaking = "SELECT o.*, c.cName, p.pName, t.transactionTime, t.tNote
-                                    FROM `Orders` o
-                                    JOIN `Product` p ON o.pid = p.pid
-                                    JOIN `Customer` c ON o.cid = c.cid
-                                    JOIN `Transaction` t ON o.tranId = t.tranId 
-                                    WHERE o.mid = $mid AND t.orderStatus = 'making'
+                        $sqlOrdersMaking = "SELECT r.*, c.cName, p.pName, t.transactionTime, t.tNote
+                                    FROM `Record` r
+                                    JOIN `Product` p ON r.pid = p.pid
+                                    JOIN `Customer` c ON r.cid = c.cid
+                                    JOIN `Transaction` t ON r.tranId = t.tranId 
+                                    WHERE t.mid = $mid AND t.orderStatus = 'making'
                                     ORDER BY t.transactionTime ASC";
                         $resultOrders = mysqli_query($conn, $sqlOrdersMaking);
 
@@ -332,6 +331,7 @@ if ($mid !== '') {
                                 $orders[$row['tranId']]['transactionTime'] = $row['transactionTime'];
                                 $orders[$row['tranId']]['items'][] = $row;
                                 $orders[$row['tranId']]['tNote'] = $row['tNote']; // 修正這一行
+                                $orders[$row['tranId']]['specialNote'] = $row['specialNote']; // 修正這一行
                             }
                         }
                         ?>
@@ -385,7 +385,8 @@ if ($mid !== '') {
                                                                 <div class="ms-2 me-auto">
                                                                     <div class="fw-bold" style="text-align:start;"><?= $item['quantity'] ?>份<span class="ms-3"><?= htmlspecialchars($item['pName']) ?></span></div>                                                                                                                                       
                                                                 </div>
-                                                                <span>$<?= $item['price'] * $item['quantity'] ?><div style="text-align:end;" class="text-muted">備註：<?= htmlspecialchars($item['specialNote']) ?></div></span>
+                                                                <span>$<?= $item['price'] * $item['quantity'] ?><div style="text-align:end;" class="text-muted">備註：<?= htmlspecialchars($item['specialNote'] ?? '') ?>
+                                                                </div></span>
                                                             </li>
                                                         <?php endforeach; ?>
                                                     </ul>
@@ -470,7 +471,7 @@ if ($mid !== '') {
                                             <form method="POST" action="handle_order.php" style="display:flex; align-items: center;">
                                                 <input type="hidden" name="tranId" value="<?= $tranId ?>">
                                                 <h5 class="text-muted" style="margin-right:5.5rem;">備註：<?= htmlspecialchars($order['tNote']) ?></h5>
-                                                <button name="action" value="take" class="btn btn-primary text-white py-1 me-4">領取</button>
+                                                <button name="action" value="takeaway" class="btn btn-primary text-white py-1 me-4">領取</button>
                                             </form>
 
                                         </div>
@@ -502,7 +503,7 @@ if ($mid !== '') {
                                                     <form method="post" action="handle_order.php" class="d-flex gap-2">
                                                         <input type="hidden" name="tranId" value="<?= $tranId ?>">
                                                         <input type="hidden" name="cid" value="<?= $order['items'][0]['cid'] ?>">
-                                                        <button name="action" value="take" class="btn btn-success text-white">領取</button>
+                                                        <button name="action" value="takeaway" class="btn btn-success text-white">領取</button>
                                                         
                                                     </form>
                                                 </div>

@@ -25,6 +25,7 @@ if ($result->num_rows > 0) {
     exit();
 }
 
+$mid = $_POST['mid']; // 確保在 form 裡有提供這個欄位
 // 若無重複，插入新卡片
 $sql = "INSERT INTO card (cid, cardName, cardHolder, cardNumber, cardType, cvv, expirationDate)
         VALUES (?, ?, ?, ?, ?, ?, ?)";
@@ -32,7 +33,7 @@ $stmt = $conn->prepare($sql);
 $stmt->bind_param("issssss", $cid, $cardName, $cardHolder, $cardNumber, $cardType, $cvv, $expirationDate);
 
 if ($stmt->execute()) {
-    header("Location: checkout.php");
+    header("Location: checkout.php?mid=" . $mid);
     exit();
 } else {
     echo "新增失敗：" . $stmt->error;

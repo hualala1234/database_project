@@ -78,15 +78,14 @@ if (!empty($row['businessHours'])) {
         <!-- Spinner End -->
 
         <?php
-        $sqlNewOrderCount = "SELECT COUNT(DISTINCT o.tranId) AS newOrderCount
-                            FROM `Orders` o
-                            JOIN `Transaction` t ON o.tranId = t.tranId
-                            WHERE o.mid = $mid AND t.orderStatus = 'new'";
-        $resultNewOrderCount = mysqli_query($conn, $sqlNewOrderCount);
-        $newOrderCount = 0;
-        if ($row = mysqli_fetch_assoc($resultNewOrderCount)) {
+            $sqlNewOrderCount = "SELECT COUNT(DISTINCT t.tranId) AS newOrderCount
+                    FROM `Transaction` t 
+                    WHERE t.orderStatus = 'new' AND t.mid = $mid" ;
+            $resultNewOrderCount = mysqli_query($conn, $sqlNewOrderCount);
+            $newOrderCount = 0;
+            if ($row = mysqli_fetch_assoc($resultNewOrderCount)) {
             $newOrderCount = $row['newOrderCount'];
-        }
+            }
         ?>
         <!-- Navbar start -->
         <div class="container-fluid fixed-top">
@@ -224,7 +223,7 @@ if (!empty($row['businessHours'])) {
                                         <span style="color: red;">*</span>
                                     </div>
 
-                                    <div style="display:flex; justify-content: center;">
+                                    <div style="display:flex; flex-wrap: wrap;">
                                     <?php
                                         // 抓所有可用的類別
                                         while ($category = mysqli_fetch_assoc($resultCategories)):

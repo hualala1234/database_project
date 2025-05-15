@@ -1,368 +1,478 @@
 <?php
-// 資料庫連線設定
-$host = 'localhost';
-$dbname = 'database';
-$username = 'root';
-$password = '';
+session_start();
+include '../../dbh.php';
 
-$cid = 15;
+$cid = $_SESSION['cid'] ?? null;
 
-$uploadDir = __DIR__ . '/../upload_images/';  // 伺服器儲存實體路徑
-$webPathPrefix = '../../upload_images/';      // 給 HTML 用的相對路徑
-
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-    // 根據新增或修改地址的結果，決定要顯示的訊息
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $cid = $_POST['cid'];
-        $newAddressText = $_POST['new_address_text'];
-
-        if (isset($_POST['selectedAddress'])) {
-            $selectedAddressId = $_POST['selectedAddress'];
-            // 更新地址處理
-            try {
-                $stmt = $pdo->prepare("UPDATE cAddress SET address_text = :address_text WHERE address_id = :address_id AND cid = :cid");
-                $stmt->execute(['address_text' => $newAddressText, 'address_id' => $selectedAddressId, 'cid' => $cid]);
-                $message = '地址已修改成功';
-            } catch (PDOException $e) {
-                die("更新失敗: " . $e->getMessage());
-            }
-        } else {
-            // 新增地址處理
-            try {
-                $stmt = $pdo->prepare("INSERT INTO cAddress (cid, address_text) VALUES (:cid, :address_text)");
-                $stmt->execute(['cid' => $cid, 'address_text' => $newAddressText]);
-                $message = '地址已新增成功';
-            } catch (PDOException $e) {
-                die("新增失敗: " . $e->getMessage());
-            }
-        }
-    }
-
-    if (isset($_FILES['newImage']) && $_FILES['newImage']['error'] === UPLOAD_ERR_OK) {
-        $tmpFile = $_FILES['newImage']['tmp_name'];
-        $filename = basename($_FILES['newImage']['name']);
-        $ext = pathinfo($filename, PATHINFO_EXTENSION);
-        $newFilename = uniqid('img_') . '.' . $ext;
-    
-        if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0755, true);
-        }
-    
-        $targetPath = $uploadDir . $newFilename;
-        $imagePathForDB = $webPathPrefix . $newFilename;
-    
-        if (move_uploaded_file($tmpFile, $targetPath)) {
-            // Update DB
-            $pdo = new PDO("mysql:host=localhost;dbname=database;charset=utf8", 'root', '');
-            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $stmt = $pdo->prepare("UPDATE customer SET imageURL = :imageURL WHERE cid = :cid");
-            $stmt->execute(['imageURL' => $imagePathForDB, 'cid' => $cid]);
-    
-            header("Location: setting.php?upload=success");
-            exit;
-        } else {
-            die("圖片移動失敗");
-        }
-    } else {
-        die("圖片上傳失敗，錯誤碼：" . $_FILES['newImage']['error']);
-    }
-
-    // 取得客戶資料
-    $stmt = $pdo->prepare("SELECT * FROM customer WHERE cid = :cid");
-    $stmt->execute(['cid' => $cid]);
-    $customer = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    // 撈出地址（多筆）
-    $stmtAddr = $pdo->prepare("SELECT * FROM cAddress WHERE cid = :cid");
-    $stmtAddr->execute(['cid' => $cid]);
-    $addresses = $stmtAddr->fetchAll(PDO::FETCH_ASSOC);
-
-} catch (PDOException $e) {
-    echo "<div class='alert alert-danger'>新增失敗: " . $e->getMessage() . "</div>";
-    die("連線失敗: " . $e->getMessage());
+if (!$cid) {
+    echo "請先登入。";
+    exit();
 }
+
+$sql = "SELECT email, password, cName, cRegistrationTime, birthday, imageURL, phone, address FROM customer WHERE cid = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $cid);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows === 1):
+    $customer = $result->fetch_assoc();
+else:
+    echo "找不到使用者資料。";
+    exit();
+endif;
+
+
+// 撈取使用者的所有地址
+
+$address_list = [];
+$address_sql = "SELECT  address_id, address_text FROM caddress WHERE cid = ?";
+$address_stmt = $conn->prepare($address_sql);
+
+if (!$address_stmt) {
+    die("Prepare 失敗：" . $conn->error);  // 印出 SQL 錯誤細節
+}
+
+$address_stmt->bind_param("i", $cid);
+$address_stmt->execute();
+$address_result = $address_stmt->get_result();
+
+while ($row = $address_result->fetch_assoc()) {
+    $address_list[] = $row;
+}
+
+$conn->close();
 ?>
 
-
 <!DOCTYPE html>
-<html>
+<html lang="zh-Hant">
 <head>
-    <title>設定頁面</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        /* Popup message styling */
-        .popup-message {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: #28a745;
-            color: white;
-            padding: 20px;
-            border-radius: 5px;
-            display: none;
-            z-index: 9999;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>會員資料設定</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <meta content="" name="keywords">
+  <meta content="" name="description">
+
+  <!-- Google Web Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Raleway:wght@600;800&display=swap" rel="stylesheet"> 
+
+  <!-- Icon Font Stylesheet -->
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <script src="https://kit.fontawesome.com/ea478a1bc4.js" crossorigin="anonymous"></script>
+
+  <!-- Libraries Stylesheet -->
+  <link href="../../lib/lightbox/css/lightbox.min.css" rel="stylesheet">
+  <link href="../../lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+
+  <link href="../../css/style.css" rel="stylesheet">
+  <!-- Customized Bootstrap Stylesheet -->
+  <link href="../../css/bootstrap.min.css" rel="stylesheet">
+  <!-- 引入 jQuery UI CSS（使得排序元素顯示為拖曳狀態） -->
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+
+  <style>/* 1. 讓固定頂部的 navbar 不會蓋到內容 */
+body {
+  padding-top: 120px; /* 根據 Navbar 高度微調 */
+}
+
+/* 2. List-group-item 額外間距、圓角，看起來更清爽 */
+.list-group-item {
+  margin-bottom: 0.5rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+/* 3. 地址列表項目加底色、間距 */
+#addressDisplay li {
+  background-color: #f8f9fa;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  margin-bottom: 0.5rem;
+}
+
+/* 4. 按鈕風格微調 */
+.btn-sm {
+  padding: 0.25rem 0.5rem;
+}
+.btn-success {
+  background-color: #28a745;
+  border-color: #28a745;
+}
+.btn-success:hover {
+  background-color: #218838;
+  border-color: #1e7e34;
+}
+
+/* 5. Modal 弹窗圆角 */
+.modal-content {
+  border-radius: 1rem;
+}
+
+/* 6. Radio 列表間距 */
+.form-check {
+  margin-bottom: 0.5rem;
+}
+
+/* 7. 在行動裝置上，調整列表文字大小 */
+@media (max-width: 576px) {
+  .list-group-item {
+    font-size: 0.9rem;
+  }
+  .btn-sm {
+    font-size: 0.8rem;
+  }
+}
+
+/* 8. 如果想讓 Modal Body 更好對齊 */
+.modal-body {
+  padding: 1.5rem;
+}
+</style>
+
 </head>
-<body class="container mt-5">
-    <!-- 顯示 Popup 消息 -->
-    <div id="popupMessage" class="popup-message"></div>
+<body class="p-4">
+  
+  <!-- <h2 class="mb-4">會員資料</h2> -->
 
-    <h2>個人資料設定</h2>
-    
+  <ul class="list-group" style= 'margin-top:150px'>
+    <?php
+      $fields = [
+        'email' => 'Email',
+        'password' => '密碼',
+        'cName' => '姓名',
+        'birthday' => '生日',
+        'phone' => '電話',
+        'address' => '地址'
+      ];
+    ?>
+  <!-- Navbar start -->
+  <div class="container-fluid fixed-top">
+    <div class="container topbar bg-primary d-none d-lg-block" style="padding: 20px;">
+        <div class="d-flex justify-content-between">
+            <div class="top-info ps-2">
+            </div>        
+        </div>
+    </div>
+    <div class="container px-0">
+        <nav class="navbar navbar-light bg-white navbar-expand-xl">
+            <a href="merchant_shop.php?mid=<?php echo $mid; ?>" class="navbar-brand"><h1 class="text-primary display-6">Junglebite 個人設定</h1></a>
+            <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                <span class="fa fa-bars text-primary"></span>
+            </button>
+            <div class="collapse navbar-collapse bg-white" id="navbarCollapse" style="display: flex; flex-direction: row-reverse;">
+                
+                <div class="d-flex m-3 me-0">
+                    <!-- <button class="btn-search btn border border-secondary btn-md-square rounded-circle bg-white me-4" data-bs-toggle="modal" data-bs-target="#searchModal"><i class="fas fa-search text-primary"></i></button> -->
+                    <!-- <a href="#" class="position-relative me-4 my-auto">
+                        <i class="fa fa-shopping-bag fa-2x"></i>
+                        <span class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 15px; height: 20px; min-width: 20px;">3</span>
+                    </a> -->
+                    <?php if (isset($_SESSION['login_success'])): ?>
+                    <!-- ✅ 已登入的顯示 -->
+                    <div class="dropdown" style="position: relative; display: inline-block;">
+                        <a href="javascript:void(0);" class="my-auto" onclick="toggleDropdown()">
+                        <img src=" ../../login/success.png" alt="Success" style="width: 40px; height: 40px; filter: brightness(0) saturate(100%) invert(42%) sepia(91%) saturate(356%) hue-rotate(71deg) brightness(94%) contrast(92%);">
+                        </a>
 
-    <?php if ($customer): ?>
-        <ul class="list-group">
-            <!-- 可編輯欄位 -->
-            <li class="list-group-item">
-                <strong>姓名:</strong> 
-                <span id="cNameDisplay"><?= htmlspecialchars($customer['cName']) ?></span>
-                <button class="btn btn-sm btn-outline-primary ms-2" onclick="editField('cName')">✏️ 修改</button>
-            </li>
-            <li class="list-group-item">
-                <strong>Email:</strong> 
-                <span id="emailDisplay"><?= htmlspecialchars($customer['email']) ?></span>
-                <button class="btn btn-sm btn-outline-primary ms-2" onclick="editField('email')">✏️ 修改</button>
-            </li>
-            <li class="list-group-item">
-                <strong>密碼:</strong> 
-                <span id="passwordDisplay"><?= htmlspecialchars($customer['password']) ?></span>
-                <button class="btn btn-sm btn-outline-primary ms-2" onclick="editField('password')">✏️ 修改</button>
-            </li>
-            <li class="list-group-item">
-                <strong>連絡電話:</strong> 
-                <span id="phoneDisplay"><?= htmlspecialchars($customer['phone']) ?></span>
-                <button class="btn btn-sm btn-outline-primary ms-2" onclick="editField('phone')">✏️ 修改</button>
-            </li>
-            <li class="list-group-item">
-                <strong>生日:</strong> 
-                <span id="birthdayDisplay"><?= htmlspecialchars($customer['birthday']) ?></span>
-                <button class="btn btn-sm btn-outline-primary ms-2" onclick="editField('birthday')">✏️ 修改</button>
-            </li>
+                        <div id="myDropdown" class="dropdown-content" style="display: none; position: absolute; background-color: white; min-width: 120px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 1; right: 0; border-radius: 8px;">
 
-            <!-- 僅顯示圖片 -->
+                            <?php if ($_SESSION['role'] === 'merchant'): ?>
+                                <a href="/database/merchant/setting.php" class="dropdown-item">商家設定</a>
+                            <?php elseif ($_SESSION['role'] === 'customer'): ?>
+                                <a href="/database_project/allergy/allergy.php?cid=<?php echo $cid; ?>" class="dropdown-item">過敏設定</a>
+                                <a href="../claw_machine/claw.php?cid=<?php echo $cid; ?>" class="dropdown-item">優惠券活動</a>
+                                <a href="../walletAndrecord/c_wallet.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">錢包</a>
+                                <a href="../walletAndrecord/c_record.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">交易紀錄</a>
+                                <a href="../customer/friends.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">我的好友</a>
+                               
+                                <a href="/database_project/customer/reservation.php" class="dropdown-item">我要訂位</a>
+                            <?php elseif ($_SESSION['role'] === 'delivery_person'): ?>
+                                <a href="/database/customer/setting.php" class="dropdown-item">外送員設定</a>
+                            <?php elseif ($_SESSION['role'] === 'platform'): ?>
+                                <a href="/database/customer/setting.php" class="dropdown-item">平台設定</a>
+                            <?php endif; ?>
+                                <a href="/database_project/login/login_customer/logout.php" class="dropdown-item">Logout</a>
+
+
+                        </div>
+                    </div>
+                    <?php else: ?>
+                    <!-- ❌ 未登入的顯示 -->
+                    <a href="/database_project/login/before_login.php" class="my-auto">
+                        <i class="fas fa-user fa-2x"></i>
+                    </a>
+                    <?php endif; ?>
+                </div>
+
+              </div>
+          </nav>
+      </div>
+  </div>
+  <!-- Navbar End -->
+
+
+    <div class="container setting-row">
+      <div class="row">
+        <!-- 左側：會員資料列表 -->
+        <div class="col-lg-8">
+          <ul class="list-group">
+            <?php foreach ($fields as $field => $label): ?>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <strong><?= $label ?>:</strong>
+                  <?php if ($field === 'address'): ?>
+                    <!-- 先顯示 customer 表的主要地址 -->
+                    <p><strong>預設地址：</strong>
+                      <span id="addressDisplay">
+                        <?= htmlspecialchars($customer['address']) ?>
+                      </span>
+                    </p>
+                    <!-- 再列出所有 caddress 裡的地址 -->
+                    <ul class="mb-0 ps-3">
+                      <?php foreach ($address_list as $addr): ?>
+                        <li class="mb-1"><?= htmlspecialchars($addr['address_text']) ?></li>
+                      <?php endforeach; ?>
+                    </ul>
+                  <?php else: ?>
+                    <span id="<?= $field ?>Display">
+                      <?= htmlspecialchars($customer[$field]) ?>
+                    </span>
+                  <?php endif; ?>
+                </div>
+                <div>
+                  <?php if ($field === 'address'): ?>
+                    <button class="btn btn-sm btn-success me-1" onclick="showAddAddressModal()">
+                      ➕ 新增
+                    </button>
+                    <button class="btn btn-sm btn-outline-primary" onclick="showEditAddressModal()">
+                      ✏️ 編輯地址
+                    </button>
+                  <?php else: ?>
+                    <!-- 其他欄位的通用編輯按鈕 -->
+                    <button class="btn btn-sm btn-outline-primary" onclick="editField('<?= $field ?>')">
+                      ✏️ 編輯
+                    </button>
+                  <?php endif; ?>
+                </div>
+              </li>
+            <?php endforeach; ?>
+
+            <!-- 註冊時間 -->
             <li class="list-group-item">
-                <strong>頭像:</strong><br>
-                <?php if (!empty($customer['imageURL'])): ?>
-                    <img src="../../<?= htmlspecialchars($customer['imageURL']) ?>" alt="照片" class="friend-imageURL mb-2" style="max-width: 150px;">
-                <?php else: ?>
-                    <span>未上傳圖片</span>
-                <?php endif; ?>
-                <br>
-                <!-- 新增：修改照片按鈕 -->
-                <button class="btn btn-outline-primary btn-sm mt-2" data-bs-toggle="modal" data-bs-target="#editPhotoModal">
-                    修改照片
+              <strong>註冊時間:</strong>
+              <span id="registrationDisplay">
+                <?= htmlspecialchars($customer['cRegistrationTime']) ?>
+              </span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- 右側：大頭貼上傳 -->
+        <div class="col-lg-4">
+          <div class="card profile-card shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">大頭貼</h5>
+
+              <?php if (!empty($customer['imageURL'])): ?>
+                <img src="../../<?= htmlspecialchars($customer['imageURL']) ?>"
+                    alt="照片"
+                    class="mb-3" style='height:240px'>
+              <?php else: ?>
+                <p class="text-muted">尚未上傳</p>
+              <?php endif; ?>
+
+              <form action="update_setting.php" method="POST" enctype="multipart/form-data">
+                <div class="mb-3">
+                  <label for="profileImage" class="form-label">選擇新大頭貼：</label>
+                  <input type="file" class="form-control" name="profileImage" id="profileImage" accept="image/*">
+                </div>
+                <button type="submit" class="btn btn-primary w-100">
+                  儲存圖片
                 </button>
-            </li>
-
-
-            <h4>目前地址</h4>
-            <ul class="list-group mb-3">
-                <?php foreach ($addresses as $addr): ?>
-                    <li class="list-group-item">
-                        <?= htmlspecialchars($addr['address_text']) ?>
-                    </li>
-                <?php endforeach; ?>
-            </ul>
-
-            <!-- 編輯地址按鈕，觸發編輯地址的彈出視窗 -->
-            <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#editAddressModal">
-                編輯地址
-            </button>
-
-            <!-- 編輯地址 Modal -->
-            <div class="modal fade" id="editAddressModal" tabindex="-1" aria-labelledby="editAddressModalLabel" aria-hidden="true">
-                <div class="modal-dialog">
-                    <form method="POST" class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="editAddressModalLabel">編輯地址</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <input type="hidden" name="cid" value="<?= $cid ?>">
-
-                            <h6>選擇要修改的地址</h6>
-                            <div class="mb-3">
-                                <?php foreach ($addresses as $addr): ?>
-                                    <div class="form-check">
-                                        <input type="radio" class="form-check-input" name="selectedAddress" value="<?= $addr['address_id'] ?>" id="address_<?= $addr['address_id'] ?>" onchange="showNewAddressInput(<?= $addr['address_id'] ?>, '<?= htmlspecialchars($addr['address_text']) ?>')">
-                                        <label class="form-check-label" for="address_<?= $addr['address_id'] ?>">
-                                            <?= htmlspecialchars($addr['address_text']) ?>
-                                        </label>
-                                    </div>
-                                <?php endforeach; ?>
-                            </div>
-
-                            <!-- 顯示新地址輸入框 -->
-                            <div class="mb-3" id="newAddressInput" style="display: none;">
-                                <label for="editAddressText" class="form-label">新的地址：</label>
-                                <input type="text" class="form-control" name="new_address_text" id="editAddressText" required>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="submit" class="btn btn-success">儲存地址</button>
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                        </div>
-                    </form>
-                </div>
+              </form>
             </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-            <!-- 新增地址按鈕，觸發新增地址的彈出視窗 -->
-            <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addNewAddressModal">
-                新增地址
-            </button>
-
-            <!-- 新增地址 Modal -->
-            <div class="modal fade" id="addNewAddressModal" tabindex="-1" aria-labelledby="addNewAddressModalLabel" aria-hidden="true">
-                <div class="modal-dialog">
-                    <form method="POST" class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="addNewAddressModalLabel">新增地址</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <!-- 新增地址 Modal -->
+    <div class="modal fade" id="addAddressModal" tabindex="-1" aria-labelledby="addAddressModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <form method="POST" action="update_setting.php">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addAddressModalLabel">新增地址</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="cid" value="<?= $cid ?>">
+                        <div class="mb-3">
+                            <label for="newAddress" class="form-label">地址：</label>
+                            <textarea class="form-control" name="newAddress" id="newAddress" rows="1" required></textarea>
                         </div>
-                        <div class="modal-body">
-                            <input type="hidden" name="cid" value="<?= $cid ?>">
-                            <div class="mb-3">
-                                <label for="editAddressText" class="form-label">地址內容：</label>
-                                <input type="text" class="form-control" name="new_address_text" id="addAddressText" required>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="submit" class="btn btn-success">儲存新地址</button>
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                        </div>
-                    </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">儲存</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    </div>
                 </div>
-            </div>
-
-
-
-            <!-- 純顯示欄位 -->
-            <li class="list-group-item"><strong>介紹人:</strong> <?= htmlspecialchars($customer['introducer']) ?></li>
-            <li class="list-group-item"><strong>註冊時間:</strong> <?= htmlspecialchars($customer['cRegistrationTime']) ?></li>
-        </ul>
-    <?php else: ?>
-        <div class="alert alert-warning">找不到該客戶資料。</div>
-    <?php endif; ?>
-
-    <!-- 修改表單 Modal -->
-    <div class="modal fade" id="editModal" tabindex="-1">
+            </form>
+        </div>
+    </div>
+    
+   
+    <!-- 編輯地址 Modal -->
+    <div class="modal fade" id="editAddressModal" tabindex="-1" aria-labelledby="editAddressModalLabel" aria-hidden="true">
       <div class="modal-dialog">
-        <form class="modal-content" method="POST" action="update_setting.php">
-          <div class="modal-header">
-            <h5 class="modal-title">修改欄位</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
-          <div class="modal-body">
-            <input type="hidden" name="cid" value="<?= $cid ?>">
-            <input type="hidden" name="field" id="fieldInput">
-            <input type="hidden" name="extraId" id="extraIdInput">
-            <div class="mb-3">
-              <label for="newValue" class="form-label">新值：</label>
-              <input type="text" class="form-control" name="newValue" id="newValueInput">
+        <form method="POST" action="update_setting.php">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="editAddressModalLabel">編輯地址</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-          </div>
-          <div class="modal-footer">
-            <button type="submit" class="btn btn-primary">儲存</button>
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+            <div class="modal-body">
+              <input type="hidden" name="cid" value="<?= $cid ?>">
+
+              <!-- 单选框：列出所有地址 -->
+              <div class="mb-3">
+                <label class="form-label">選擇要修改的地址：</label>
+                
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="address_id"
+                        id="addr_default" value="default" required>
+                  <label class="form-check-label" for="addr_default">
+                    <?= htmlspecialchars($customer['address']) ?> （預設地址）
+                  </label>
+                </div>
+                <?php foreach ($address_list as $addr): ?>
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="address_id"
+                          id="addr<?= $addr['address_id'] ?>" value="<?= $addr['address_id'] ?>">
+                    <label class="form-check-label" for="addr<?= $addr['address_id'] ?>">
+                      <?= htmlspecialchars($addr['address_text']) ?>
+                    </label>
+                  </div>
+                <?php endforeach; ?>
+      
+              </div>
+
+              <!-- 輸入新的地址文字 -->
+              <div class="mb-3">
+                <label for="editedAddressText" class="form-label">新的地址內容：</label>
+                <textarea class="form-control" name="editedAddress" id="editedAddressText" rows="2" required></textarea>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-primary">儲存修改</button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+            </div>
           </div>
         </form>
       </div>
     </div>
 
-    <!-- 修改照片 Modal -->
-    <div class="modal fade" id="editPhotoModal" tabindex="-1" aria-labelledby="editPhotoModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <form method="POST" action="upload_image.php" enctype="multipart/form-data" class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editPhotoModalLabel">修改頭像</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" name="cid" value="<?= $cid ?>">
-                    <div class="mb-3">
-                        <label for="newImage" class="form-label">選擇新照片：</label>
-                        <input type="file" class="form-control" name="newImage" id="newImage" accept="image/*" required>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-success">上傳</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                </div>
-            </form>
+  </ul>
+
+  <!-- 編輯 Modal -->
+  <div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog">
+      <form class="modal-content" method="POST" action="update_setting.php">
+        <div class="modal-header">
+          <h5 class="modal-title">修改欄位</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
+        <div class="modal-body">
+          <input type="hidden" name="cid" value="<?= $cid ?>">
+          <input type="hidden" name="field" id="fieldInput">
+          <input type="hidden" name="extraId" id="extraIdInput">
+          <div class="mb-3">
+            <label for="newValueInput" class="form-label">新值：</label>
+            <input type="text" class="form-control" name="newValue" id="newValueInput">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">儲存</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+        </div>
+      </form>
     </div>
+  </div>
+
+  <!-- Bootstrap JS + Modal Script -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    function editField(field) {
+      const fieldMap = {
+        email: '編輯 Email',
+        password: '編輯密碼',
+        cName: '編輯姓名',
+        birthday: '編輯生日',
+        phone: '編輯電話',
+        address: '編輯地址'
+      };
+
+      const input = document.getElementById('newValueInput');
+      const value = document.getElementById(field + 'Display').innerText.trim();
+
+      document.querySelector('.modal-title').textContent = fieldMap[field] || '修改欄位';
+      document.getElementById('fieldInput').value = field;
+      document.getElementById('extraIdInput').value = '';
+      
+      // 切換輸入類型
+      if (field === 'birthday') {
+        input.type = 'date';
+        input.value = value.replace(/\//g, '-');
+      } else {
+        input.type = 'text';
+        input.value = value;
+      }
+
+      const modal = new bootstrap.Modal(document.getElementById('editModal'));
+      modal.show();
+    }
+
+    // 顯示新增地址的彈出視窗
+    function showAddAddressModal() {
+        const addAddressModal = new bootstrap.Modal(document.getElementById('addAddressModal'));
+        addAddressModal.show();
+    }
+
+    function showNewAddressInput(cid, text) {
+        const section = document.getElementById("editAddressSection");
+        const textarea = document.getElementById("editedAddress");
+
+        section.style.display = "block";
+        textarea.value = text;
+    }
+
+    function showEditAddressModal() {
+      const modal = new bootstrap.Modal(document.getElementById('editAddressModal'));
+      modal.show();
+    }
 
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // 顯示popup訊息，並自動在2秒後隱藏
-        function showPopupMessage(message) {
-            var popup = document.getElementById("popupMessage");
-            popup.innerHTML = message;
-            popup.style.display = "block";
+    function toggleDropdown() {
+        const dropdown = document.getElementById("myDropdown");
+        dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+    }
 
-            // 隱藏popup訊息2秒後
-            setTimeout(function() {
-                popup.style.display = "none";
-            }, 2000);
-        }
-
-        // 根據PHP結果顯示成功訊息
-        <?php if (isset($message)): ?>
-            showPopupMessage("<?= $message ?>");
-        <?php endif; ?>
-
-        function showMessage(message) {
-            const messageElement = document.getElementById('message');
-            messageElement.innerHTML = message;
-            messageElement.style.display = 'block';
-            
-            setTimeout(function() {
-                messageElement.style.display = 'none';
-            }, 2000);  // 2秒後自動消失
-        }
-
-        function editField(field) {
-            const value = document.getElementById(field + 'Display').innerText.trim();
-            const input = document.getElementById('newValueInput');
-            document.getElementById('fieldInput').value = field;
-
-            // 顯示中文欄位說明
-            const fieldTitleMap = {
-                cName: '編輯姓名',
-                email: '編輯 Email',
-                password: '編輯密碼',
-                birthday: '編輯生日',
-                phone: '編輯電話',
-            };
-            document.querySelector('.modal-title').textContent = fieldTitleMap[field] || '編輯欄位';
-
-            // 根據欄位切換輸入類型
-            if (field === 'birthday') {
-                input.type = 'date';
-                const formatted = value.replace(/\//g, '-');
-                input.value = formatted;
-            } else {
-                input.type = 'text';
-                input.value = value;
+    // 點擊頁面其他地方自動收起下拉選單
+    window.onclick = function(event) {
+        if (!event.target.matches('.my-auto') && !event.target.closest('.dropdown')) {
+            var dropdown = document.getElementById("myDropdown");
+            if (dropdown && dropdown.style.display === "block") {
+                dropdown.style.display = "none";
             }
-
-            const editModal = new bootstrap.Modal(document.getElementById('editModal'));
-            editModal.show();
         }
-
-         // 顯示新地址輸入框的函式，並且填入選擇的地址內容
-        function showNewAddressInput(addressId, addressText) {
-            document.getElementById('newAddressInput').style.display = 'block';
-            document.getElementById('editAddressText').value = addressText; // 顯示已選擇的地址
-        }
-
-    </script>
+    }
+  </script>
 
 </body>
 </html>
