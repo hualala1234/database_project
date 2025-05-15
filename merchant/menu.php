@@ -7,7 +7,7 @@ if ($mid !== '') {
     $result = mysqli_query($conn, $sql);
     $row = mysqli_fetch_array($result);
 }
-
+var_dump($mid); // 確保 mid 有值
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -58,10 +58,9 @@ if ($mid !== '') {
         <!-- Spinner End -->
 
         <?php
-        $sqlNewOrderCount = "SELECT COUNT(DISTINCT r.tranId) AS newOrderCount
-                            FROM `Record` r
-                            JOIN `Transaction` t ON r.tranId = t.tranId
-                            WHERE t.orderStatus = 'new'";
+        $sqlNewOrderCount = "SELECT COUNT(DISTINCT t.tranId) AS newOrderCount
+                            FROM `Transaction` t 
+                            WHERE t.orderStatus = 'new' AND t.mid = $mid" ;
         $resultNewOrderCount = mysqli_query($conn, $sqlNewOrderCount);
         $newOrderCount = 0;
         if ($row = mysqli_fetch_assoc($resultNewOrderCount)) {

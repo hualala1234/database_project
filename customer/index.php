@@ -1361,8 +1361,8 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
 
 
                     <?php if (
-                        ($status === 'making' || $status === 'done') && $deliveryStatus === 'accept'
-                        || $deliveryStatus === 'arrived' // 配送中或已送達時顯示外送員名稱
+                        ($status === 'takeaway') && $deliveryStatus === 'accept'
+                        // 配送中或已送達時顯示外送員名稱
                     ): ?>
                         <?php if (!empty($order['dpName'])): ?>
                             <p><strong>外送員：</strong><?= htmlspecialchars($order['dpName']) ?></p>
@@ -1527,12 +1527,6 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
                             </div>
                         </div>
                     <?php endif; ?>
-
-                    
-
-
-                    
-
 
 
                     <!-- 外送進度條 -->
