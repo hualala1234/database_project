@@ -28,7 +28,7 @@ if (!$cid) {
 
 
 // 計算今天還能玩幾次（qualified 為 true 才算）
-$sql = "SELECT COUNT(*) AS play_count FROM Coupon WHERE cid = ? AND DATE(created_at) = CURDATE() AND qualified = TRUE AND game=2";
+$sql = "SELECT COUNT(*) AS play_count FROM coupon WHERE cid = ? AND DATE(created_at) = CURDATE() AND qualified = TRUE AND game=2";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $cid);
 $stmt->execute();
@@ -36,16 +36,18 @@ $stmt->bind_result($play_count);
 $stmt->fetch();
 $stmt->close();
 $remaining = max(0, 3 - $play_count);
+// echo $play_count;
+// echo $remaining;
 
 // 🎁 查詢前三次有優惠券的紀錄
-$sql = "SELECT discount, game_score, created_at, used FROM Coupon WHERE cid = ? AND qualified = TRUE AND game=2 ORDER BY created_at DESC ";
+$sql = "SELECT discount, game_score, created_at, used FROM coupon WHERE cid = ? AND qualified = TRUE AND game=2 ORDER BY created_at DESC ";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $cid);
 $stmt->execute();
 $result = $stmt->get_result();
 
 // 📜 查詢所有遊戲紀錄
-$sql_log = "SELECT game_score, created_at, discount, qualified FROM Coupon WHERE cid = ? AND game=2 ORDER BY created_at DESC";
+$sql_log = "SELECT game_score, created_at, discount, qualified FROM coupon WHERE cid = ? AND game=2 ORDER BY created_at DESC";
 $stmt_log = $conn->prepare($sql_log);
 $stmt_log->bind_param("i", $cid);
 $stmt_log->execute();
@@ -53,6 +55,10 @@ $logs = $stmt_log->get_result();
 
 $log_entries = [];
 while ($row = $logs->fetch_assoc()) {
+  // echo '<pre>';
+  // print_r($row);
+  // echo '</pre>';
+  // echo $qualified = $row['qualified'];
     if ($row['qualified']&& $row['game_score'] > 0) {
         $desc = "✅ 成績 {$row['game_score']} 已儲存，獲得 {$row['discount']}% off 優惠券";
     } elseif ($row['qualified'] && $row['game_score'] == 0) {
