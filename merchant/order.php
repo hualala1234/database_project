@@ -61,15 +61,14 @@ if ($mid !== '') {
         </div> -->
         <!-- Spinner End -->
         <?php
-        $sqlNewOrderCount = "SELECT COUNT(DISTINCT r.tranId) AS newOrderCount
-                            FROM `Record` r
-                            JOIN `Transaction` t ON r.tranId = t.tranId
-                            WHERE t.orderStatus = 'new'";
-        $resultNewOrderCount = mysqli_query($conn, $sqlNewOrderCount);
-        $newOrderCount = 0;
-        if ($row = mysqli_fetch_assoc($resultNewOrderCount)) {
+            $sqlNewOrderCount = "SELECT COUNT(DISTINCT t.tranId) AS newOrderCount
+                    FROM `Transaction` t 
+                    WHERE t.orderStatus = 'new' AND t.mid = $mid" ;
+            $resultNewOrderCount = mysqli_query($conn, $sqlNewOrderCount);
+            $newOrderCount = 0;
+            if ($row = mysqli_fetch_assoc($resultNewOrderCount)) {
             $newOrderCount = $row['newOrderCount'];
-        }
+            }
         ?>
 
         
@@ -208,7 +207,7 @@ if ($mid !== '') {
                                     JOIN `Product` p ON r.pid = p.pid
                                     JOIN `Customer` c ON r.cid = c.cid
                                     JOIN `Transaction` t ON r.tranId = t.tranId 
-                                    WHERE t.orderStatus = 'new'
+                                    WHERE t.orderStatus = 'new' AND t.mid = $mid
                                     ORDER BY t.transactionTime ASC";
                         $resultOrders = mysqli_query($conn, $sqlOrdersNew);
 
@@ -312,12 +311,12 @@ if ($mid !== '') {
                             </a>
                         </div>
                         <?php
-                        $sqlOrdersMaking = "SELECT o.*, c.cName, p.pName, t.transactionTime, t.tNote
-                                    FROM `Orders` o
-                                    JOIN `Product` p ON o.pid = p.pid
-                                    JOIN `Customer` c ON o.cid = c.cid
-                                    JOIN `Transaction` t ON o.tranId = t.tranId 
-                                    WHERE o.mid = $mid AND t.orderStatus = 'making'
+                        $sqlOrdersMaking = "SELECT r.*, c.cName, p.pName, t.transactionTime, t.tNote
+                                    FROM `Record` r
+                                    JOIN `Product` p ON r.pid = p.pid
+                                    JOIN `Customer` c ON r.cid = c.cid
+                                    JOIN `Transaction` t ON r.tranId = t.tranId 
+                                    WHERE t.mid = $mid AND t.orderStatus = 'making'
                                     ORDER BY t.transactionTime ASC";
                         $resultOrders = mysqli_query($conn, $sqlOrdersMaking);
 
@@ -332,6 +331,7 @@ if ($mid !== '') {
                                 $orders[$row['tranId']]['transactionTime'] = $row['transactionTime'];
                                 $orders[$row['tranId']]['items'][] = $row;
                                 $orders[$row['tranId']]['tNote'] = $row['tNote']; // 修正這一行
+                                $orders[$row['tranId']]['specialNote'] = $row['specialNote']; // 修正這一行
                             }
                         }
                         ?>
@@ -385,7 +385,8 @@ if ($mid !== '') {
                                                                 <div class="ms-2 me-auto">
                                                                     <div class="fw-bold" style="text-align:start;"><?= $item['quantity'] ?>份<span class="ms-3"><?= htmlspecialchars($item['pName']) ?></span></div>                                                                                                                                       
                                                                 </div>
-                                                                <span>$<?= $item['price'] * $item['quantity'] ?><div style="text-align:end;" class="text-muted">備註：<?= htmlspecialchars($item['specialNote']) ?></div></span>
+                                                                <span>$<?= $item['price'] * $item['quantity'] ?><div style="text-align:end;" class="text-muted">備註：<?= htmlspecialchars($item['specialNote'] ?? '') ?>
+                                                                </div></span>
                                                             </li>
                                                         <?php endforeach; ?>
                                                     </ul>
