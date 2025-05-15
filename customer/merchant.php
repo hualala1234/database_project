@@ -280,6 +280,7 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
         </nav>
       </div>
     </div>
+    
     <!-- Navbar End -->
     <?php
     // 取得網址參數中的 mid
@@ -340,14 +341,14 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
           <div class="col-md-12">
 
             <div class="section-header d-flex flex-wrap justify-content-between mb-5">
-              <h2 class="section-title">Category</h2>
+              <h2 class="section-title">商品類別</h2>
 
               <div class="d-flex align-items-center">
                 <!-- <a href="#" class="btn-link text-decoration-none">View All Categories →</a> -->
-                <div class="swiper-buttons">
+                <!-- <div class="swiper-buttons">
                   <button class="swiper-prev category-carousel-prev btn btn-primary">❮</button>
                   <button class="swiper-next category-carousel-next btn btn-primary">❯</button>
-                </div>
+                </div> -->
                 
               </div>
             </div>
@@ -369,28 +370,28 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
         }
         ?>
 
-        <!-- Swiper 類別輪播 -->
-        <div class="row">
-          <div>
-            <div class="category-carousel swiper">
-            <div class="swiper-wrapper">
-            <?php
-            while ($category = mysqli_fetch_assoc($result)) {
-                $catId = $category['productCategoriesId'];
-                $catName = htmlspecialchars($category['productCategoryName']); // 安全輸出
-                echo '
-                <div class="swiper-slide" style="width: auto:!important;">
-                  <a href="#category_' . $catId . '" class="nav-link category-item">
-                    <h3 class="category-title" style="margin-top:8px;">' . $catName . '</h3>
-                  </a>
-                </div>';
-            }
-            ?>
-            </div>
-              </div>
+        
+        <div class="row sticky-top" style="top: 160px; z-index: 1020;">
+          <div class="col-12">
+            <!-- 滑動容器 -->
+            <div class="category-scroll-wrapper overflow-auto border-top border-bottom sticky-top py-2" style="white-space: nowrap;">
+
+              <?php
+              while ($category = mysqli_fetch_assoc($result)) {
+                  $catId = $category['productCategoriesId'];
+                  $catName = htmlspecialchars($category['productCategoryName']);
+                  echo '
+                  <div class="d-inline-block mx-2">
+                    <a href="#category_' . $catId . '" class="nav-link category-item text-center px-4 py-4 bg-light rounded-3">
+                      <h2 class="category-title m-0" style="font-size: 16px;">' . $catName . '</h2>
+                    </a>
+                  </div>';
+              }
+              ?>
             </div>
           </div>
         </div>
+
 
       </div>
     </section>
@@ -409,8 +410,8 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
             echo '
             <!-- 顯示商品 -->
             <section class="py-3" id="category_' . $catId . '">     
-              <div class="container-fluid fruite py-5">
-                <h2 class="col-lg-4 text-start my-4">' . $catName . '</h2> 
+              <div class="container-fluid fruite py-3">
+                <h2 class=" text-start my-4">' . $catName . '</h2> 
                 <div class="container py-0 px-0">
                   <div class="tab-class text-center">
                     <div class="row">

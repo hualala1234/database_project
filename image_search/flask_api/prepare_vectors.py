@@ -7,7 +7,8 @@ import tensorflow as tf
 model = tf.keras.applications.MobileNetV2(weights="imagenet", include_top=False, pooling='avg')
 
 # 圖片資料夾（來源圖）
-image_folder = "food_images/"
+# image_folder = "food_images/"
+image_folder = "../../upload_images//"
 vectors = []
 info = []
 

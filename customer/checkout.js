@@ -1,3 +1,4 @@
+
 // ✅ 工具：取得 URL 參數
 function getQueryParam(name) {
     const urlParams = new URLSearchParams(window.location.search);
@@ -88,12 +89,27 @@ function getQueryParam(name) {
       appliedCoupon = null;
       document.getElementById("selectedCoupon").value = "";
       document.getElementById("selectedCouponText").textContent = "";
-      updateSummary(currentSubtotal); // 回復為原始價格
+  
+      // 隱藏原價與原運費區塊
+      const originalSubtotalSpan = document.querySelector(".original-subtotal");
+      const originalDeliverySpan = document.querySelector(".original-delivery-fee");
+  
+      originalSubtotalSpan.classList.add("d-none");
+      originalDeliverySpan.classList.add("d-none");
+  
+      // 移除 inline style 顏色
+      const subtotalSpan = document.querySelector(".subtotal");
+      const deliveryFeeSpan = document.querySelector(".delivery-fee");
+  
+      subtotalSpan.style.removeProperty("color");
+      deliveryFeeSpan.style.removeProperty("color");
+  
+      updateSummary(currentSubtotal, true); // 回復為原始價格，並忽略套用優惠券
     }
   });
-  let currentSubtotal = 0;
-  let appliedCoupon = null;
+  
     
+
   // ✅ 套用優惠券邏輯
   function applyCoupon(code) {
     appliedCoupon = code;
@@ -102,24 +118,53 @@ function getQueryParam(name) {
     let discountRate = 1;
     
     if (code === "CLAWWIN15") {
-      discountRate = 0.85;
+        discountRate = 0.85;
     } else if (code === "CLAWWIN30") {
-      discountRate = 0.7;
+        discountRate = 0.7;
     } else if (code === "CLAWWIN20") {
-      discountRate = 0.8;
+        discountRate = 0.8;
     } else if (code === "CLAWSHIP") {
-      deliveryFee = 0;
+        deliveryFee = 0;
     }
     
     const discountedSubtotal = Math.round(currentSubtotal * discountRate);
-    const platformFee = Math.ceil(currentSubtotal * 0.05); // ✅ 始終以原始小計計算
+    const platformFee = Math.ceil(discountedSubtotal * 0.05);  // 使用打折後的小計計算平台費
     const total = discountedSubtotal + platformFee + deliveryFee;
     
-    document.querySelector(".subtotal").textContent = `$${discountedSubtotal}`;
+    // ✅ 顯示原價與折扣價
+    const subtotalSpan = document.querySelector(".subtotal");
+    const originalSubtotalSpan = document.querySelector(".original-subtotal");
+    if (discountRate !== 1) {
+        originalSubtotalSpan.textContent = `$${currentSubtotal}`;
+        originalSubtotalSpan.classList.remove("d-none");  // 顯示原價並劃掉
+        originalSubtotalSpan.style.textDecoration = "line-through"; // 加上劃線效果
+        subtotalSpan.textContent = `$${discountedSubtotal}`;  // 顯示折扣後小計
+        subtotalSpan.style.color = "#146E57"; // 設定折扣後小計顏色
+    } else {
+        originalSubtotalSpan.classList.add("d-none");  // 隱藏原價
+        subtotalSpan.textContent = `$${currentSubtotal}`;  // 顯示原價
+    }
+    
+    // ✅ 顯示運費與折扣後運費
+    const deliveryFeeSpan = document.querySelector(".delivery-fee");
+    const originalDeliverySpan = document.querySelector(".original-delivery-fee");
+    if (code === "CLAWSHIP") {
+        originalDeliverySpan.textContent = "$30";
+        originalDeliverySpan.classList.remove("d-none");  // 顯示原運費並劃掉
+        originalDeliverySpan.style.textDecoration = "line-through"; // 運費也需要劃掉
+        deliveryFeeSpan.textContent = "$0";  // 顯示優惠後運費
+        deliveryFeeSpan.style.color = "#146E57"; // 設定折扣後小計顏色
+    } else {
+        originalDeliverySpan.classList.add("d-none");  // 隱藏原運費
+        deliveryFeeSpan.textContent = `$${deliveryFee}`;  // 顯示正常運費
+    }
+    
+    // 顯示平台費與總金額
     document.querySelector(".platform-fee").textContent = `$${platformFee}`;
-    document.querySelector(".delivery-fee").textContent = `$${deliveryFee}`;
     document.querySelector(".grand-total").textContent = `$${total}`;
-  }
+  } 
+
+
     
 
   // ✅ 綁定所有事件
@@ -187,17 +232,21 @@ function getQueryParam(name) {
   }
   
   // ✅ 更新小計與總金額
+  let appliedCoupon = null;
   function updateSummary(subtotal) {
+
     currentSubtotal = subtotal; // 儲存未打折前的小計
     let platformFee = Math.ceil(subtotal * 0.05);
     let deliveryFee = 30;
     let total = subtotal + platformFee + deliveryFee;
   
-    // 如果已經有套用優惠券，重新套用
-    if (appliedCoupon) {
+    // 如果有套用優惠券且不忽略優惠券，就重新套用
+    if (appliedCoupon && !ignoreCoupon) {
       applyCoupon(appliedCoupon);
       return;
     }
+   
+    
   
     document.querySelector(".subtotal").textContent = `$${subtotal}`;
     document.querySelector(".platform-fee").textContent = `$${platformFee}`;
