@@ -61,10 +61,10 @@ try {
         
         // 插入 Record（預設 pRating 和 pComment 為 NULL）
         $stmt = $conn->prepare("
-        INSERT INTO Record (tranId, pid, cid, quantity, price) 
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO Record (tranId, pid, cid, quantity, price, specialNote) 
+        VALUES (?, ?, ?, ?, ?, ?)
         ");
-        $stmt->bind_param("iiiii", $transactionId, $pid, $cid, $quantity, $price);
+        $stmt->bind_param("iiiiis", $transactionId, $pid, $cid, $quantity, $price, $specialNote);
         $stmt->execute();
     }
 
