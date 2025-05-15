@@ -1,5 +1,16 @@
+<?php
+session_start();
+include ('../../walletAndrecord/connect.php');  
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+$cid = isset($_SESSION["cid"]) ? $_SESSION["cid"] : '';
+?>
 <script>
+  const cid = "<?php echo htmlspecialchars($cid, ENT_QUOTES, 'UTF-8'); ?>";
 window.addEventListener('DOMContentLoaded', () => {
+  const cid = "<?php echo $cid; ?>";
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('cid') && urlParams.get('role') === 'c') {
         // 自動觸發圖片選擇器
@@ -132,6 +143,7 @@ window.addEventListener('DOMContentLoaded', () => {
       const file = document.getElementById('imageInput').files[0];
       const formData = new FormData();
       formData.append('image', file);
+      formData.append('cid', cid); // 👈 傳給 Flask
 
       fetch('http://localhost:5000/search', {
         method: 'POST',

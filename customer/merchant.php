@@ -249,6 +249,11 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
           </button>
           <div class="collapse navbar-collapse bg-white" id="navbarCollapse">
             <div class="navbar-nav mx-auto">
+              <a href="../image_search/phpfrontend/index.php?cid=<?php echo $cid; ?>&role=c">
+                  <img class="camara" src="./camara.png" alt="camara icon" width="40" height="40" style="margin-left: 20px;"
+                      onmouseover="this.src='./camara_hover.png'" 
+                      onmouseout="this.src='./camara.png'">
+              </a>
               <div class="position-relative mx-auto">
                 <input class="form-control border-2 border-secondary  py-3 px-4 rounded-pill" style="width: 30rem;" type="number" placeholder="Search">
                 <button type="submit" class="btn btn-primary border-2 border-secondary py-3 px-4 position-absolute rounded-pill text-white h-100" style="top: 0; left: 82.5%;">搜尋</button>
