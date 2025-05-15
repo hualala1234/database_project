@@ -58,14 +58,28 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib
 import emoji
+import sys
+sys.stdout.reconfigure(encoding='utf-8')
+print(f"[DEBUG] sys.argv = {sys.argv}")
+
+# 從參數讀取 cid
+cid = sys.argv[1] if len(sys.argv) > 1 else 'unknown'
+csv_file = f"user_score_data_{cid}.csv"
+png_file = f"score_chart_{cid}.png"
 
 matplotlib.use('Agg')  # 確保在無 GUI 環境下也能執行
+print(f"[DEBUG] 正在處理 CID: {cid}, 輸出圖表為: {png_file}")
 
 # 讀取 CSV
 try:
-    df = pd.read_csv("user_score_data.csv", parse_dates=['play_date'])
+    # df = pd.read_csv("user_score_data.csv", parse_dates=['play_date'])
+    df = pd.read_csv(csv_file, parse_dates=['play_date'])
+    plt.savefig(png_file)
+    print(f"✅ {csv_file} 已成功讀取")
+
 except Exception as e:
-    with open("log.txt", "w") as log:
+    # with open("log.txt", "w") as log:
+    with open("log.txt", "a", encoding="utf-8") as log:
         log.write(f"[Error] CSV read failed: {e}\n")
     exit()
 
@@ -91,7 +105,8 @@ try:
         games_played=('game_score', 'count')
     ).reset_index()
 except Exception as e:
-    with open("log.txt", "a") as log:
+    # with open("log.txt", "a") as log:
+    with open("log.txt", "a", encoding="utf-8") as log:
         log.write(f"[Error] Aggregation failed: {e}\n")
     exit()
 
@@ -118,9 +133,13 @@ try:
     plt.title('🧠 Ratio of grades')
 
     plt.tight_layout()
-    plt.savefig("score_chart.png")
+    # plt.savefig("score_chart.png")
+    plt.savefig(png_file)
+
     print("✅ score_chart.png 已成功產生")
+    print(f"✅ {png_file} 已成功產生")
 except Exception as e:
-    with open("log.txt", "a") as log:
+    # with open("log.txt", "a") as log:
+    with open("log.txt", "a", encoding="utf-8") as log:
         log.write(f"[Error] Plotting failed: {e}\n")
     exit()

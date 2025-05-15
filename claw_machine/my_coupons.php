@@ -28,7 +28,7 @@ if (!$cid) {
 
 
 // 計算今天還能玩幾次（qualified 為 true 才算）
-$sql = "SELECT COUNT(*) AS play_count FROM Coupon WHERE cid = ? AND DATE(created_at) = CURDATE() AND qualified = TRUE";
+$sql = "SELECT COUNT(*) AS play_count FROM Coupon WHERE cid = ? AND DATE(created_at) = CURDATE() AND qualified = TRUE AND game=2";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $cid);
 $stmt->execute();
@@ -38,14 +38,14 @@ $stmt->close();
 $remaining = max(0, 3 - $play_count);
 
 // 🎁 查詢前三次有優惠券的紀錄
-$sql = "SELECT discount, game_score, created_at, used FROM Coupon WHERE cid = ? AND qualified = TRUE ORDER BY created_at DESC ";
+$sql = "SELECT discount, game_score, created_at, used FROM Coupon WHERE cid = ? AND qualified = TRUE AND game=2 ORDER BY created_at DESC ";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $cid);
 $stmt->execute();
 $result = $stmt->get_result();
 
 // 📜 查詢所有遊戲紀錄
-$sql_log = "SELECT game_score, created_at, discount, qualified FROM Coupon WHERE cid = ? ORDER BY created_at DESC";
+$sql_log = "SELECT game_score, created_at, discount, qualified FROM Coupon WHERE cid = ? AND game=2 ORDER BY created_at DESC";
 $stmt_log = $conn->prepare($sql_log);
 $stmt_log->bind_param("i", $cid);
 $stmt_log->execute();
@@ -78,7 +78,7 @@ while ($row = $logs->fetch_assoc()) {
     background-repeat: no-repeat;
     background-size: cover;; padding: 40px; display: flex; }
     .main-content { flex: 2; margin-left:5%}
-    .log-panel { flex: 1; margin-right: 30px; padding: 20px 40px 30px 40px; background: #fff; border-radius: 10px; box-shadow: 0 0 8px rgba(0,0,0,0.1); height: 800px; overflow-y: auto; position: relative; right:35%;}
+    .log-panel { flex: 1; margin-right: 30px; padding: 20px 40px 30px 40px; background: #fff; border-radius: 10px; box-shadow: 0 0 8px rgba(0,0,0,0.1); height: 800px; overflow-y: auto; position: relative; right:25%;}
     .log-entry { margin-bottom: 12px; border-bottom: 1px dashed #ccc; padding-bottom: 8px; }
     h2, h3 { color: #333; }
     table {  border-collapse: collapse; width: 70%; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.1); border-radius: 15px; margin-top: 20px; }
@@ -141,9 +141,10 @@ window.addEventListener('load', () => {
     </table>
 
     <div class="score-chart">
-      <h2>📈 得分趨勢圖</h2>
-      <a onclick="location.href='/database_project/claw_machine/generate_chart.php?cid=<?= $cid ?>&role=c'" class="play-button" style="margin-top: 20px; padding: 10px 20px; background:rgb(221, 72, 8); color: white; border-radius: 6px; cursor: pointer;">更新圖片</a>
-      <img src="score_chart.png?ts=<?= time() ?>" alt="得分圖表" style="max-width: 70%;">
+      <h2>📈 得分趨勢圖</h2><pre><a onclick="location.href='/database_project/claw_machine/generate_chart.php?cid=<?= $cid ?>&role=c'" class="play-button" style="margin-top: 20px; padding: 10px 20px; background:rgb(221, 72, 8); color: white; border-radius: 6px; cursor: pointer;">更新圖片</a></pre>
+      <!-- <img src="score_chart.png?ts=<?= time() ?>" alt="得分圖表" style="max-width: 70%;"> -->
+      <img src="score_chart_<?= $cid ?>.png?ts=<?= time() ?>" alt="得分圖表" style="max-width: 70%;">
+
     </div>
 
     
@@ -166,5 +167,5 @@ window.addEventListener('load', () => {
 </html>
 <?php
 // ✅ 自動產出圖表
-include(__DIR__ . '/generate_chart.php');
+// include(__DIR__ . '/generate_chart.php');
 ?>
