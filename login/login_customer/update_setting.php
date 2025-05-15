@@ -55,6 +55,8 @@ if (isset($_POST['newAddress'])) {
         $stmt = $conn->prepare("INSERT INTO caddress (cid, address_text) VALUES (?, ?)");
         $stmt->bind_param("is", $cid, $newAddress);
         if ($stmt->execute()) {
+            
+
             header("Location: setting.php");
             exit;
         } else {
@@ -66,25 +68,34 @@ if (isset($_POST['newAddress'])) {
 }
 
 // 3) 修改子地址
+// 3) 編輯預設/子地址
 if (isset($_POST['address_id'], $_POST['editedAddress'])) {
-    $addressId     = intval($_POST['address_id']);
+    $addressId     = $_POST['address_id'];       // 可能是 'default' 或 數字
     $editedAddress = trim($_POST['editedAddress']);
-    if ($addressId > 0 && $editedAddress !== '') {
-        // 注意：假設你的 caddress 主鍵欄位叫 address_id
+    if ($editedAddress === '') {
+        exit("新的地址不得為空");
+    }
+
+    if ($addressId === 'default') {
+        // 更新 customer 表的預設地址
+        $stmt = $conn->prepare("UPDATE customer SET address = ? WHERE cid = ?");
+        $stmt->bind_param("si", $editedAddress, $cid);
+    } else {
+        // 更新 caddress 表的子地址
+        $aid = intval($addressId);
         $stmt = $conn->prepare(
           "UPDATE caddress 
              SET address_text = ? 
            WHERE address_id = ? AND cid = ?"
         );
-        $stmt->bind_param("sii", $editedAddress, $addressId, $cid);
-        if ($stmt->execute()) {
-            header("Location: setting.php");
-            exit;
-        } else {
-            exit("修改地址失敗：" . $stmt->error);
-        }
+        $stmt->bind_param("sii", $editedAddress, $aid, $cid);
+    }
+
+    if ($stmt->execute()) {
+        header("Location: setting.php");
+        exit;
     } else {
-        exit("資料不完整或 address_id 錯誤");
+        exit("修改地址失敗：" . $stmt->error);
     }
 }
 
