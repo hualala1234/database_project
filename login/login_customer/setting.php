@@ -185,10 +185,13 @@ body {
                             <?php if ($_SESSION['role'] === 'merchant'): ?>
                                 <a href="/database/merchant/setting.php" class="dropdown-item">商家設定</a>
                             <?php elseif ($_SESSION['role'] === 'customer'): ?>
-                                <a href="../login/login_customer/setting.php" class="dropdown-item">個人設定</a>
-                                <a href="/database_project/allergy/allergy.php" class="dropdown-item">過敏設定</a>
-                                <a href="../claw_machine/claw.php" class="dropdown-item">優惠券活動</a>
-                                <!-- <a href="friends.php" class="dropdown-item">我的好友</a> -->
+                                <a href="/database_project/allergy/allergy.php?cid=<?php echo $cid; ?>" class="dropdown-item">過敏設定</a>
+                                <a href="../claw_machine/claw.php?cid=<?php echo $cid; ?>" class="dropdown-item">優惠券活動</a>
+                                <a href="../walletAndrecord/c_wallet.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">錢包</a>
+                                <a href="../walletAndrecord/c_record.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">交易紀錄</a>
+                                <a href="../customer/friends.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">我的好友</a>
+                               
+                                <a href="/database_project/customer/reservation.php" class="dropdown-item">我要訂位</a>
                             <?php elseif ($_SESSION['role'] === 'delivery_person'): ?>
                                 <a href="/database/customer/setting.php" class="dropdown-item">外送員設定</a>
                             <?php elseif ($_SESSION['role'] === 'platform'): ?>
@@ -224,6 +227,13 @@ body {
                 <div>
                   <strong><?= $label ?>:</strong>
                   <?php if ($field === 'address'): ?>
+                    <!-- 先顯示 customer 表的主要地址 -->
+                    <p><strong>預設地址：</strong>
+                      <span id="addressDisplay">
+                        <?= htmlspecialchars($customer['address']) ?>
+                      </span>
+                    </p>
+                    <!-- 再列出所有 caddress 裡的地址 -->
                     <ul class="mb-0 ps-3">
                       <?php foreach ($address_list as $addr): ?>
                         <li class="mb-1"><?= htmlspecialchars($addr['address_text']) ?></li>
@@ -333,15 +343,24 @@ body {
               <!-- 单选框：列出所有地址 -->
               <div class="mb-3">
                 <label class="form-label">選擇要修改的地址：</label>
+                
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="address_id"
+                        id="addr_default" value="default" required>
+                  <label class="form-check-label" for="addr_default">
+                    <?= htmlspecialchars($customer['address']) ?> （預設地址）
+                  </label>
+                </div>
                 <?php foreach ($address_list as $addr): ?>
                   <div class="form-check">
                     <input class="form-check-input" type="radio" name="address_id"
-                          id="addr<?= $addr['address_id'] ?>" value="<?= $addr['address_id'] ?>" required>
+                          id="addr<?= $addr['address_id'] ?>" value="<?= $addr['address_id'] ?>">
                     <label class="form-check-label" for="addr<?= $addr['address_id'] ?>">
                       <?= htmlspecialchars($addr['address_text']) ?>
                     </label>
                   </div>
                 <?php endforeach; ?>
+      
               </div>
 
               <!-- 輸入新的地址文字 -->
@@ -358,29 +377,6 @@ body {
         </form>
       </div>
     </div>
-
-
-
-
-    <!-- <li class="list-group-item">
-      <strong>註冊時間:</strong>
-      <span id="registrationDisplay">< ?= htmlspecialchars($customer['cRegistrationTime']) ?></span>
-    </li>
-    <li class="list-group-item">
-        <strong>大頭貼:</strong><br>
-        < ?php if (!empty($customer['imageURL'])): ?>
-            <img src="../../< ?= htmlspecialchars($customer['imageURL']) ?>" alt="照片" class="friend-imageURL mb-2" style="max-width: 150px;">
-        < ?php else: ?>
-            <span>尚未上傳</span>
-        < ?php endif; ?>
-        <form action="update_setting.php" method="POST" enctype="multipart/form-data">
-            <div class="mb-3">
-                <label for="profileImage" class="form-label">選擇新大頭貼：</label>
-                <input type="file" class="form-control" name="profileImage" id="profileImage" accept="image/*">
-            </div>
-            <button type="submit" class="btn btn-primary">儲存圖片</button>
-        </form>
-    </li> -->
 
   </ul>
 
