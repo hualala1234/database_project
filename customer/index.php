@@ -99,7 +99,8 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
         <!-- Template Stylesheet -->
         <link href="../css/style.css" rel="stylesheet">
 
-
+        <link href="./vip.css" rel="stylesheet">
+        <script src="./vip.js" type="text/javascript"></script>
 
     </head>
 
@@ -153,6 +154,31 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
                                 onmouseover="this.src='./trans_hover.png'" 
                                 onmouseout="this.src='./trans.png'">
                         </a> -->
+                        <!-- Crown Icon -->
+                        <img class="crown" src="./vip.png" alt="crown icon" width="40" height="40" style="margin-left: 20px;"
+                        style="margin-left: 20px; margin-top: 20px; cursor: pointer;"
+                            onmouseover="this.src='./vip_hover.png'" 
+                            onmouseout="this.src='./vip.png'"
+                            onclick="toggleVIP(event)">
+                        <!-- ✅ VIP 彈出視窗 -->
+                        <div class="vip" id="vip-popup" style="display: none;">
+                            <img id="closecomment" src="../walletAndrecord/image/cross.png" alt="close button" width="15" height="15" 
+                                style="position:absolute; top:10px; right:10px; cursor:pointer;" 
+                                onclick="closeVIP()">
+                            
+                            <img id="vip-image" src="./join_vip.png" alt="vip" style="cursor: pointer;" onclick="addVIPToCart()">
+                            <p style="cursor: pointer;" onclick="addVIPToCart()">加入 VIP</p>
+                        </div>
+
+                        <!-- ✅ 飛行動畫圖像容器 -->
+                        <div id="fly-container"></div>
+
+                        <!-- ✅ 訊息提示 -->
+                        <div id="vip-message" style="display:none; position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
+                            background: #4CAF50; color: white; padding: 10px 20px; border-radius: 8px; z-index: 3000;">
+                            已成功加入 VIP 到購物車！
+                        </div>
+
                         
 
 
