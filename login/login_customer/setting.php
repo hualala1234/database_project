@@ -161,7 +161,9 @@ body {
     </div>
     <div class="container px-0">
         <nav class="navbar navbar-light bg-white navbar-expand-xl">
-            <a href="merchant_shop.php?mid=<?php echo $mid; ?>" class="navbar-brand"><h1 class="text-primary display-6">Junglebite 個人設定</h1></a>
+            <a href="../../customer/index.php?cid=<?php echo $cid; ?>" class="navbar-brand"><h1 class="text-primary display-6">Junglebite過敏設定</h1></a>
+
+            <!-- <a href="merchant_shop.php?mid=< ?php echo $mid; ?>" class="navbar-brand"><h1 class="text-primary display-6">Junglebite 個人設定</h1></a> -->
             <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                 <span class="fa fa-bars text-primary"></span>
             </button>
@@ -182,17 +184,16 @@ body {
 
                         <div id="myDropdown" class="dropdown-content" style="display: none; position: absolute; background-color: white; min-width: 120px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 1; right: 0; border-radius: 8px;">
 
-                            <?php if ($_SESSION['role'] === 'merchant'): ?>
+                            <?php if ($_SESSION['role'] === 'm'): ?>
                                 <a href="/database/merchant/setting.php" class="dropdown-item">商家設定</a>
-                            <?php elseif ($_SESSION['role'] === 'customer'): ?>
+                            <?php elseif ($_SESSION['role'] === 'c'): ?>
                                 <a href="/database_project/allergy/allergy.php?cid=<?php echo $cid; ?>" class="dropdown-item">過敏設定</a>
-                                <a href="../claw_machine/claw.php?cid=<?php echo $cid; ?>" class="dropdown-item">優惠券活動</a>
+                                <a href="../../claw_machine/claw.php?cid=<?php echo $cid; ?>" class="dropdown-item">優惠券活動</a>
                                 <a href="../walletAndrecord/c_wallet.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">錢包</a>
                                 <a href="../walletAndrecord/c_record.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">交易紀錄</a>
                                 <a href="../customer/friends.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">我的好友</a>
-                               
                                 <a href="/database_project/customer/reservation.php" class="dropdown-item">我要訂位</a>
-                            <?php elseif ($_SESSION['role'] === 'delivery_person'): ?>
+                            <?php elseif ($_SESSION['role'] === 'd'): ?>
                                 <a href="/database/customer/setting.php" class="dropdown-item">外送員設定</a>
                             <?php elseif ($_SESSION['role'] === 'platform'): ?>
                                 <a href="/database/customer/setting.php" class="dropdown-item">平台設定</a>

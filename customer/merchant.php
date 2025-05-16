@@ -63,6 +63,15 @@ $stmt->execute();
 $result = $stmt->get_result();
 $orders = $result->fetch_all(MYSQLI_ASSOC);
 
+// 如果從自己按「餐廳訂位」送過來，就 redirect 到 reservation.php
+if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['mid'])) {
+  $mid = intval($_POST['mid']);
+  // 將 mid 存到 session（後續 reservation.php 也能用）
+  $_SESSION['mid'] = $mid;
+  // 或直接用 GET 傳過去 reservation.php
+  header("Location: reservation.php?mid={$mid}");
+  exit;
+}
 
 ?>
 
@@ -284,12 +293,17 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
                 </a>
 
                 <div id="myDropdown" class="dropdown-content" style="display: none; position: absolute; background-color: white; min-width: 120px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 1; right: 0; border-radius: 8px;">
-                <?php if ($_SESSION['role'] === 'merchant'): ?>
+                <?php if ($_SESSION['role'] === 'm'): ?>
                   <a href="/database/merchant/setting.php" class="dropdown-item">商家設定</a>
-                <?php elseif ($_SESSION['role'] === 'customer'): ?>
-                  <a href="/database/customer/setting.php" class="dropdown-item">個人設定</a>
-                  <a href="/database_project/allergy/allergy.php" class="dropdown-item">過敏設定</a>
-                <?php elseif ($_SESSION['role'] === 'delivery_person'): ?>
+                <?php elseif ($_SESSION['role'] === 'c'): ?>
+                  <a href="../login/login_customer/setting.php?cid=<?php echo $cid; ?>" class="dropdown-item">個人設定</a>
+                  <a href="/database_project/allergy/allergy.php?cid=<?php echo $cid; ?>" class="dropdown-item">過敏設定</a>
+                  <a href="../claw_machine/claw.php?cid=<?php echo $cid; ?>" class="dropdown-item">優惠券活動</a>
+                  <a href="../walletAndrecord/c_wallet.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">錢包</a>
+                  <a href="../walletAndrecord/c_record.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">交易紀錄</a>
+                  <a href="../customer/friends.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">我的好友</a>
+                  <a href="/database_project/customer/reservation.php" class="dropdown-item">我要訂位</a>
+                <?php elseif ($_SESSION['role'] === 'd'): ?>
                   <a href="/database/customer/setting.php" class="dropdown-item">外送員設定</a>
                 <?php elseif ($_SESSION['role'] === 'platform'): ?>
                   <a href="/database/customer/setting.php" class="dropdown-item">平台設定</a>
@@ -357,6 +371,11 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
           <div class="section-header d-flex mb-5" style="flex-direction: column;">
             <h2><?php echo htmlspecialchars($row['mName']); ?></h2>
             <h4 class="text-muted"><?php echo htmlspecialchars($row['mAddress']); ?></h4>
+            </div>
+            <form method="post" action="merchant.php">
+              <input type="hidden" name="mid" value="<?php echo $row['mid']; ?>">
+              <button type="submit">餐廳訂位</button>
+            </form>
           </div>
             
           </div>
