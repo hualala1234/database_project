@@ -10,21 +10,19 @@ session_start();
 $mid = isset($_SESSION['mid']) ? intval($_SESSION['mid']) : 0;
 $restaurantName     = '示例飯店';
 $address            = '臺北市中正區示例路123號';
-$phone              = '(02)1234-5678';
 $deposit            = 500;
 $businessHours      = '無資料';
 if ($mid) {
     // 從 merchant 資料表撈商家名稱、地址、Email、營業時間、訂金
-    $stmt = $conn->prepare('SELECT mName, mAddress, mEmail, businessHours FROM merchant WHERE mid = ?');
+    $stmt = $conn->prepare('SELECT mName, mAddress, businessHours FROM merchant WHERE mid = ?');
     if (!$stmt) {
         die('Prepare failed: ' . $conn->error);
     }
     $stmt->bind_param('i', $mid);
     $stmt->execute();
-    $stmt->bind_result($mName, $mAddress, $mEmail, $mHours);    if ($stmt->fetch()) {
+    $stmt->bind_result($mName, $mAddress, $mHours);    if ($stmt->fetch()) {
         $restaurantName = $mName;
         $address        = $mAddress;
-        $phone          = $mEmail;
         $businessHours  = $mHours;
     }
     $stmt->close();
@@ -172,6 +170,7 @@ $months   = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','
             <p data-panel="datetime"   class="<?php echo $panel==='datetime'  ?'active':''; ?>">預約日期與時間</p>
             <p data-panel="people"     class="<?php echo $panel==='people'    ?'active':''; ?>">人數</p>
             <p data-panel="confirm"    class="<?php echo $panel==='confirm'   ?'active':''; ?>">確認訂位資訊</p>
+            <p data-panel="history" class="<?php echo $panel==='history'?'active':''; ?>">成功訂位記錄</p>
             </div>
         </div>
         <div class="calendar-container">
@@ -180,7 +179,6 @@ $months   = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','
             <div id="restaurant" class="content-panel <?php echo $panel==='restaurant'?'active':''; ?>">
                 <h2>餐廳名稱：<?php echo htmlspecialchars($restaurantName); ?></h2>
                 <p>地址：<?php echo htmlspecialchars($address); ?></p>
-                <p>email：<?php echo htmlspecialchars($phone); ?></p>
                 <p>訂金：NT$<?php echo htmlspecialchars($deposit); ?> / 位</p>
                 <div class="business-hours">
                 <?php 
@@ -198,38 +196,55 @@ $months   = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','
             <!-- 預約日期與時間 面板 -->
         
             <div id="datetime" class="content-panel <?php echo $panel==='datetime'?'active':''; ?>">
-                <h2 style='text-align:center'>預約日期與時間</h2>
-                <p style='text-align:center'>請選擇日期與時間</p>
-            <div class="month-selector">
-                <?php foreach($months as $i=>$abbr): $m=$i+1; ?>
-                <a href="?year=<?php echo $year;?>&month=<?php echo $m;?>&panel=datetime" class="<?php echo $m===$month?'active':'';?>"><?php echo $abbr; ?></a>
-                <?php endforeach; ?>
-            </div>
-            <table>
-                <tr><?php foreach($weekDays as $d): ?><th><?php echo $d;?></th><?php endforeach;?></tr>
-                <tr>
-                <?php for($i=0; $i<$startWeekday; $i++) echo '<td></td>'; ?>
-                <?php for($d=1; $d<=$totalDays; $d++):
-                $wd = ($startWeekday+$d-1)%7;
-                $isToday = ($year==date('Y') && $month==date('n') && $d==date('j'));
-                ?>
-                <td data-day="<?php echo $d;?>" class="<?php echo $isToday?'today':''; ?>"><?php echo $d; ?></td>
-                <?php if($wd==6 && $d!=$totalDays) echo '</tr><tr>'; ?>
-                <?php endfor; ?>
-                <?php for($i=0; $i<(7-(($startWeekday+$totalDays)%7))%7; $i++) echo '<td></td>'; ?>
-                </tr>
-            </table>
-            <div class="time-select">
-                <label>時間：<input type="time" id="timeInput"/></label>
-            </div>
-            <button id="saveDateTime">儲存</button>
+                    <h2 style='text-align:center'>預約日期與時間</h2>
+                    <p style='text-align:center'>請選擇日期與時間</p>
+                <div class="month-selector">
+                    <?php
+                    $currentMonth = isset($_GET['month']) ? intval($_GET['month']) : date('n'); // ✅ 有傳參數用它，否則預設本月
+                    foreach ($months as $i => $abbr):
+                        $m = $i + 1;
+                        $cls = ($m === $currentMonth) ? 'active' : '';
+                    ?>
+                        <a href="?year=<?= $year ?>&month=<?= $m ?>&panel=datetime" class="<?= $cls ?>"><?= $abbr ?></a>
+                    <?php endforeach; ?>
+
+                </div>
+                <table>
+                    <tr><?php foreach($weekDays as $d): ?><th><?php echo $d;?></th><?php endforeach;?></tr>
+                    <tr>
+                    <?php for($i=0; $i<$startWeekday; $i++) echo '<td></td>'; ?>
+                    <?php for($d=1; $d<=$totalDays; $d++):
+                    $wd = ($startWeekday+$d-1)%7;
+                    $isToday = ($year==date('Y') && $month==date('n') && $d==date('j'));
+                    ?>
+                    <td data-day="<?php echo $d;?>" class="<?php echo $isToday?'today':''; ?>"><?php echo $d; ?></td>
+                    <?php if($wd==6 && $d!=$totalDays) echo '</tr><tr>'; ?>
+                    <?php endfor; ?>
+                    <?php for($i=0; $i<(7-(($startWeekday+$totalDays)%7))%7; $i++) echo '<td></td>'; ?>
+                    </tr>
+                </table>
+                <div class="time-select">
+                    <label for="timeInput">時間：</label>
+                    <input type="time" id="timeInput" />
+                    <button id="saveDateTime">儲存</button>
+                </div>
             </div>
 
             <!-- 人數 面板 -->
             <div id="people" class="content-panel <?php echo $panel==='people'?'active':''; ?>">
-            <label>大人：<input type="number" min="1" id="adultCount" value="1"/> 位</label><br><br>
-            <label>小孩：<input type="number" min="0" id="childCount" value="0"/> 位</label><br><br>
-            <button id="savePeople">儲存</button>
+                <h2 style='text-align:center'>預約人數</h2>
+                <p style='text-align:center'>請選擇預約人數</p>
+                <div class="people-form">
+                    <label>
+                        大人：
+                        <input type="number" min="1" id="adultCount" value="1"/> 位
+                    </label>
+                    <label>
+                        小孩：
+                        <input type="number" min="0" id="childCount" value="0"/> 位
+                    </label>
+                    <button id="savePeople">儲存</button>
+                </div>
             </div>
 
 
@@ -263,25 +278,88 @@ $months   = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','
                 <button type="submit" id="finalConfirm" class="confirm-btn">確認訂位</button>
             </form>
             </div>
+
+        <div id="history" class="content-panel <?php echo $panel==='history'?'active':''; ?>">
+            <h2>我的訂位紀錄</h2>
+            <div class="reservation-history">
+                <?php
+                if (isset($_SESSION['cid'])) {
+                    $cid = $_SESSION['cid'];
+                    $sql = "
+                        SELECT rt.*, m.mName 
+                        FROM ReserveTrans rt
+                        JOIN Merchant m ON rt.mid = m.mid
+                        WHERE rt.Reservationcid = ?
+                        ORDER BY rt.reservationDate DESC, rt.reservationTime DESC
+                    ";
+                    $stmt = $conn->prepare($sql);
+                    $stmt->bind_param("i", $cid);
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+
+                    if ($result && $result->num_rows > 0) {
+                        while ($row = $result->fetch_assoc()) {
+                            echo "<div class='history-entry' style='border:1px solid #ccc; border-radius:8px; padding:10px; margin-bottom:10px'>";
+                            echo "<p><strong>餐廳：</strong>" . htmlspecialchars($row['mName']) . "</p>";
+                            echo "<p><strong>訂位日期：</strong>" . htmlspecialchars($row['reservationDate']) . "</p>";
+                            echo "<p><strong>訂位時間：</strong>" . htmlspecialchars($row['reservationTime']) . "</p>";
+                            echo "<p><strong>大人：</strong>" . intval($row['adult']) . " 位</p>";
+                            echo "<p><strong>小孩：</strong>" . intval($row['children']) . " 位</p>";
+                            $total = $row['deposite'] * ($row['adult'] + $row['children']);
+                            echo "<p><strong>訂金：</strong>共 NT$" . number_format($total, 0) . " 元（" . number_format($row['deposite'], 0) . " 元/位）</p>";
+                            echo "<p><strong>建立時間：</strong>" . htmlspecialchars($row['created_at']) . "</p>";
+                            // ✅ 取消表單放這裡
+                            echo "<button class='btn btn-danger btn-sm mt-2 cancel-btn' 
+                                    data-id='" . $row['ReserveTransid'] . "' 
+                                    data-adult='" . $row['adult'] . "' 
+                                    data-children='" . $row['children'] . "' 
+                                    data-deposite='" . $row['deposite'] . "'>
+                                    取消預約
+                                </button>";
+
+
+                            echo "</div>";
+
+                        }
+                    } else {
+                        echo "<p>尚無任何訂位紀錄。</p>";
+                    }
+                    $stmt->close();
+                } else {
+                    echo "<p>請先登入以查看預約紀錄。</p>";
+                }
+                ?>
+            </div>
+        </div>
+
     <script>
     // 頁面載入後綁定事件
     document.addEventListener('DOMContentLoaded', () => {
     const tabs = document.querySelectorAll('.sidebar .info p');
     const panels = document.querySelectorAll('.content-panel');
-    tabs.forEach(tab => tab.addEventListener('click', () => {
-        tabs.forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        panels.forEach(p => p.classList.remove('active'));
-        document.getElementById(tab.dataset.panel).classList.add('active');
-        if (tab.dataset.panel === 'confirm') showConfirmPanel();
-    }));
-    document.addEventListener('DOMContentLoaded', ()=>{
-        const form = document.getElementById('reservationForm');
-        form.addEventListener('submit', ()=>{
-            showConfirmPanel();  // 把 sessionStorage 裡的時間、人數、取消、遲到、訂金……都寫到隱藏 input
-            // 注意：這裡不呼叫 e.preventDefault()，直接往下送出
-        });
-        });
+    tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      panels.forEach(p => p.classList.remove('active'));
+      document.getElementById(tab.dataset.panel).classList.add('active');
+      if (tab.dataset.panel === 'confirm') showConfirmPanel();
+    });
+  });
+
+    // ✅ 月份按鈕高亮：根據網址上的 month 參數
+    const urlParams = new URLSearchParams(window.location.search);
+    const selectedMonth = parseInt(urlParams.get('month'), 10);
+    document.querySelectorAll('.month-selector a').forEach(a => {
+        const linkParams = new URLSearchParams(a.getAttribute('href'));
+        const m = parseInt(linkParams.get('month'), 10);
+        if (m === selectedMonth) {
+        a.classList.add('active');
+        } else {
+        a.classList.remove('active');
+        }
+    });
+    
 
     // highlight today
     const today = new Date();
@@ -299,13 +377,45 @@ $months   = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','
         });
     });
 
-    // save date/time
-    document.getElementById('saveDateTime').addEventListener('click', ()=>{
-        const d = sessionStorage.getItem('selectedDate')||'';
+    const businessHours = <?php echo json_encode(json_decode($businessHours, true)); ?>;
+
+    document.getElementById('saveDateTime').addEventListener('click', () => {
+        const d = sessionStorage.getItem('selectedDate') || '';
         const t = document.getElementById('timeInput').value;
-        const full=`<?php echo $year;?>-${String(<?php echo $month;?>).padStart(2,'0')}-${String(d).padStart(2,'0')} ${t}`;
-        sessionStorage.setItem('reservationDateTime',full);
-        alert('已儲存：'+full);
+        const date = new Date(`<?php echo "$year-$month"; ?>-${d.padStart(2, '0')}`);
+        const weekday = ['星期日','星期一','星期二','星期三','星期四','星期五','星期六'][date.getDay()];
+
+        const time = t;
+        const timeHour = parseInt(time.split(':')[0]);
+        const timeMin  = parseInt(time.split(':')[1]);
+
+        const slots = (businessHours[weekday] || "").split(',');
+        let valid = false;
+
+        for (const slot of slots) {
+            const [start, end] = slot.split('-');
+            if (!start || !end) continue;
+            const [sh, sm] = start.split(':').map(Number);
+            const [eh, em] = end.split(':').map(Number);
+
+            const nowMin = timeHour * 60 + timeMin;
+            const sMin = sh * 60 + sm;
+            const eMin = eh * 60 + em;
+
+            if (nowMin >= sMin && nowMin <= eMin) {
+                valid = true;
+                break;
+            }
+        }
+
+        if (!valid) {
+            alert(`您選擇的 ${weekday} ${time} 不在營業時間內，請重新選擇`);
+            return;
+        }
+
+        const full = `<?php echo $year;?>-${String(<?php echo $month;?>).padStart(2,'0')}-${String(d).padStart(2,'0')} ${t}`;
+        sessionStorage.setItem('reservationDateTime', full);
+        alert('已儲存：' + full);
     });
 
     // save people
@@ -353,9 +463,42 @@ $months   = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','
         document.getElementById('confirmDeposit').textContent = '訂金：NT$'+deposit+' / 位';
         document.getElementById('depositInput').value = deposit;
 
-        // 餐廳電話
-        document.getElementById('confirmPhone').textContent = '電話：'+<?php echo json_encode($phone);?>;
+       
         }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.cancel-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const id = btn.dataset.id;
+                    const adult = parseInt(btn.dataset.adult);
+                    const children = parseInt(btn.dataset.children);
+                    const deposite = parseFloat(btn.dataset.deposite);
+                    const refund = (adult + children) * deposite;
+
+                    if (confirm('您確定要取消這筆預約嗎？')) {
+                        fetch('cancel_reservation.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+                            body: new URLSearchParams({
+                                ReserveTransid: id,
+                                adult: adult,
+                                children: children,
+                                deposite: deposite
+                            })
+                        })
+                        .then(res => res.text())
+                        .then(text => {
+                            alert(text); // 顯示取消成功＋退款金額
+                            location.reload(); // 重新整理頁面
+                        })
+                        .catch(err => alert('取消失敗，請稍後再試'));
+                    }
+                });
+            });
+        });
+       
     </script>
+
+    
 </body>
 </html>

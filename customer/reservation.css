@@ -28,12 +28,25 @@ body { font-family: Arial, sans-serif; }
 .content-panel.active { display: block; }
 .calendar-container { width: 65%; background: #fff; padding: 40px; overflow-y: auto; }
 .month-selector { display: flex; justify-content: space-between; margin-bottom: 16px; }
-.month-selector a { flex:1; text-align:center; padding:8px 0; text-decoration:none;
-	color:#555; border:1px solid #ddd; margin:0 4px; border-radius:4px;
-	transition: background 0.3s;
+.month-selector a {
+  flex: 1;
+  text-align: center;
+  padding: 8px 0;
+  margin: 0 4px;
+  text-decoration: none;
+  color: #555;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  transition: background 0.3s;
 }
-.month-selector a:hover { background: #f0f0f0; }
-.month-selector a.active { background:#97bdac; color:#fff; border-color:#97bdac; }
+.month-selector a.active {
+  background: #146e57;
+  color: #fff;
+  border-color: #146e57;
+}
+.month-selector a:hover {
+  background: #f0f0f0;
+}
 table { width:100%; border-collapse:collapse; table-layout:fixed; }
 th, td { width:14.2857%; text-align:center; padding:12px 0; color:#555; }
 th { text-transform:uppercase; font-size:14px; color:#aaa; }
@@ -57,4 +70,134 @@ tr { text-align: center; }
 }
 .business-hours .day:last-child {
     border-bottom: none;
+}
+
+.time-select {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 16px;
+	flex-direction: column;
+}
+
+.time-select label {
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+    color: #333;
+}
+
+.time-select input[type="time"] {
+    padding: 6px 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+button.confirm-btn, .time-select button {
+    padding: 8px 16px;
+    font-size: 16px;
+    background-color: #146e57;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.time-select button:hover {
+    background-color: #0f5745;
+}
+
+.people-form {
+    max-width: 400px;
+    margin: 0 auto;
+    padding-top: 20px;
+}
+
+.people-form label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    font-size: 18px;
+    color: #555;
+}
+
+.people-form input[type="number"] {
+    width: 200px;
+    padding: 6px 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.people-form button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #146e57;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.people-form button:hover {
+    background-color: #0f5947;
+}
+
+.history-entry {
+    background-color: #f8f9fa;
+    border-left: 5px solid #007bff;
+}
+
+/* ===== 訂位確認資訊區塊 ===== */
+#confirm h2 {
+    text-align: center;
+    margin-bottom: 24px;
+    font-size: 28px;
+    color: #146e57;
+    font-weight: bold;
+}
+
+#confirm p {
+    font-size: 18px;
+    margin-bottom: 12px;
+    line-height: 1.6;
+    color: #333;
+}
+
+#confirm p strong {
+    display: inline-block;
+    min-width: 120px;
+    font-weight: bold;
+    color: #146e57;
+}
+
+/* 顯示欄位的文字高亮 */
+#confirm p span {
+    font-weight: bold;
+    color: #000;
+}
+
+/* 確認按鈕樣式統一 */
+#finalConfirm.confirm-btn {
+    display: block;
+    margin: 30px auto 0 auto;
+    padding: 12px 32px;
+    font-size: 18px;
+    background-color: #146e57;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+#finalConfirm.confirm-btn:hover {
+    background-color: #0f5745;
 }
