@@ -13,9 +13,12 @@ $create_email = $_GET['create'] ?? 'Log in to stay connected with us';
         <meta name="viewport" content="width=device-width", initial-scale="1.0">
         <link rel="stylesheet" href="login.css">
         <script src="login.js" defer></script>
+        <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"> -->
+
     </head>
     <body>
         
+
         <div class="container"id="container">
             <div class="form-container sign-up-container">
                 <form action="register.php" method="POST" enctype="multipart/form-data">
@@ -144,6 +147,31 @@ $create_email = $_GET['create'] ?? 'Log in to stay connected with us';
             </div>
         
         </div>
+
+        <!-- <div id="grass-banner">
+            <img src="grass.png" alt="Grass Banner">
+        </div> -->
+
+        <?php if (isset($_GET['wrongpw'])): ?>
+            `<script>
+                alert("密碼錯誤，請再試一次！");
+            </script>
+        <?php endif; ?>
+
+        <?php if (isset($_GET['erroremail'])): ?>
+            <script>
+                alert("找不到該 Email，請確認輸入是否正確！");
+            </script>
+        <?php endif; ?>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            // 過 1 秒再消失
+            setTimeout(() => {
+            document.getElementById('grass-banner').classList.add('hide');
+            }, 1000);
+        });
+    </script>
 
     </body>
 </html>

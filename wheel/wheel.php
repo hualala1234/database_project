@@ -1,3 +1,9 @@
+<?php
+session_start();
+$cid = $_SESSION['cid'] ?? null;
+?>
+
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -64,9 +70,9 @@
 
                             <div id="myDropdown" class="dropdown-content" style="display: none; position: absolute; background-color: white; min-width: 120px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 1; right: 0; border-radius: 8px;">
 
-                                <?php if ($_SESSION['role'] === 'merchant'): ?>
+                                <?php if ($_SESSION['role'] === 'm'): ?>
                                     <a href="/database/merchant/setting.php" class="dropdown-item">商家設定</a>
-                                <?php elseif ($_SESSION['role'] === 'customer'): ?>
+                                <?php elseif ($_SESSION['role'] === 'c'): ?>
                                     <a href="../login/login_customer/setting.php" class="dropdown-item">個人設定</a>
                                     <a href="/database_project/allergy/allergy.php" class="dropdown-item">過敏設定</a>
                                     <!-- <a href="../claw_machine/claw.php" class="dropdown-item">優惠券活動</a> -->
@@ -74,7 +80,7 @@
                                     <a href="../walletAndrecord/c_record.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">交易紀錄</a>
                                     <a href="friends.php" class="dropdown-item">我的好友</a>
                                     <a href="/database_project/customer/reservation.php" class="dropdown-item">我要訂位</a>
-                                <?php elseif ($_SESSION['role'] === 'delivery_person'): ?>
+                                <?php elseif ($_SESSION['role'] === 'd'): ?>
                                     <a href="/database/customer/setting.php" class="dropdown-item">外送員設定</a>
                                 <?php elseif ($_SESSION['role'] === 'platform'): ?>
                                     <a href="/database/customer/setting.php" class="dropdown-item">平台設定</a>
@@ -123,22 +129,39 @@
     </div>
   </div>
     
-    <script>
-    // 工具函式
-    function toRad(deg){ return deg * Math.PI/180; }
-    function randomRange(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
-    function easeOutSine(x){ return Math.sin((x*Math.PI)/2); }
-    function getPercent(input,min,max){ return (((input-min)*100)/(max-min))/100; }
+  <script>
+    function toggleDropdown() {
+        const dropdown = document.getElementById("myDropdown");
+        dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+    }
 
-    // 暖色系定義 + 深淺漸層產生
-    const baseColors = [
-        "#D0B37A", // 杏仁
-        "#E6D193", // 檸檬
-        "#BFA15C", // 木堅果
-        "#F2E9C3", // 淡奶油
-        "#C8B28E", // 沙褐
-        "#A78C5F"  // 栗木
-        ];
+    // 點擊頁面其他地方自動收起下拉選單
+    window.onclick = function(event) {
+        if (!event.target.matches('.my-auto') && !event.target.closest('.dropdown')) {
+            var dropdown = document.getElementById("myDropdown");
+            if (dropdown && dropdown.style.display === "block") {
+                dropdown.style.display = "none";
+            }
+        }
+    }
+  </script>
+
+  <script>
+  // 工具函式
+  function toRad(deg){ return deg * Math.PI/180; }
+  function randomRange(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+  function easeOutSine(x){ return Math.sin((x*Math.PI)/2); }
+  function getPercent(input,min,max){ return (((input-min)*100)/(max-min))/100; }
+
+  // 暖色系定義 + 深淺漸層產生
+  const baseColors = [
+      "#D0B37A", // 杏仁
+      "#E6D193", // 檸檬
+      "#BFA15C", // 木堅果
+      "#F2E9C3", // 淡奶油
+      "#C8B28E", // 沙褐
+      "#A78C5F"  // 栗木
+      ];
     function shadeColor(color, pct){
       const num = parseInt(color.slice(1),16);
       let r = (num>>16)+Math.round(255*pct),
@@ -221,71 +244,25 @@
       requestAnimationFrame(animate);
     }
 
-    //  function updateWinner(){
-    //   const deg = (currentDeg%360+360)%360;
-    //   const idx = Math.floor((360 - deg)/step) % items.length;
-    //   const winnerText = items[idx].trim();
-    //   document.getElementById("winner").innerText = winnerText;
-
-    //   fetch(`getRestaurants.php?category=${encodeURIComponent(winnerText)}`)
-    //     .then(res => {
-    //       if(!res.ok) throw new Error(`伺服器 ${res.status}`);
-    //       return res.json();
-    //     })
-    //     .then(data => {
-    //       const cards = document.getElementById("restaurant-cards");
-    //       if(!Array.isArray(data) || data.length===0){
-    //         cards.innerHTML = "<p class='text-center'>抱歉，沒有找到相關店家。</p>";
-    //         return;
-    //       }
-    //       cards.innerHTML = data.map(m=>`
-    //         <div class="col-md-6 col-lg-4 col-xl-3">
-    //           <div class="rounded position-relative fruite-item" style="cursor:pointer;"
-    //                onclick="location.href='merchant.php?mid=${encodeURIComponent(m.mid)}'">
-    //             <div class="fruite-img">
-    //               <img src="../${m.mPicture}" class="img-fluid w-100 rounded-top" alt="${m.mName}">
-    //             </div>
-    //             <div class="text-white bg-secondary px-3 py-1 rounded position-absolute"
-    //                  style="top:10px; left:10px;">
-    //               ${m.categoryNames||'未分類'}
-    //             </div>
-    //             <div class="p-4 border border-secondary border-top-0 rounded-bottom"
-    //                  style="height:175px; display:flex; flex-direction:column; justify-content:space-between;">
-    //               <div>
-    //                 <h5>${m.mName}</h5>
-    //                 <p>${m.mAddress}</p>
-    //               </div>
-    //               <div class="d-flex justify-content-between flex-lg-wrap">
-    //                 <p class="text-dark fs-5 fw-bold mb-0">❤ ${m.favoritesCount}</p>
-    //               </div>
-    //             </div>
-    //           </div>
-    //         </div>
-    //       `).join("");
-    //     })
-    //     .catch(err => {
-    //       document.getElementById("restaurant-cards")
-    //               .innerHTML = `<p class="text-center">載入失敗：${err.message}</p>`;
-    //     });
-    // }
+    
 
     function updateWinner(){
-  const deg = (currentDeg % 360 + 360) % 360;
-  const idx = Math.floor((360 - deg) / step) % items.length;
-  const winnerText = items[idx].trim();
-  document.getElementById("winner").innerText = winnerText;
+    const deg = (currentDeg % 360 + 360) % 360;
+    const idx = Math.floor((360 - deg) / step) % items.length;
+    const winnerText = items[idx].trim();
+    document.getElementById("winner").innerText = winnerText;
 
-  fetch(`getRestaurants.php?category=${encodeURIComponent(winnerText)}`)
-    .then(res => {
-      if (!res.ok) throw new Error(`伺服器 ${res.status}`);
-      return res.json();
-    })
-    .then(data => {
-      const cards = document.getElementById("restaurant-cards");
-      if (!Array.isArray(data) || data.length === 0) {
-        cards.innerHTML = "<p class='text-center'>抱歉，沒有找到相關店家。</p>";
-        return;
-      }
+    fetch(`getRestaurants.php?category=${encodeURIComponent(winnerText)}`)
+      .then(res => {
+        if (!res.ok) throw new Error(`伺服器 ${res.status}`);
+        return res.json();
+      })
+      .then(data => {
+        const cards = document.getElementById("restaurant-cards");
+        if (!Array.isArray(data) || data.length === 0) {
+          cards.innerHTML = "<p class='text-center'>抱歉，沒有找到相關店家。</p>";
+          return;
+        }
 
       // 產生每個餐廳卡片，onclick 會導到 merchant.php?mid=該店家 id
       cards.innerHTML = data.map(m => `
