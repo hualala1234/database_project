@@ -2786,9 +2786,10 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['mid'])) {
 
 
 
-              <?php if (
-                ($status === 'takeaway') && $deliveryStatus === 'accept' // 配送中或已送達時顯示外送員名稱
-              ): ?>
+                <?php if (
+                  ($deliveryStatus === 'accept') 
+                  // 配送中或已送達時顯示外送員名稱
+                ): ?>
                 <?php if (!empty($order['dpName'])): ?>
                   <p><strong>外送員：</strong><?= htmlspecialchars($order['dpName']) ?></p>
                 <?php else: ?>
