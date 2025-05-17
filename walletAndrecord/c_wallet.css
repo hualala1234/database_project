@@ -375,7 +375,7 @@ select{
 #luggage-container {
     position: fixed;
     bottom: 200px;
-    right: 40px;
+    right: 50%;
     z-index: 9998;
 }
 

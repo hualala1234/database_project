@@ -313,7 +313,15 @@ withdrawForm.addEventListener('submit', function (e) {
     }
 
     const amount = parseInt(document.getElementById('withdraw-amount').value);
+    const currentBalanceText = document.getElementById("balance").textContent.replace("NTD", "").trim();
+    const currentBalance = parseInt(currentBalanceText);
 
+    // ✅ 加在這裡
+    if (amount > currentBalance) {
+        alert("❌ 餘額不足！");
+        return;
+    }
+    
     fetch('../walletAndrecord/withdraw.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
