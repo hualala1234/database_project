@@ -420,12 +420,12 @@ if ($mid !== '') {
                             </a>
                         </div>
                         <?php
-                        $sqlOrdersMaking = "SELECT o.*, c.cName, p.pName, t.transactionTime, t.tNote
-                                    FROM `Orders` o
-                                    JOIN `Product` p ON o.pid = p.pid
-                                    JOIN `Customer` c ON o.cid = c.cid
-                                    JOIN `Transaction` t ON o.tranId = t.tranId 
-                                    WHERE o.mid = $mid AND t.orderStatus = 'done'
+                        $sqlOrdersMaking = "SELECT r.*, c.cName, p.pName, t.transactionTime, t.tNote
+                                    FROM `Record` r
+                                    JOIN `Product` p ON r.pid = p.pid
+                                    JOIN `Customer` c ON r.cid = c.cid
+                                    JOIN `Transaction` t ON r.tranId = t.tranId 
+                                    WHERE t.mid = $mid AND t.orderStatus = 'done'
                                     ORDER BY t.transactionTime ASC";
                         $resultOrders = mysqli_query($conn, $sqlOrdersMaking);
 

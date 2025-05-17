@@ -431,7 +431,7 @@ var_dump($mid); // 確保 mid 有值
                                             echo '<div class="product-title">
                                                     <div style="display:flex; justify-content: space-between;" >
                                                         <h4 style="margin:0; text-align:left; text-decoration:underline; cursor:pointer;" data-bs-toggle="modal" data-bs-target="#editProductModal_' . $productDetail['pid'] . '">
-                                                            <i style="margin-right:0.4rem" class="fa-solid fa-bag-shopping"></i>'
+                                                            <i style="margin-right:0.4rem" class="fa-solid fa-bag-shopping mb-3"></i>'
                                                             . htmlspecialchars($productDetail['pName']) .  ' - $' . htmlspecialchars($productDetail['price']) . 
                                                         '</h4>
                                                         <h4>
