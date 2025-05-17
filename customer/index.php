@@ -13,6 +13,24 @@ if ($cid !== '') {
     
 }
 
+// ✅ 預設不是 VIP
+$isVIP = false;
+$vipImage = './vip.png';
+
+if (!empty($cid)) {
+    $sql = "SELECT vipTime FROM customer WHERE cid = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $cid);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($row = $result->fetch_assoc()) {
+        if (!is_null($row['vipTime'])) {
+            $isVIP = true;
+            $vipImage = './is_vip.png';
+        }
+    }
+}
+
 $storeCount = 0;
 if (isset($_SESSION['cid'], $_SESSION['cartTime'])) {
     $stmt = $conn->prepare("SELECT COUNT(DISTINCT mid) AS storeCount FROM CartItem WHERE cid = ? AND DATE(cartTime) = ?");
@@ -98,6 +116,8 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
 
         <!-- Template Stylesheet -->
         <link href="../css/style.css" rel="stylesheet">
+        <link href="./vip.css" rel="stylesheet">
+        <script src="./vip.js" type="text/javascript"></script>
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
     </head>
@@ -152,6 +172,34 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
                                 onmouseover="this.src='./trans_hover.png'" 
                                 onmouseout="this.src='./trans.png'">
                         </a> -->
+                        <!-- Crown Icon -->
+                        <img class="crown" src="<?= $vipImage ?>" alt="VIP icon" width="40" height="40" style="margin-left: 20px;"
+                        style="margin-left: 20px; margin-top: 20px;<?= $isVIP ? '' : 'cursor: pointer;' ?>"
+                            <?php if (!$isVIP): ?>
+                            onmouseover="this.src='./vip_hover.png'" 
+                            onmouseout="this.src='./vip.png'"
+                            onclick="toggleVIP(event)"
+                        <?php endif; ?>
+                        >
+                        <!-- ✅ VIP 彈出視窗 -->
+                        <div class="vip" id="vip-popup" style="display: none;">
+                            <img id="closecomment" src="../walletAndrecord/image/cross.png" alt="close button" width="15" height="15" 
+                                style="position:absolute; top:10px; right:10px;" 
+                                onclick="closeVIP()">
+                            
+                            <img id="vip-image" src="./join_vip.png" alt="vip" style="cursor: pointer;" onclick="addVIPToCart()">
+                            <p style="cursor: pointer;" onclick="confirmJoinVIP()">我要加入 VIP</p>
+                        </div>
+
+                        <!-- ✅ 飛行動畫圖像容器 -->
+                        <div id="fly-container"></div>
+
+                        <!-- ✅ 訊息提示 -->
+                        <div id="vip-message" style="display:none; position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
+                            background: #4CAF50; color: white; padding: 10px 20px; border-radius: 8px; z-index: 3000;">
+                            已成功加入 VIP 到購物車！
+                        </div>
+
                         
 
 

@@ -460,3 +460,49 @@ C:\xampp\htdocs\database_project\claw_machine\score_data.py:137: UserWarning: Gl
 ✅ score_chart.png 已成功產生
 ✅ score_chart_19.png 已成功產生
 [PHP] V score_chart_19.png 已產出
+[PHP] generate_chart.php 啟動
+[PHP] 要匯出 CSV 了
+[PHP] 匯出 CSV 完成
+[CMD] C:\xampp\htdocs\database_project\.venv\Scripts\python.exe "C:\xampp\htdocs\database_project\claw_machine\score_data.py" "20" 2>&1
+[PY OUTPUT]
+C:\xampp\htdocs\database_project\claw_machine\score_data.py:135: UserWarning: Glyph 128200 (\N{CHART WITH UPWARDS TREND}) missing from font(s) DejaVu Sans.
+  plt.tight_layout()
+C:\xampp\htdocs\database_project\claw_machine\score_data.py:135: UserWarning: Glyph 129504 (\N{BRAIN}) missing from font(s) DejaVu Sans.
+  plt.tight_layout()
+C:\xampp\htdocs\database_project\claw_machine\score_data.py:137: UserWarning: Glyph 128200 (\N{CHART WITH UPWARDS TREND}) missing from font(s) DejaVu Sans.
+  plt.savefig(png_file)
+C:\xampp\htdocs\database_project\claw_machine\score_data.py:137: UserWarning: Glyph 129504 (\N{BRAIN}) missing from font(s) DejaVu Sans.
+  plt.savefig(png_file)
+[DEBUG] sys.argv = ['C:\\xampp\\htdocs\\database_project\\claw_machine\\score_data.py', '20']
+[DEBUG] 正在處理 CID: 20, 輸出圖表為: score_chart_20.png
+✅ user_score_data_20.csv 已成功讀取
+✅ score_chart.png 已成功產生
+✅ score_chart_20.png 已成功產生
+[PHP] V score_chart_20.png 已產出
+[PHP] generate_chart.php 啟動
+[PHP] 要匯出 CSV 了
+[PHP] 匯出 CSV 完成
+[CMD] C:\xampp\htdocs\database_project\.venv\Scripts\python.exe "C:\xampp\htdocs\database_project\claw_machine\score_data.py" "20" 2>&1
+[PY OUTPUT]
+C:\xampp\htdocs\database_project\claw_machine\score_data.py:135: UserWarning: Glyph 128200 (\N{CHART WITH UPWARDS TREND}) missing from font(s) DejaVu Sans.
+  plt.tight_layout()
+C:\xampp\htdocs\database_project\claw_machine\score_data.py:135: UserWarning: Glyph 129504 (\N{BRAIN}) missing from font(s) DejaVu Sans.
+  plt.tight_layout()
+C:\xampp\htdocs\database_project\claw_machine\score_data.py:135: UserWarning: Glyph 128078 (\N{THUMBS DOWN SIGN}) missing from font(s) DejaVu Sans.
+  plt.tight_layout()
+C:\xampp\htdocs\database_project\claw_machine\score_data.py:135: UserWarning: Glyph 129308 (\N{RIGHT-FACING FIST}) missing from font(s) DejaVu Sans.
+  plt.tight_layout()
+C:\xampp\htdocs\database_project\claw_machine\score_data.py:137: UserWarning: Glyph 128200 (\N{CHART WITH UPWARDS TREND}) missing from font(s) DejaVu Sans.
+  plt.savefig(png_file)
+C:\xampp\htdocs\database_project\claw_machine\score_data.py:137: UserWarning: Glyph 128078 (\N{THUMBS DOWN SIGN}) missing from font(s) DejaVu Sans.
+  plt.savefig(png_file)
+C:\xampp\htdocs\database_project\claw_machine\score_data.py:137: UserWarning: Glyph 129308 (\N{RIGHT-FACING FIST}) missing from font(s) DejaVu Sans.
+  plt.savefig(png_file)
+C:\xampp\htdocs\database_project\claw_machine\score_data.py:137: UserWarning: Glyph 129504 (\N{BRAIN}) missing from font(s) DejaVu Sans.
+  plt.savefig(png_file)
+[DEBUG] sys.argv = ['C:\\xampp\\htdocs\\database_project\\claw_machine\\score_data.py', '20']
+[DEBUG] 正在處理 CID: 20, 輸出圖表為: score_chart_20.png
+✅ user_score_data_20.csv 已成功讀取
+✅ score_chart.png 已成功產生
+✅ score_chart_20.png 已成功產生
+[PHP] V score_chart_20.png 已產出
