@@ -145,5 +145,16 @@ $create_email = $_GET['create'] ?? 'Log in to stay connected with us';
         
         </div>
 
+        <?php if (isset($_GET['wrongpw'])): ?>
+            `<script>
+                alert("密碼錯誤，請再試一次！");
+            </script>
+        <?php endif; ?>
+
+        <?php if (isset($_GET['erroremail'])): ?>
+            <script>
+                alert("找不到該 Email，請確認輸入是否正確！");
+            </script>
+        <?php endif; ?>
     </body>
 </html>

@@ -42,12 +42,12 @@ if ($_SERVER["REQUEST_METHOD"]=="POST"){
             exit();
         } 
         else {
-            header("Location: system_blog.php?wrongpw=Wrong password");
+            header("Location: system_blog.php?wrongpw=Wrong password&show=login");
             exit();
         }
     }
     else{
-        header("Location: system_blog.php?erroremail=No user with that email");
+        header("Location: system_blog.php?erroremail=No user with that email&show=login");
         exit();
     }
 }
