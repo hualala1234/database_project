@@ -688,4 +688,39 @@ a:hover {
     opacity: 0;
   }
 }
+#boxx{
+  position: absolute;
+  top: 20%;
+  left: 10%;
+}
 
+#boxx>a>.game1{
+  background: initial;
+  border-radius: 5px;
+  background-color: none; 
+  background-image: initial;
+  background-color: #8fae67; /* 柔和的綠色 */
+  filter: none;
+  padding: 10px;
+  background-image: none;
+}
+#boxx>a>.game1:hover{
+  cursor: pointer;
+  background-color: #8fae67; /* 柔和的綠色 */
+  /* background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAQCAYAAAAvf+5AAAAAAXNSR0IArs4c6QAAAFxJREFUKFNjZICCcA3+/ytvfGSE8dFpsARI0YrrHxgiNAUYcClmhCmCmYBLMYqJ+BTD3UTIZBTH41OM4UtcirEGBzbF5CskymqiPENU8BBSBIoI8qIQb6IgNpkBAEPjZSuK8jVuAAAAAElFTkSuQmCC); */
+}
+#boxx>a>.game2{
+  background: initial;
+  border-radius: 5px;
+  background-color: none; 
+  background-image: initial;
+  background-color: #8fae67; /* 柔和的綠色 */
+  filter: none;
+  padding: 10px;
+  background-image: none;
+}
+#boxx>a>.game2:hover{
+  cursor: pointer;
+  background-color: #dbd67f; /* 柔和的綠色 */
+  /* background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAQCAYAAAAvf+5AAAAAAXNSR0IArs4c6QAAAFxJREFUKFNjZICCcA3+/ytvfGSE8dFpsARI0YrrHxgiNAUYcClmhCmCmYBLMYqJ+BTD3UTIZBTH41OM4UtcirEGBzbF5CskymqiPENU8BBSBIoI8qIQb6IgNpkBAEPjZSuK8jVuAAAAAElFTkSuQmCC); */
+}

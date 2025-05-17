@@ -13,6 +13,24 @@ if ($cid !== '') {
     
 }
 
+// ✅ 預設不是 VIP
+$isVIP = false;
+$vipImage = './vip.png';
+
+if (!empty($cid)) {
+    $sql = "SELECT vipTime FROM customer WHERE cid = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $cid);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($row = $result->fetch_assoc()) {
+        if (!is_null($row['vipTime'])) {
+            $isVIP = true;
+            $vipImage = './is_vip.png';
+        }
+    }
+}
+
 $storeCount = 0;
 if (isset($_SESSION['cid'], $_SESSION['cartTime'])) {
     $stmt = $conn->prepare("SELECT COUNT(DISTINCT mid) AS storeCount FROM CartItem WHERE cid = ? AND DATE(cartTime) = ?");
@@ -98,8 +116,9 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
 
         <!-- Template Stylesheet -->
         <link href="../css/style.css" rel="stylesheet">
-
-
+        <link href="./vip.css" rel="stylesheet">
+        <script src="./vip.js" type="text/javascript"></script>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
     </head>
 
@@ -151,6 +170,34 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
                                 onmouseover="this.src='./trans_hover.png'" 
                                 onmouseout="this.src='./trans.png'">
                         </a> -->
+                        <!-- Crown Icon -->
+                        <img class="crown" src="<?= $vipImage ?>" alt="VIP icon" width="40" height="40" style="margin-left: 20px;"
+                        style="margin-left: 20px; margin-top: 20px;<?= $isVIP ? '' : 'cursor: pointer;' ?>"
+                            <?php if (!$isVIP): ?>
+                            onmouseover="this.src='./vip_hover.png'" 
+                            onmouseout="this.src='./vip.png'"
+                            onclick="toggleVIP(event)"
+                        <?php endif; ?>
+                        >
+                        <!-- ✅ VIP 彈出視窗 -->
+                        <div class="vip" id="vip-popup" style="display: none;">
+                            <img id="closecomment" src="../walletAndrecord/image/cross.png" alt="close button" width="15" height="15" 
+                                style="position:absolute; top:10px; right:10px;" 
+                                onclick="closeVIP()">
+                            
+                            <img id="vip-image" src="./join_vip.png" alt="vip" style="cursor: pointer;" onclick="addVIPToCart()">
+                            <p style="cursor: pointer;" onclick="confirmJoinVIP()">我要加入 VIP</p>
+                        </div>
+
+                        <!-- ✅ 飛行動畫圖像容器 -->
+                        <div id="fly-container"></div>
+
+                        <!-- ✅ 訊息提示 -->
+                        <div id="vip-message" style="display:none; position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
+                            background: #4CAF50; color: white; padding: 10px 20px; border-radius: 8px; z-index: 3000;">
+                            已成功加入 VIP 到購物車！
+                        </div>
+
                         
 
 
@@ -184,16 +231,18 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
 
                                 <div id="myDropdown" class="dropdown-content" style="display: none; position: absolute; background-color: white; min-width: 120px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 1; right: 0; border-radius: 8px;">
 
-                                    <?php if ($_SESSION['role'] === 'merchant'): ?>
+                                    <?php if ($_SESSION['role'] === 'm'): ?>
                                         <a href="/database/merchant/setting.php" class="dropdown-item">商家設定</a>
                                     <?php elseif ($_SESSION['role'] === 'c'): ?>
-                                        <a href="/database/customer/setting.php" class="dropdown-item">個人設定</a>
-                                        <a href="/database_project/allergy/allergy.php" class="dropdown-item">過敏設定</a>
-                                        <a href="../claw_machine/claw.php" class="dropdown-item">優惠券活動</a>
+                                        <a href="../login/login_customer/setting.php?cid=<?php echo $cid; ?>" class="dropdown-item">個人設定</a>
+                                        <a href="/database_project/allergy/allergy.php?cid=<?php echo $cid; ?>" class="dropdown-item">過敏設定</a>
+                                        <a href="../claw_machine/claw.php?cid=<?php echo $cid; ?>" class="dropdown-item">優惠券活動</a>
                                         <a href="../walletAndrecord/c_wallet.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">錢包</a>
                                         <a href="../walletAndrecord/c_record.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">交易紀錄</a>
-                                        <a href="friends.php" class="dropdown-item">我的好友</a>
-                                    <?php elseif ($_SESSION['role'] === 'delivery_person'): ?>
+                                        <a href="../customer/friends.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">我的好友</a>
+                                        <a href="../wheel/wheel.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">命運轉盤</a>
+                                        <a href="/database_project/customer/reservation.php" class="dropdown-item">我要訂位</a>
+                                    <?php elseif ($_SESSION['role'] === 'd'): ?>
                                         <a href="/database/customer/setting.php" class="dropdown-item">外送員設定</a>
                                     <?php elseif ($_SESSION['role'] === 'platform'): ?>
                                         <a href="/database/customer/setting.php" class="dropdown-item">平台設定</a>
@@ -260,53 +309,72 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
 
 
                     <div class="tab-content">
-                        <!-- 所有商品 -->
-                        <div id="tab-0" class="tab-pane fade show p-0 active">
-                            <div class="row g-4">
-                                <div class="col-lg-12">
-                                    <div class="g-4 row" >
-                                        <?php
-                                        $sqlAll = "
-                                            SELECT m.*, 
-                                                GROUP_CONCAT(rcl.categoryName SEPARATOR ', ') AS categoryNames
-                                            FROM Merchant m
-                                            LEFT JOIN RestaurantCategories rc ON m.mid = rc.mid
-                                            LEFT JOIN RestaurantCategoryList rcl ON rc.categoryId = rcl.categoryId
-                                            GROUP BY m.mid
-                                            ORDER BY RAND()
-                                        ";
-                                        $resultAll = $conn->query($sqlAll);
+                    <!-- 所有商品 -->
+                    <div id="tab-0" class="tab-pane fade show p-0 active">
+                        <div class="row g-4">
+                            <div class="col-lg-12">
+                                <div class="g-4 row">
+                                    <?php
+                                    $cid = $_SESSION['cid'] ?? null;
 
-                                        if ($resultAll && $resultAll->num_rows > 0) {
-                                            while ($row = $resultAll->fetch_assoc()) {
-                                                echo '
-                                                <div class="col-md-6 col-lg-4 col-xl-3">
-                                                    <div class="rounded position-relative fruite-item" style="cursor: pointer;" onclick="location.href=\'merchant.php?mid=' . urlencode($row["mid"]) . '\'">
-                                                        <div class="fruite-img">
-                                                            <img src="../' . $row["mPicture"] . '" class="img-fluid w-100 rounded-top" alt="">
+                                    $sqlAll = "
+                                        SELECT m.*, 
+                                            GROUP_CONCAT(rcl.categoryName SEPARATOR ', ') AS categoryNames
+                                        FROM Merchant m
+                                        LEFT JOIN RestaurantCategories rc ON m.mid = rc.mid
+                                        LEFT JOIN RestaurantCategoryList rcl ON rc.categoryId = rcl.categoryId
+                                        GROUP BY m.mid
+                                        ORDER BY RAND()
+                                    ";
+                                    $resultAll = $conn->query($sqlAll);
+
+                                    if ($resultAll && $resultAll->num_rows > 0) {
+                                        while ($row = $resultAll->fetch_assoc()) {
+                                            // 🔎 判斷是否已收藏
+                                            $isFavorited = false;
+                                            if ($cid) {
+                                                $checkFav = $conn->prepare("SELECT 1 FROM Favorite WHERE cid = ? AND mid = ?");
+                                                $checkFav->bind_param("ii", $cid, $row["mid"]);
+                                                $checkFav->execute();
+                                                $checkFav->store_result();
+                                                $isFavorited = $checkFav->num_rows > 0;
+                                                $checkFav->close();
+                                            }
+
+                                            $heartClass = $isFavorited ? 'fa-solid text-danger' : 'fa-regular';
+
+                                            echo '
+                                            <div class="col-md-6 col-lg-4 col-xl-3">
+                                                <div class="rounded position-relative fruite-item" style="cursor: pointer;" onclick="location.href=\'merchant.php?mid=' . urlencode($row["mid"]) . '\'">
+                                                    <div class="fruite-img">
+                                                        <img src="../' . $row["mPicture"] . '" class="img-fluid w-100 rounded-top" alt="">
+                                                    </div>
+                                                    <div class="text-white bg-secondary px-3 py-1 rounded position-absolute" style="top: 10px; left: 10px;">' . htmlspecialchars($row["categoryNames"] ?? '未分類') . '</div>
+                                                    <div class="p-4 border border-secondary border-top-0 rounded-bottom" style="height:175px; display:flex;flex-direction: column; justify-content: space-between;">
+                                                        <div>
+                                                            <h5>' . htmlspecialchars($row["mName"]) . '</h5>
+                                                            <p>' . htmlspecialchars($row["mAddress"]) . '</p>
                                                         </div>
-                                                        <div class="text-white bg-secondary px-3 py-1 rounded position-absolute" style="top: 10px; left: 10px;">' . htmlspecialchars($row["categoryNames"] ?? '未分類') . '</div>
-                                                        <div class="p-4 border border-secondary border-top-0 rounded-bottom" style="height:175px; display:flex;flex-direction: column; justify-content: space-between; ">
-                                                            <div>
-                                                                <h5>' . htmlspecialchars($row["mName"]) . '</h5>
-                                                                <p>' . htmlspecialchars($row["mAddress"]) . '</p>
-                                                            </div>
-                                                            
-                                                            <div class="d-flex justify-content-between flex-lg-wrap">
-                                                                <p class="text-dark fs-5 fw-bold mb-0">❤ ' . $row["favoritesCount"] . '</p>
-                                                            </div>
+                                                        <div class="d-flex justify-content-between flex-lg-wrap">
+                                                            <p class="text-dark fs-5 fw-bold mb-0" onclick="event.stopPropagation();">
+                                                                <i class="fa-heart favorite-icon ' . $heartClass . '" data-mid="' . $row["mid"] . '"></i>
+                                                                
+                                                            </p>
                                                         </div>
                                                     </div>
-                                                </div>';
-                                            }
-                                        } else {
-                                            echo "<p class='text-center'>尚無商家資料</p>";
+                                                </div>
+                                            </div>';
                                         }
-                                        ?>
-                                    </div>
+                                    } else {
+                                        echo "<p class='text-center'>尚無商家資料</p>";
+                                    }
+                                    ?>
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+
 
                         <!-- 各分類商品 -->
                         <?php
@@ -351,9 +419,11 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
                                                     <p>' . htmlspecialchars($m["mAddress"]) . '</p>
                                                 </div>
                                                 
-                                                <div class="d-flex justify-content-between flex-lg-wrap">
-                                                    <p class="text-dark fs-5 fw-bold mb-0">❤ ' . $m["favoritesCount"] . '</p>
-                                                </div>
+                                                <p class="text-dark fs-5 fw-bold mb-0">
+                                                    <i class="fa-regular fa-heart favorite-icon" data-mid="' . $m["mid"] . '"></i>
+                                                    <span class="favorite-count">' . $m["favoritesCount"] . '</span>
+                                                </p>
+
                                             </div>
                                         </div>
                                     </div>';
@@ -1591,8 +1661,41 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
         </div>
     </div>
 
-    
 
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.favorite-icon').forEach(icon => {
+        icon.addEventListener('click', function (e) {
+        const mid = this.dataset.mid;
+        const icon = this;
+        const countSpan = this.nextElementSibling;
+
+        fetch('toggle_favorite.php', {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: `mid=${mid}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+            if (data.favorited) {
+                icon.classList.remove('fa-regular');
+                icon.classList.add('fa-solid', 'text-danger');
+            } else {
+                icon.classList.remove('fa-solid', 'text-danger');
+                icon.classList.add('fa-regular');
+            }
+            countSpan.textContent = data.favoritesCount;
+            } else {
+            alert("請先登入才能收藏！");
+            }
+        });
+        });
+    });
+    });
+    </script>
 
 
 

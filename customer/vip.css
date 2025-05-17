@@ -1,0 +1,67 @@
+/* .vip {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+.vip>#vip-image {
+    width: 30%;
+    height: auto;
+    border-radius: 10px;
+} */
+.vip>p{
+    width: 38%;
+    text-decoration: none;
+    color: #fff;
+    background-color:rgb(255, 211, 16);
+    padding: 10px 5px;
+    border-radius: 5px;
+    font-size: 18px;
+    margin-top: 20px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+    position: relative;
+    bottom: 80px;
+    left: 120px;
+    text-align: center;
+}
+.vip>p:hover{
+    background-color:rgb(255, 108, 16);
+}
+.vip {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 340px;
+    width: 30%;
+
+    position: absolute;
+    top: 60px;
+    right: 100px;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    padding: 20px;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+}
+.vip>#vip-image {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.flying-img {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    z-index: 2000;
+    transition: transform 1s ease-in-out, opacity 1s ease-in-out;
+}
