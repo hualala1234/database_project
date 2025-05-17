@@ -13,6 +13,24 @@ if ($cid !== '') {
     
 }
 
+// ✅ 預設不是 VIP
+$isVIP = false;
+$vipImage = './vip.png';
+
+if (!empty($cid)) {
+    $sql = "SELECT vipTime FROM customer WHERE cid = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $cid);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($row = $result->fetch_assoc()) {
+        if (!is_null($row['vipTime'])) {
+            $isVIP = true;
+            $vipImage = './is_vip.png';
+        }
+    }
+}
+
 $storeCount = 0;
 if (isset($_SESSION['cid'], $_SESSION['cartTime'])) {
     $stmt = $conn->prepare("SELECT COUNT(DISTINCT mid) AS storeCount FROM CartItem WHERE cid = ? AND DATE(cartTime) = ?");
@@ -155,19 +173,22 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
                                 onmouseout="this.src='./trans.png'">
                         </a> -->
                         <!-- Crown Icon -->
-                        <img class="crown" src="./vip.png" alt="crown icon" width="40" height="40" style="margin-left: 20px;"
-                        style="margin-left: 20px; margin-top: 20px; cursor: pointer;"
+                        <img class="crown" src="<?= $vipImage ?>" alt="VIP icon" width="40" height="40" style="margin-left: 20px;"
+                        style="margin-left: 20px; margin-top: 20px;<?= $isVIP ? '' : 'cursor: pointer;' ?>"
+                            <?php if (!$isVIP): ?>
                             onmouseover="this.src='./vip_hover.png'" 
                             onmouseout="this.src='./vip.png'"
-                            onclick="toggleVIP(event)">
+                            onclick="toggleVIP(event)"
+                        <?php endif; ?>
+                        >
                         <!-- ✅ VIP 彈出視窗 -->
                         <div class="vip" id="vip-popup" style="display: none;">
                             <img id="closecomment" src="../walletAndrecord/image/cross.png" alt="close button" width="15" height="15" 
-                                style="position:absolute; top:10px; right:10px; cursor:pointer;" 
+                                style="position:absolute; top:10px; right:10px;" 
                                 onclick="closeVIP()">
                             
                             <img id="vip-image" src="./join_vip.png" alt="vip" style="cursor: pointer;" onclick="addVIPToCart()">
-                            <p style="cursor: pointer;" onclick="addVIPToCart()">加入 VIP</p>
+                            <p style="cursor: pointer;" onclick="confirmJoinVIP()">我要加入 VIP</p>
                         </div>
 
                         <!-- ✅ 飛行動畫圖像容器 -->

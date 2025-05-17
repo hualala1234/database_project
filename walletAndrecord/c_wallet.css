@@ -292,7 +292,7 @@ label {
 .logo h1{
     margin-left: 30px;
     text-decoration: none !important;
-    color: #146E57 !important;
+    color: black !important;
     font-size: calc(1.375rem + 1.5vw);
     font-weight: 800;
     line-height: 1.2;
@@ -301,4 +301,113 @@ label {
     margin-bottom: .5rem;
     font-family: "Raleway", sans-serif;
     border-bottom: none;
+}
+#transfer-form-section{
+    width: 295px;
+    background: wheat;
+    border-radius: 10px;
+    padding: 0px 20px 30px 20px;
+    text-align: center;
+    position: fixed;
+    top: 10%;
+    right: 20%;
+    text-align: left;
+}
+select{
+    margin: 10px 0px;
+}
+
+#money-rain-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 9999;
+}
+
+.money {
+    position: absolute;
+    top: -50px;
+    width: 40px;
+    animation: fall 2s linear forwards;
+}
+
+@keyframes fall {
+    0% {
+        transform: translateY(-50px) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+    }
+}
+/* #money-fly-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+.money-up {
+    position: absolute;
+    bottom: 0;
+    width: 80px;
+    height: 80px;
+    animation: flyUp 2s ease-out forwards;
+}
+
+@keyframes flyUp {
+    0% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100vh) scale(0.5);
+        opacity: 0;
+    }
+} */
+#luggage-container {
+    position: fixed;
+    bottom: 200px;
+    right: 40px;
+    z-index: 9998;
+}
+
+#luggage {
+    width: 100px;
+    height: auto;
+}
+
+/* 錢飛向行李箱動畫 */
+/* .money-fly-up {
+    position: absolute;
+    bottom: 0;
+    width: 100px;
+    height: 100px;
+    animation: flyToLuggage 2s ease-in forwards;
+    z-index: 9999;
+} */
+.money-fly-up {
+    position: fixed; /* ⬅ 改成 fixed，不再用 bottom */
+    width: 100px;
+    height: 100px;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+@keyframes flyToLuggage {
+    0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(500px, -500px) scale(0.5); /* 根據 luggage 實際位置微調 */
+        opacity: 0;
+    }
 }
