@@ -12,6 +12,23 @@ if ($cid !== '') {
     $row = mysqli_fetch_array($result);
     
 }
+// ✅ 預設不是 VIP
+$isVIP = false;
+$vipImage = './vip.png';
+
+if (!empty($cid)) {
+    $sql = "SELECT vipTime FROM customer WHERE cid = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $cid);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($row = $result->fetch_assoc()) {
+        if (!is_null($row['vipTime'])) {
+            $isVIP = true;
+            $vipImage = './is_vip.png';
+        }
+    }
+}
 
 $storeCount = 0;
 if (isset($_SESSION['cid'], $_SESSION['cartTime'])) {
@@ -160,10 +177,38 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
                                     onmouseover="this.src='./camara_hover.png'" 
                                     onmouseout="this.src='./camara.png'">
                             </a>
+                           
+                            <!-- Crown Icon -->
+                            <img class="crown" src="<?= $vipImage ?>" alt="VIP icon" width="35" height="35"
+                            style="margin-bottom:0.5rem; margin-left:1rem; <?= $isVIP ? '' : 'cursor: pointer;' ?>"
+                                <?php if (!$isVIP): ?>
+                                onmouseover="this.src='./vip_hover.png'" 
+                                onmouseout="this.src='./vip.png'"
+                                onclick="toggleVIP(event)"
+                            <?php endif; ?>
+                            >
+                            <!-- ✅ VIP 彈出視窗 -->
+                            <div class="vip" id="vip-popup" style="display: none;">
+                                <img id="closecomment" src="../walletAndrecord/image/cross.png" alt="close button" width="15" height="15" 
+                                    style="position:absolute; top:10px; right:10px;" 
+                                    onclick="closeVIP()">
+                                
+                                <img id="vip-image" src="./join_vip.png" alt="vip" style="cursor: pointer;" onclick="addVIPToCart()">
+                                <p style="cursor: pointer;" onclick="confirmJoinVIP()">我要加入 VIP</p>
+                            </div>
+
+                            <!-- ✅ 飛行動畫圖像容器 -->
+                            <div id="fly-container"></div>
+
+                            <!-- ✅ 訊息提示 -->
+                            <div id="vip-message" style="display:none; position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
+                                background: #4CAF50; color: white; padding: 10px 20px; border-radius: 8px; z-index: 3000;">
+                                已成功加入 VIP 到購物車！
+                            </div>
                             <?php if (count($orders) > 0): ?>
-                            <a href="#" data-bs-toggle="modal" data-bs-target="#multiOrderModal" class="ms-3">
+                            <a href="#" data-bs-toggle="modal" data-bs-target="#multiOrderModal" class="ms-3 position-relative">
                                 <i class="fa-solid fa-motorcycle fa-2x"></i>
-                                <span id="order-count" class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: 27px; right: 133px; height: 20px; min-width: 20px;">
+                                <span id="order-count" class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 22px; height: 20px; min-width: 20px;">
                                     <?= count($orders) ?>
                                 </span>
                             </a>
@@ -221,6 +266,10 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
 
 
         <!-- Fruits Shop Start-->
+        <?php
+        // 頁面頂端或適當位置先宣告
+        $keyword = isset($_GET['keyword']) ? trim($_GET['keyword']) : '';
+        ?>
 
         
 
@@ -229,6 +278,27 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
             <div class="container py-5">
                 <div class="tab-class text-center">
                     <div class="g-4">
+                        <div class="mb-4" >
+                            <?php
+                            $activeTab = $_GET['activeTab'] ?? 'tab-0';
+                            ?>
+                            <form method="GET" id="filterForm" style="display:flex;" class="col-md-4">
+                                <select name="sortRating" id="sortRating" onchange="document.getElementById('filterForm').submit()" class="form-select bg-light rounded-pill text-dark me-3">
+                                    <option value="">評分</option>
+                                    <option value="desc" <?= ($_GET['sortRating'] ?? '')=='desc' ? 'selected' : '' ?>>由高到低</option>
+                                    <option value="asc" <?= ($_GET['sortRating'] ?? '')=='asc' ? 'selected' : '' ?>>由低到高</option>
+                                </select>
+
+                                <select name="priceRange" id="priceRange" onchange="document.getElementById('filterForm').submit()" class="form-select bg-light rounded-pill text-dark ">
+                                    <option value="">價格</option>
+                                    <option value="1" <?= ($_GET['priceRange'] ?? '')=='1' ? 'selected' : '' ?>>200 元以下</option>
+                                    <option value="2" <?= ($_GET['priceRange'] ?? '')=='2' ? 'selected' : '' ?>>201 ~ 500 元</option>
+                                    <option value="3" <?= ($_GET['priceRange'] ?? '')=='3' ? 'selected' : '' ?>>501 ~ 800 元</option>
+                                    <option value="4" <?= ($_GET['priceRange'] ?? '')=='4' ? 'selected' : '' ?>>800 元以上</option>
+                                </select>
+                                <input type="hidden" name="keyword" value="<?= htmlspecialchars($keyword) ?>">
+                            </form>
+                        </div>
                         
 
 
@@ -242,6 +312,8 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
                                        
 
                                         $keyword = isset($_GET['keyword']) ? trim($_GET['keyword']) : '';
+                                        $sortRating = $_GET['sortRating'] ?? '';
+                                        $priceRange = $_GET['priceRange'] ?? '';
                                 
                                         $matchedMids = [];
                                 
@@ -301,16 +373,60 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
                                 
                                         $placeholder = implode(',', array_fill(0, count($matchedMids), '?'));
                                         $sqlAll = "
-                                            SELECT m.*, GROUP_CONCAT(rcl.categoryName SEPARATOR ', ') AS categoryNames
+                                            SELECT 
+                                                m.*, 
+                                                GROUP_CONCAT(rcl.categoryName SEPARATOR ', ') AS categoryNames,
+                                                COUNT(DISTINCT t.tranId) AS additionalRatingCount,
+                                                COALESCE(AVG(t.mRating), 0) AS additionalRatingAvg,
+                                                (
+                                                    (
+                                                        m.rating * m.ratingCount + 
+                                                        COALESCE(SUM(t.mRating), 0)
+                                                    ) / NULLIF((m.ratingCount + COUNT(t.mRating)), 0)
+                                                ) AS combinedRating
                                             FROM Merchant m
                                             LEFT JOIN RestaurantCategories rc ON m.mid = rc.mid
                                             LEFT JOIN RestaurantCategoryList rcl ON rc.categoryId = rcl.categoryId
+                                            LEFT JOIN Transaction t ON m.mid = t.mid AND t.mRating IS NOT NULL
                                         ";
                                 
                                         if (!empty($matchedMids)) {
                                             $sqlAll .= " WHERE m.mid IN ($placeholder)";
-                                            $sqlAll .= " GROUP BY m.mid ORDER BY RAND()";
-                                
+
+                                            // 價格範圍處理（抓該商家產品的平均價格）
+                                            switch ($priceRange) {
+                                                case '1': // 200 以下
+                                                    $sqlAll .= " AND (
+                                                        SELECT AVG(price) FROM Product WHERE mid = m.mid
+                                                    ) < 200";
+                                                    break;
+                                                case '2': // 201 ~ 500
+                                                    $sqlAll .= " AND (
+                                                        SELECT AVG(price) FROM Product WHERE mid = m.mid
+                                                    ) BETWEEN 201 AND 500";
+                                                    break;
+                                                case '3': // 501 ~ 800
+                                                    $sqlAll .= " AND (
+                                                        SELECT AVG(price) FROM Product WHERE mid = m.mid
+                                                    ) BETWEEN 501 AND 800";
+                                                    break;
+                                                case '4': // 800 以上
+                                                    $sqlAll .= " AND (
+                                                        SELECT AVG(price) FROM Product WHERE mid = m.mid
+                                                    ) > 800";
+                                                    break;
+                                            }
+
+                                            // 排序處理
+                                            $sqlAll .= " GROUP BY m.mid";
+
+                                            if ($sortRating == 'asc') {
+                                                $sqlAll .= " ORDER BY combinedRating ASC";
+                                            } elseif ($sortRating == 'desc') {
+                                                $sqlAll .= " ORDER BY combinedRating DESC";
+                                            } else {
+                                                $sqlAll .= " ORDER BY RAND()";
+                                            }                   
                                             $stmt = $conn->prepare($sqlAll);
                                             $stmt->bind_param(str_repeat('i', count($matchedMids)), ...$matchedMids);
                                             $stmt->execute();
@@ -322,30 +438,52 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
 
                                         if ($resultAll && $resultAll->num_rows > 0) {
                                             while ($row = $resultAll->fetch_assoc()) {
-                                                echo '
-                                                <div class="col-md-6 col-lg-4 col-xl-3">
-                                                    <div class="rounded position-relative fruite-item" style="cursor: pointer;" onclick="location.href=\'merchant.php?mid=' . urlencode($row["mid"]) . '\'">
-                                                        <div class="fruite-img">
-                                                            <img src="../' . $row["mPicture"] . '" class="img-fluid w-100 rounded-top" alt="">
+                                                $isFavorited = false;
+                                            if ($cid) {
+                                                $checkFav = $conn->prepare("SELECT 1 FROM Favorite WHERE cid = ? AND mid = ?");
+                                                $checkFav->bind_param("ii", $cid, $row["mid"]);
+                                                $checkFav->execute();
+                                                $checkFav->store_result();
+                                                $isFavorited = $checkFav->num_rows > 0;
+                                                $checkFav->close();
+                                            }
+
+                                            $heartClass = $isFavorited ? 'fa-solid text-danger' : 'fa-regular';
+
+
+                                            echo '
+                                            <div class="col-md-6 col-lg-4 col-xl-3">
+                                                <div class="rounded position-relative fruite-item" style="cursor: pointer;" onclick="location.href=\'merchant.php?mid=' . urlencode($row["mid"]) . '\'">
+                                                    <div class="fruite-img">
+                                                        <img src="../' . $row["mPicture"] . '" class="img-fluid w-100 rounded-top" alt="">
+                                                    </div>
+                                                    <div class="text-white bg-secondary px-3 py-1 rounded position-absolute" style="top: 10px; left: 10px;">' . htmlspecialchars($row["categoryNames"] ?? '未分類') . '</div>
+                                                    <div class="p-4 border border-secondary border-top-0 rounded-bottom" style="height:175px; display:flex;flex-direction: column; justify-content: space-between;">
+                                                        <div>
+                                                            <h5>' . htmlspecialchars($row["mName"]) . '</h5>
+                                                            <p>' . htmlspecialchars($row["mAddress"]) . '</p>
                                                         </div>
-                                                        <div class="text-white bg-secondary px-3 py-1 rounded position-absolute" style="top: 10px; left: 10px;">' . htmlspecialchars($row["categoryNames"] ?? '未分類') . '</div>
-                                                        <div class="p-4 border border-secondary border-top-0 rounded-bottom" style="height:175px; display:flex;flex-direction: column; justify-content: space-between; ">
-                                                            <div>
-                                                                <h5>' . htmlspecialchars($row["mName"]) . '</h5>
-                                                                <p>' . htmlspecialchars($row["mAddress"]) . '</p>
-                                                            </div>
-                                                            
-                                                            <div class="d-flex justify-content-between flex-lg-wrap">
-                                                                <p class="text-dark fs-5 fw-bold mb-0">❤ ' . $row["favoritesCount"] . '</p>
-                                                            </div>
+                                                        <div class="d-flex justify-content-between flex-lg-wrap" 每個商家的「加總後評價星等」與「加總後評價人數」，和前面你使用 combinedRating 一樣的方式。>
+                                                            <p class="text-dark fs-5 fw-bold mb-0" onclick="event.stopPropagation();">
+                                                                <i class="fa-heart favorite-icon ' . $heartClass . '" data-mid="' . $row["mid"] . '"></i>
+                                                                
+                                                            </p>
+                                                            <p class="mb-0" style="text-align:right;">
+                                                                <i class="fas fa-star fs-6 me-1 mb-0" style="color:#ffb524;"></i>' . 
+                                                                number_format($row["combinedRating"], 1) . 
+                                                                '/5 (' . 
+                                                                ($row["ratingCount"] + $row["additionalRatingCount"]) . 
+                                                                ')
+                                                            </p>
                                                         </div>
                                                     </div>
-                                                </div>';
-                                            }
-                                        } else {
-                                            echo "<p class='text-center'>尚無商家資料</p>";
+                                                </div>
+                                            </div>';
                                         }
-                                        ?>
+                                    } else {
+                                        echo "<p class='text-center'>尚無商家資料</p>";
+                                    }
+                                    ?>
                                     </div>
                                 </div>
                             </div>
@@ -1000,6 +1138,41 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
                 });
             });
         });
+    });
+    </script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.favorite-icon').forEach(icon => {
+        icon.addEventListener('click', function (e) {
+        const mid = this.dataset.mid;
+        const icon = this;
+        const countSpan = this.nextElementSibling;
+
+        fetch('toggle_favorite.php', {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: `mid=${mid}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+            if (data.favorited) {
+                icon.classList.remove('fa-regular');
+                icon.classList.add('fa-solid', 'text-danger');
+            } else {
+                icon.classList.remove('fa-solid', 'text-danger');
+                icon.classList.add('fa-regular');
+            }
+            countSpan.textContent = data.favoritesCount;
+            } else {
+            alert("請先登入才能收藏！");
+            }
+        });
+        });
+    });
     });
     </script>
 
