@@ -115,6 +115,14 @@ $cid = $_SESSION['cid'] ?? '';
         <!-- Navbar End -->
 
     <div class="wrapper">
+      <div id="boxx">
+        <a href="claw.php?cid=<?php echo $cid; ?>&role=c">
+          <button class="game1" style="margin-left: 20px;">Game1</button>
+        </a>
+        <a href="my_coupons.php?cid=<?php echo $cid; ?>&role=c">
+            <button class="game2" style="margin-left: 20px;">Game2</button>
+        </a>
+      </div>
       <div class="collection-box pix"></div>
       <div class="claw-machine">
         <div class="box pix">
