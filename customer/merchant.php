@@ -13,6 +13,23 @@ if ($cid !== '') {
     $row = mysqli_fetch_array($result);
     
 }
+// ✅ 預設不是 VIP
+$isVIP = false;
+$vipImage = './vip.png';
+
+if (!empty($cid)) {
+    $sql = "SELECT vipTime FROM customer WHERE cid = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $cid);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($row = $result->fetch_assoc()) {
+        if (!is_null($row['vipTime'])) {
+            $isVIP = true;
+            $vipImage = './is_vip.png';
+        }
+    }
+}
 
 $storeCount = 0;
 if (isset($_SESSION['cid'], $_SESSION['cartTime'])) {
@@ -257,23 +274,52 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['mid'])) {
             <span class="fa fa-bars text-primary"></span>
           </button>
           <div class="collapse navbar-collapse bg-white" id="navbarCollapse">
-            <div class="navbar-nav mx-auto">
-              <a href="../image_search/phpfrontend/index.php?cid=<?php echo $cid; ?>&role=c">
-                  <img class="camara" src="./camara.png" alt="camara icon" width="40" height="40" style="margin-left: 20px;"
-                      onmouseover="this.src='./camara_hover.png'" 
-                      onmouseout="this.src='./camara.png'">
-              </a>
-              <div class="position-relative mx-auto">
-                <input class="form-control border-2 border-secondary  py-3 px-4 rounded-pill" style="width: 30rem;" type="number" placeholder="Search">
-                <button type="submit" class="btn btn-primary border-2 border-secondary py-3 px-4 position-absolute rounded-pill text-white h-100" style="top: 0; left: 82.5%;">搜尋</button>
+            <form method="GET" action="search.php">
+              <div class="navbar-nav mx-auto">
+                <div class="position-relative mx-auto">
+                  <input name="keyword" class="form-control border-2 border-secondary py-3 px-4 rounded-pill" style="width: 30rem;" type="text" placeholder="Search">
+                  <button type="submit" class="btn btn-primary border-2 border-secondary py-3 px-4 position-absolute rounded-pill text-white h-100" style="top: 0; left: 82.5%;">搜尋</button>
+                </div>
               </div>
-                            
-            </div>
+            </form>
+            
             <div class="d-flex m-3 me-0" style="align-items: center;">
+              <a href="../image_search/phpfrontend/index.php?cid=<?php echo $cid; ?>&role=c">
+                <img class="camara" src="./camara.png" alt="camara icon" width="50" height="50" 
+                  onmouseover="this.src='./camara_hover.png'" 
+                  onmouseout="this.src='./camara.png'">
+              </a>
+              <!-- Crown Icon -->
+              <img class="crown" src="<?= $vipImage ?>" alt="VIP icon" width="35" height="35"
+                  style="margin-bottom:0.5rem; margin-left:1rem; <?= $isVIP ? '' : 'cursor: pointer;' ?>"
+              <?php if (!$isVIP): ?>
+                onmouseover="this.src='./vip_hover.png'" 
+                onmouseout="this.src='./vip.png'"
+                onclick="toggleVIP(event)"
+              <?php endif; ?>
+              >
+              <!-- ✅ VIP 彈出視窗 -->
+              <div class="vip" id="vip-popup" style="display: none;">
+                <img id="closecomment" src="../walletAndrecord/image/cross.png" alt="close button" width="15" height="15" 
+                    style="position:absolute; top:10px; right:10px;" 
+                    onclick="closeVIP()">
+                                  
+                <img id="vip-image" src="./join_vip.png" alt="vip" style="cursor: pointer;" onclick="addVIPToCart()">
+                <p style="cursor: pointer;" onclick="confirmJoinVIP()">我要加入 VIP</p>
+              </div>
+
+              <!-- ✅ 飛行動畫圖像容器 -->
+              <div id="fly-container"></div>
+
+              <!-- ✅ 訊息提示 -->
+              <div id="vip-message" style="display:none; position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
+                    background: #4CAF50; color: white; padding: 10px 20px; border-radius: 8px; z-index: 3000;">
+                已成功加入 VIP 到購物車！
+              </div>
               <?php if (count($orders) > 0): ?>
-              <a href="#" data-bs-toggle="modal" data-bs-target="#multiOrderModal">
+              <a href="#" data-bs-toggle="modal" data-bs-target="#multiOrderModal" class="ms-3 position-relative">
                 <i class="fa-solid fa-motorcycle fa-2x"></i>
-                <span id="order-count" class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: 27px; right: 120px; height: 20px; min-width: 20px;">
+                <span id="order-count" class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 22px; height: 20px; min-width: 20px;">
                   <?= count($orders) ?>
                 </span>
               </a>

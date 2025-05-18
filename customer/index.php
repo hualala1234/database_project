@@ -152,14 +152,14 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
                     </button>
                     <div class="collapse navbar-collapse bg-white" id="navbarCollapse">
                         
-                    <form method="GET" action="search.php">
-                        <div class="navbar-nav mx-auto">
-                            <div class="position-relative mx-auto">
-                                <input name="keyword" class="form-control border-2 border-secondary py-3 px-4 rounded-pill" style="width: 30rem;" type="text" placeholder="Search">
-                                <button type="submit" class="btn btn-primary border-2 border-secondary py-3 px-4 position-absolute rounded-pill text-white h-100" style="top: 0; left: 82.5%;">搜尋</button>
+                        <form method="GET" action="search.php">
+                            <div class="navbar-nav mx-auto">
+                                <div class="position-relative mx-auto">
+                                    <input name="keyword" class="form-control border-2 border-secondary py-3 px-4 rounded-pill" style="width: 30rem;" type="text" placeholder="Search">
+                                    <button type="submit" class="btn btn-primary border-2 border-secondary py-3 px-4 position-absolute rounded-pill text-white h-100" style="top: 0; left: 82.5%;">搜尋</button>
+                                </div>
                             </div>
-                        </div>
-                    </form>
+                        </form>
                         <!-- <a href="../walletAndrecord/c_wallet.php?cid=<?php echo $cid; ?>&role=c">
                             <img class="wallet" src="./wallet.png" alt="wallet icon" width="40" height="40"
                                 onmouseover="this.src='./wallet_hover.png'" 
@@ -170,33 +170,7 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
                                 onmouseover="this.src='./trans_hover.png'" 
                                 onmouseout="this.src='./trans.png'">
                         </a> -->
-                        <!-- Crown Icon -->
-                        <img class="crown" src="<?= $vipImage ?>" alt="VIP icon" width="40" height="40" style="margin-left: 20px;"
-                        style="margin-left: 20px; margin-top: 20px;<?= $isVIP ? '' : 'cursor: pointer;' ?>"
-                            <?php if (!$isVIP): ?>
-                            onmouseover="this.src='./vip_hover.png'" 
-                            onmouseout="this.src='./vip.png'"
-                            onclick="toggleVIP(event)"
-                        <?php endif; ?>
-                        >
-                        <!-- ✅ VIP 彈出視窗 -->
-                        <div class="vip" id="vip-popup" style="display: none;">
-                            <img id="closecomment" src="../walletAndrecord/image/cross.png" alt="close button" width="15" height="15" 
-                                style="position:absolute; top:10px; right:10px;" 
-                                onclick="closeVIP()">
-                            
-                            <img id="vip-image" src="./join_vip.png" alt="vip" style="cursor: pointer;" onclick="addVIPToCart()">
-                            <p style="cursor: pointer;" onclick="confirmJoinVIP()">我要加入 VIP</p>
-                        </div>
-
-                        <!-- ✅ 飛行動畫圖像容器 -->
-                        <div id="fly-container"></div>
-
-                        <!-- ✅ 訊息提示 -->
-                        <div id="vip-message" style="display:none; position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
-                            background: #4CAF50; color: white; padding: 10px 20px; border-radius: 8px; z-index: 3000;">
-                            已成功加入 VIP 到購物車！
-                        </div>
+                        
 
                         
 
@@ -207,10 +181,37 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
                                     onmouseover="this.src='./camara_hover.png'" 
                                     onmouseout="this.src='./camara.png'">
                             </a>
+                            <!-- Crown Icon -->
+                            <img class="crown" src="<?= $vipImage ?>" alt="VIP icon" width="35" height="35"
+                            style="margin-bottom:0.5rem; margin-left:1rem; <?= $isVIP ? '' : 'cursor: pointer;' ?>"
+                                <?php if (!$isVIP): ?>
+                                onmouseover="this.src='./vip_hover.png'" 
+                                onmouseout="this.src='./vip.png'"
+                                onclick="toggleVIP(event)"
+                            <?php endif; ?>
+                            >
+                            <!-- ✅ VIP 彈出視窗 -->
+                            <div class="vip" id="vip-popup" style="display: none;">
+                                <img id="closecomment" src="../walletAndrecord/image/cross.png" alt="close button" width="15" height="15" 
+                                    style="position:absolute; top:10px; right:10px;" 
+                                    onclick="closeVIP()">
+                                
+                                <img id="vip-image" src="./join_vip.png" alt="vip" style="cursor: pointer;" onclick="addVIPToCart()">
+                                <p style="cursor: pointer;" onclick="confirmJoinVIP()">我要加入 VIP</p>
+                            </div>
+
+                            <!-- ✅ 飛行動畫圖像容器 -->
+                            <div id="fly-container"></div>
+
+                            <!-- ✅ 訊息提示 -->
+                            <div id="vip-message" style="display:none; position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
+                                background: #4CAF50; color: white; padding: 10px 20px; border-radius: 8px; z-index: 3000;">
+                                已成功加入 VIP 到購物車！
+                            </div>
                             <?php if (count($orders) > 0): ?>
-                            <a href="#" data-bs-toggle="modal" data-bs-target="#multiOrderModal" class="ms-3">
+                            <a href="#" data-bs-toggle="modal" data-bs-target="#multiOrderModal" class="ms-3 position-relative">
                                 <i class="fa-solid fa-motorcycle fa-2x"></i>
-                                <span id="order-count" class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: 27px; right: 133px; height: 20px; min-width: 20px;">
+                                <span id="order-count" class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 22px; height: 20px; min-width: 20px;">
                                     <?= count($orders) ?>
                                 </span>
                             </a>
@@ -265,6 +266,7 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
             </div>
         </div>
         <!-- Navbar End -->
+        
 
         <!-- Fruits Shop Start-->
         <div class="container-fluid fruite py-5  hero-header">
@@ -272,16 +274,43 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
             <div class="container py-5">
                 <div class="tab-class text-center">
                     <div class="g-4">
+                        <div class="mb-4" >
+                            <?php
+                            $activeTab = $_GET['activeTab'] ?? 'tab-0';
+                            ?>
+                            <form method="GET" id="filterForm" style="display:flex;" class="col-md-4">
+                                <select name="sortRating" id="sortRating" onchange="document.getElementById('filterForm').submit()" class="form-select bg-light rounded-pill text-dark me-3">
+                                    <option value="">評分</option>
+                                    <option value="desc" <?= ($_GET['sortRating'] ?? '')=='desc' ? 'selected' : '' ?>>由高到低</option>
+                                    <option value="asc" <?= ($_GET['sortRating'] ?? '')=='asc' ? 'selected' : '' ?>>由低到高</option>
+                                </select>
+
+                                <select name="priceRange" id="priceRange" onchange="document.getElementById('filterForm').submit()" class="form-select bg-light rounded-pill text-dark ">
+                                    <option value="">價格</option>
+                                    <option value="1" <?= ($_GET['priceRange'] ?? '')=='1' ? 'selected' : '' ?>>200 元以下</option>
+                                    <option value="2" <?= ($_GET['priceRange'] ?? '')=='2' ? 'selected' : '' ?>>201 ~ 500 元</option>
+                                    <option value="3" <?= ($_GET['priceRange'] ?? '')=='3' ? 'selected' : '' ?>>501 ~ 800 元</option>
+                                    <option value="4" <?= ($_GET['priceRange'] ?? '')=='4' ? 'selected' : '' ?>>800 元以上</option>
+                                </select>
+                                <input type="hidden" name="activeTab" id="activeTab" value="<?= htmlspecialchars($activeTab) ?>">
+                            </form>
+                        </div>
+                        
+                    </div>
+
+
                         <div class="col-lg-4 text-start mb-4">
                             <h1>商家類別</h1>
                         </div>
 
                         <!-- 可橫向滑動容器 -->
+                        
                         <div class="overflow-auto mb-4" style="white-space: nowrap;">
                             <ul class="nav nav-pills d-inline-block" style="list-style: none; white-space: nowrap; padding-left: 0;">
                                 <!-- 所有商品 tab -->
                                 <li class="nav-item d-inline-block">
-                                    <a class="d-flex m-2 py-2 bg-light rounded-pill active" data-bs-toggle="pill" href="#tab-0">
+                                    <a class="d-flex m-2 py-2 bg-light rounded-pill nav-link px-0 <?= $activeTab === 'tab-0' ? 'active' : '' ?>" data-bs-toggle="pill" href="#tab-0">
+
                                         <span class="text-dark" style="width: 130px;">所有商品</span>
                                     </a>
                                 </li>
@@ -289,43 +318,96 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
                                 <?php
                                 $sqlCategories = "SELECT categoryId, categoryName FROM RestaurantCategoryList ORDER BY categoryId";
                                 $result = $conn->query($sqlCategories);
-                                $first = true;
 
                                 while ($row = $result->fetch_assoc()) {
                                     $tabId = "tab-" . $row["categoryId"];
                                     $name = $row["categoryName"];
                                     echo '
                                     <li class="nav-item d-inline-block">
-                                        <a class="d-flex m-2 py-2 bg-light rounded-pill" data-bs-toggle="pill" href="#' . $tabId . '">
+                                        <a class="nav-link d-flex m-2 py-2 px-0 bg-light rounded-pill  ' . ($activeTab === $tabId ? 'active' : '') . '"
+                                        data-bs-toggle="pill"
+                                        href="#' . $tabId . '"
+                                        role="tab"
+                                        aria-selected="false">
                                             <span class="text-dark" style="width: 130px;">' . htmlspecialchars($name) . '</span>
                                         </a>
                                     </li>';
-                                    $first = false;
                                 }
                                 ?>
                             </ul>
                         </div>
-                    </div>
+                   
+                </div>
 
-
-                    <div class="tab-content">
+                <div class="tab-content">
                     <!-- 所有商品 -->
-                    <div id="tab-0" class="tab-pane fade show p-0 active">
+                     <?php
+                     $activeTab = $_GET['activeTab'] ?? 'tab-0';
+                     $isAllActive = $activeTab === 'tab-0' ? 'show active' : '';
+                     ?>
+                     
+                    <div class="tab-pane fade <?= $activeTab === 'tab-0' ? 'show active' : '' ?>" id="tab-0">
                         <div class="row g-4">
                             <div class="col-lg-12">
                                 <div class="g-4 row">
                                     <?php
                                     $cid = $_SESSION['cid'] ?? null;
 
+                                    $sortRating = $_GET['sortRating'] ?? '';
+                                    $priceRange = $_GET['priceRange'] ?? '';
+
+                                    // 先組價格篩選條件，假設Merchant表有價格欄位 mPrice
+                                    $havingClauses = [];
+
+                                    if ($priceRange) {
+                                        switch ($priceRange) {
+                                            case '1': $havingClauses[] = "avgPrice <= 200"; break;
+                                            case '2': $havingClauses[] = "avgPrice BETWEEN 201 AND 500"; break;
+                                            case '3': $havingClauses[] = "avgPrice BETWEEN 501 AND 800"; break;
+                                            case '4': $havingClauses[] = "avgPrice > 800"; break;
+                                        }
+                                    }
+
+                                    $havingSQL = "";
+                                    if (count($havingClauses) > 0) {
+                                        $havingSQL = "HAVING " . implode(" AND ", $havingClauses);
+                                    }
+                                    // 排序條件
+                                    $orderSQL = '';
+                                    if ($sortRating === 'desc') {
+                                        $orderSQL = "ORDER BY combinedRating DESC";
+                                    } else if ($sortRating === 'asc') {
+                                        $orderSQL = "ORDER BY combinedRating ASC";
+                                    } else {
+                                        $orderSQL = "ORDER BY RAND()"; // 預設亂數排序
+                                    }
+                                    
+
                                     $sqlAll = "
-                                        SELECT m.*, 
-                                            GROUP_CONCAT(rcl.categoryName SEPARATOR ', ') AS categoryNames
-                                        FROM Merchant m
-                                        LEFT JOIN RestaurantCategories rc ON m.mid = rc.mid
-                                        LEFT JOIN RestaurantCategoryList rcl ON rc.categoryId = rcl.categoryId
-                                        GROUP BY m.mid
-                                        ORDER BY RAND()
-                                    ";
+                                            SELECT 
+                                                m.*, 
+                                                (SELECT AVG(p.price) FROM Product p WHERE p.mid = m.mid) AS avgPrice,
+                                                GROUP_CONCAT(rcl.categoryName SEPARATOR ', ') AS categoryNames,
+                                                COUNT(DISTINCT t.tranId) AS additionalRatingCount,
+                                                SUM(t.mRating) AS additionalRatingSum,
+                                                CASE 
+                                                    WHEN (m.ratingCount + COALESCE(COUNT(DISTINCT t.tranId), 0)) > 0 
+                                                    THEN ROUND(
+                                                        (m.rating * m.ratingCount + COALESCE(SUM(t.mRating), 0)) / (m.ratingCount + COALESCE(COUNT(DISTINCT t.tranId), 0)),
+                                                        1
+                                                    )
+                                                    ELSE NULL
+                                                END AS combinedRating
+                                            FROM Merchant m
+                                            LEFT JOIN RestaurantCategories rc ON m.mid = rc.mid
+                                            LEFT JOIN RestaurantCategoryList rcl ON rc.categoryId = rcl.categoryId
+                                            LEFT JOIN Transaction t ON m.mid = t.mid AND t.mRating IS NOT NULL
+                                            GROUP BY m.mid
+                                            $havingSQL
+                                            $orderSQL
+
+                                        ";
+
                                     $resultAll = $conn->query($sqlAll);
 
                                     if ($resultAll && $resultAll->num_rows > 0) {
@@ -353,13 +435,20 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
                                                     <div class="p-4 border border-secondary border-top-0 rounded-bottom" style="height:175px; display:flex;flex-direction: column; justify-content: space-between;">
                                                         <div>
                                                             <h5>' . htmlspecialchars($row["mName"]) . '</h5>
-                                                            <p>' . htmlspecialchars($row["mAddress"]) . '</p>
+                                                            <p class="">' . htmlspecialchars($row["mAddress"]) . '</p>                            
+
                                                         </div>
-                                                        <div class="d-flex justify-content-between flex-lg-wrap">
+                                                        <div class="d-flex justify-content-between flex-lg-wrap" style="align-items: center;">
                                                             <p class="text-dark fs-5 fw-bold mb-0" onclick="event.stopPropagation();">
                                                                 <i class="fa-heart favorite-icon ' . $heartClass . '" data-mid="' . $row["mid"] . '"></i>
-                                                                
                                                             </p>
+                                                            <p class="mb-0" style="text-align:right;">
+                                                                <i class="fas fa-star fs-6 me-1 mb-0" style="color:#ffb524;"></i>' . 
+                                                                htmlspecialchars($row["combinedRating"] ?? $row["rating"]) . 
+                                                                '/5 (' . 
+                                                                htmlspecialchars($row["ratingCount"] + $row["additionalRatingCount"]) . 
+                                                                ')
+                                                            </p>  
                                                         </div>
                                                     </div>
                                                 </div>
@@ -373,7 +462,7 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
                             </div>
                         </div>
                     </div>
-                </div>
+                
 
 
                         <!-- 各分類商品 -->
@@ -386,17 +475,70 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
                             $catName = $catRow["categoryName"];
                             $tabId = "tab-" . $catId;
 
+                            $activeTab = $_GET['activeTab'] ?? 'tab-0';
+                            $isActive = ($activeTab === $tabId) ? 'show active' : '';
+
                             echo '
-                            <div id="' . $tabId . '" class="tab-pane fade show p-0">
+                            
+                            <div id="' . $tabId . '" class="tab-pane fade ' . $isActive . ' p-0">
                                 <div class="row g-4">
                                     <div class="col-lg-12">
                                         <div class="row g-4">
                             ';
+                            $isCurrentTab = ($_GET['activeTab'] ?? 'tab-0') === $tabId;
+
+                            $sortRating = $_GET['sortRating'] ?? '';
+                            $priceRange = $_GET['priceRange'] ?? '';
+                            $havingClauses = [];
+
+                            if ($isCurrentTab) {
+                                if ($priceRange) {
+                                    switch ($priceRange) {
+                                        case '1': $havingClauses[] = "avgPrice <= 200"; break;
+                                        case '2': $havingClauses[] = "avgPrice BETWEEN 201 AND 500"; break;
+                                        case '3': $havingClauses[] = "avgPrice BETWEEN 501 AND 800"; break;
+                                        case '4': $havingClauses[] = "avgPrice > 800"; break;
+                                    }
+                                }
+                            
+                                if (count($havingClauses) > 0) {
+                                    $havingSQL = "HAVING " . implode(" AND ", $havingClauses);
+                                }
+                            
+                                if ($sortRating === 'desc') {
+                                    $orderSQL = "ORDER BY combinedRating DESC";
+                                } elseif ($sortRating === 'asc') {
+                                    $orderSQL = "ORDER BY combinedRating ASC";
+                                } else {
+                                    $orderSQL = "ORDER BY RAND()";
+                                }
+                            } else {
+                                // 其他 tab 就用預設隨機排序，避免空查詢
+                                $orderSQL = "ORDER BY RAND()";
+                            }
+                            
 
                             $sqlMerchants = "
-                                SELECT m.* FROM Merchant m
+                                SELECT 
+                                    m.*, 
+                                    (SELECT AVG(p.price) FROM Product p WHERE p.mid = m.mid) AS avgPrice,
+                                    COUNT(DISTINCT t.tranId) AS additionalRatingCount,
+                                    SUM(t.mRating) AS additionalRatingSum,
+                                    CASE 
+                                        WHEN (m.ratingCount + COALESCE(COUNT(DISTINCT t.tranId), 0)) > 0 
+                                        THEN ROUND(
+                                            (m.rating * m.ratingCount + COALESCE(SUM(t.mRating), 0)) / (m.ratingCount + COALESCE(COUNT(DISTINCT t.tranId), 0)),
+                                            1
+                                        )
+                                        ELSE NULL
+                                    END AS combinedRating
+                                FROM Merchant m
                                 JOIN RestaurantCategories rc ON m.mid = rc.mid
+                                LEFT JOIN Transaction t ON m.mid = t.mid AND t.mRating IS NOT NULL
                                 WHERE rc.categoryId = ?
+                                GROUP BY m.mid
+                                $havingSQL
+                                $orderSQL
                             ";
                             $stmt = $conn->prepare($sqlMerchants);
                             $stmt->bind_param("i", $catId);
@@ -405,6 +547,18 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
 
                             if ($resMerchants->num_rows > 0) {
                                 while ($m = $resMerchants->fetch_assoc()) {
+                                    // 🔎 判斷是否已收藏
+                                    $isFavorited = false;
+                                    if ($cid) {
+                                        $checkFav = $conn->prepare("SELECT 1 FROM Favorite WHERE cid = ? AND mid = ?");
+                                        $checkFav->bind_param("ii", $cid, $m["mid"]);
+                                        $checkFav->execute();
+                                        $checkFav->store_result();
+                                        $isFavorited = $checkFav->num_rows > 0;
+                                        $checkFav->close();
+                                    }
+
+                                    $heartClass = $isFavorited ? 'fa-solid text-danger' : 'fa-regular';
                                     echo '
                                     <div class="col-md-6 col-lg-4 col-xl-3">
                                         <div class="rounded position-relative fruite-item" style="cursor: pointer;" onclick="location.href=\'merchant.php?mid=' . urlencode($m["mid"]) . '\'">
@@ -419,10 +573,17 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
                                                     <p>' . htmlspecialchars($m["mAddress"]) . '</p>
                                                 </div>
                                                 
-                                                <p class="text-dark fs-5 fw-bold mb-0">
-                                                    <i class="fa-regular fa-heart favorite-icon" data-mid="' . $m["mid"] . '"></i>
-                                                    <span class="favorite-count">' . $m["favoritesCount"] . '</span>
-                                                </p>
+                                                <div class="d-flex justify-content-between flex-lg-wrap" style="align-items: center;">
+                                                    <p class="text-dark fs-5 fw-bold mb-0" onclick="event.stopPropagation();">
+                                                        <i class="fa-heart favorite-icon ' . $heartClass . '" data-mid="' . $m["mid"]  . '"></i>
+                                                                
+                                                    </p>
+                                                    <p class="mb-0" style="text-align:right;">
+                                                        <i class="fas fa-star fs-6 me-1 mb-0" style="color:#ffb524;"></i>' . 
+                                                        htmlspecialchars($m["combinedRating"] ?? $m["rating"]) . '/5 (' . 
+                                                        htmlspecialchars($m["ratingCount"] + $m["additionalRatingCount"]) . ')
+                                                    </p>  
+                                                </div>
 
                                             </div>
                                         </div>
@@ -438,62 +599,10 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
                                 </div>
                             </div>';
                         }
-                        ?>
-                    </div>  
+                        ?>  
                 </div> 
             </div> 
-        </div>               
-                         
-        <!-- Fruits Shop End-->
-        
-
-        <!-- Featurs Start -->
-        <div class="container-fluid service py-5">
-            <div class="container py-5">
-                <h1 class="mb-5">優惠活動</h1>
-                <div class="row g-4 justify-content-center">
-                    <div class="col-md-6 col-lg-4">
-                        <a href="#">
-                            <div class="service-item bg-secondary rounded border border-secondary">
-                                <img src="../img/featur-1.jpg" class="img-fluid rounded-top w-100" alt="">
-                                <div class="px-4 rounded-bottom">
-                                    <div class="service-content bg-primary text-center p-4 rounded">
-                                        <h5 class="text-white">Fresh Apples</h5>
-                                        <h3 class="mb-0">20% OFF</h3>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                    <div class="col-md-6 col-lg-4">
-                        <a href="#">
-                            <div class="service-item bg-dark rounded border border-dark">
-                                <img src="../img/featur-2.jpg" class="img-fluid rounded-top w-100" alt="">
-                                <div class="px-4 rounded-bottom">
-                                    <div class="service-content bg-light text-center p-4 rounded">
-                                        <h5 class="text-primary">Tasty Fruits</h5>
-                                        <h3 class="mb-0">Free delivery</h3>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                    <div class="col-md-6 col-lg-4">
-                        <a href="#">
-                            <div class="service-item bg-primary rounded border border-primary">
-                                <img src="../img/featur-3.jpg" class="img-fluid rounded-top w-100" alt="">
-                                <div class="px-4 rounded-bottom">
-                                    <div class="service-content bg-secondary text-center p-4 rounded">
-                                        <h5 class="text-white">Exotic Vegitable</h5>
-                                        <h3 class="mb-0">Discount 30$</h3>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
+        </div>     
         <!-- Featurs End -->
 
 
@@ -1696,9 +1805,80 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
     });
     });
     </script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // 點擊 tab 時更新 hidden input
+            document.querySelectorAll('.nav-pills .nav-link').forEach(link => {
+                link.addEventListener('click', function () {
+                    const href = this.getAttribute('href').substring(1); // 例如 tab-2
+                    document.getElementById('activeTab').value = href;
+                });
+            });
+
+            // 如果 URL 有帶 activeTab，就自動啟用該 tab
+            // 取得 URL 中的參數
+            const urlParams = new URLSearchParams(window.location.search);
+            const activeTab = urlParams.get('activeTab'); // 會得到 'tab-6'
+
+            // 若存在對應 tab，觸發它
+            if (activeTab) {
+            const triggerEl = document.querySelector(`a[href="${activeTab}"]`);
+            if (triggerEl) {
+                new bootstrap.Tab(triggerEl).show();
+            }
+            }
+        });
+    </script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const tabLinks = document.querySelectorAll('a[data-bs-toggle="pill"]');
+
+        tabLinks.forEach(link => {
+            link.addEventListener("shown.bs.tab", function (e) {
+                const targetId = e.target.getAttribute("href").substring(1); // 例如 "tab-6"
+            
+                // 取得當前 URL 並更新 activeTab 參數
+                const url = new URL(window.location);
+                url.searchParams.set('activeTab', targetId); // 只設定不帶 '#' 的值
 
 
+                // 不重新載入畫面，更新網址
+                history.pushState(null, '', url.toString());
+            });
+        });
 
+        // 根據 URL activeTab 自動啟用對應 tab
+        const urlParams = new URLSearchParams(window.location.search);
+        const activeTab = urlParams.get('activeTab');
+        if (activeTab) {
+            const tabTriggerEl = document.querySelector(`a[href="${activeTab}"]`);
+            if (tabTriggerEl) {
+                const tab = new bootstrap.Tab(tabTriggerEl);
+                tab.show(); // 切換 tab
+            }
+        }
+    });
+    </script>
+    <script>
+
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', function () {
+            const activeTabInput = document.getElementById('activeTab');
+            activeTabInput.value = this.getAttribute('href').substring(1); // 去掉 #
+        });
+    });
+    </script>
+    <script>
+    document.querySelectorAll('[data-bs-toggle="pill"]').forEach(tab => {
+        tab.addEventListener('shown.bs.tab', function (e) {
+            const activeTabId = e.target.getAttribute('href');
+            document.getElementById('activeTab').value = activeTabId;
+        });
+    });
+    </script>
+
+    
     </body>
 
 </html>
