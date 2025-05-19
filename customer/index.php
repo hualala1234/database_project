@@ -10,7 +10,6 @@ if ($cid !== '') {
     $sql = "SELECT * FROM Customer WHERE cid = $cid";
     $result = mysqli_query($conn, $sql);
     $row = mysqli_fetch_array($result);
-    
 }
 
 // ✅ 預設不是 VIP

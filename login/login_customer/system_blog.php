@@ -17,7 +17,6 @@ $create_email = $_GET['create'] ?? 'Log in to stay connected with us';
 
     </head>
     <body>
-        
 
         <div class="container"id="container">
             <div class="form-container sign-up-container">
@@ -91,13 +90,13 @@ $create_email = $_GET['create'] ?? 'Log in to stay connected with us';
                         </div>
                     </div>
 
-                    <button type="submit">Register</button>
+                    <button type="submit" style="width: 180px; margin-left: 130px;">Register</button>
                 </form>
             </div>
 
         
             <div class="form-container sign-in-container">
-                <form action="login.php" method="POST">
+                <form action="login.php" method="POST" style="align-items: center; padding: 20px;width: 90%;">
                     <h1>Login</h1>
                     <span>Use Your Account To Sign In</span>
                     <!-- <input 
@@ -123,10 +122,15 @@ $create_email = $_GET['create'] ?? 'Log in to stay connected with us';
                         class="<?php echo $wrong_password !== 'Enter your password' ? 'wrongpw' : ''; ?>"
                     >
                     <button type="submit">Log in</button>
+                    <div style="text-align: center; ">
+                        <a href="../../face_login_project/face_login.php">
+                            <button type="button" style="padding: 10px 22px;">😀 人臉辨識登入</button>
+                        </a>
+                    </div>
+
                 </form>
+                
             </div>
-
-
 
             <div class="overlay-container">
                 <div class="overlay">
@@ -147,7 +151,7 @@ $create_email = $_GET['create'] ?? 'Log in to stay connected with us';
             </div>
         
         </div>
-
+        
         <!-- <div id="grass-banner">
             <img src="grass.png" alt="Grass Banner">
         </div> -->
@@ -167,8 +171,13 @@ $create_email = $_GET['create'] ?? 'Log in to stay connected with us';
     <script>
         window.addEventListener('DOMContentLoaded', () => {
             // 過 1 秒再消失
+            // setTimeout(() => {
+            //     document.getElementById('grass-banner').classList.add('hide');
+            //     }, 1000);
+            // });
             setTimeout(() => {
-            document.getElementById('grass-banner').classList.add('hide');
+                const grass = document.getElementById('grass-banner');
+                if (grass) grass.classList.add('hide');
             }, 1000);
         });
     </script>

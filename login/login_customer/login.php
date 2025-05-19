@@ -5,7 +5,7 @@ include "../../dbh.php";
 $wrong_password = "Enter your password";
 $error_email = "Enter your email";
 
-
+// ✅ 表單登入
 if ($_SERVER["REQUEST_METHOD"]=="POST"){
 
     $email=mysqli_real_escape_string($conn,$_POST['email']);
@@ -51,5 +51,24 @@ if ($_SERVER["REQUEST_METHOD"]=="POST"){
         exit();
     }
 }
+// 新加的
+// ✅ 人臉登入 POST（由 JS 傳入）
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['face_login']) && isset($_POST['cid'])) {
+    
+    $cid = (int)$_POST['cid'];
+    $stmt = $conn->prepare("SELECT * FROM customer WHERE cid = ?");
+    $stmt->bind_param("i", $cid);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($user = $result->fetch_assoc()) {
+        $_SESSION['cid'] = $user['cid'];
+        $_SESSION['cName'] = $user['cName'];
+        $_SESSION['email'] = $user['email'];
+        exit();
+    } else {
+        http_response_code(401);
+        echo "登入失敗：查無此帳戶";
+        exit();
+    }
+}
 ?>
-
