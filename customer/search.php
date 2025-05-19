@@ -10,8 +10,8 @@ if ($cid !== '') {
     $sql = "SELECT * FROM Customer WHERE cid = $cid";
     $result = mysqli_query($conn, $sql);
     $row = mysqli_fetch_array($result);
+    
 }
-
 // ✅ 預設不是 VIP
 $isVIP = false;
 $vipImage = './vip.png';
@@ -115,9 +115,8 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
 
         <!-- Template Stylesheet -->
         <link href="../css/style.css" rel="stylesheet">
-        <link href="./vip.css" rel="stylesheet">
-        <script src="./vip.js" type="text/javascript"></script>
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+
 
     </head>
 
@@ -151,14 +150,14 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
                     </button>
                     <div class="collapse navbar-collapse bg-white" id="navbarCollapse">
                         
-                        <form method="GET" action="search.php">
-                            <div class="navbar-nav mx-auto">
-                                <div class="position-relative mx-auto">
-                                    <input name="keyword" class="form-control border-2 border-secondary py-3 px-4 rounded-pill" style="width: 30rem;" type="text" placeholder="Search">
-                                    <button type="submit" class="btn btn-primary border-2 border-secondary py-3 px-4 position-absolute rounded-pill text-white h-100" style="top: 0; left: 82.5%;">搜尋</button>
-                                </div>
+                    <form method="GET" action="search.php">
+                        <div class="navbar-nav mx-auto">
+                            <div class="position-relative mx-auto">
+                                <input name="keyword" class="form-control border-2 border-secondary py-3 px-4 rounded-pill" style="width: 30rem;" type="text" placeholder="Search">
+                                <button type="submit" class="btn btn-primary border-2 border-secondary py-3 px-4 position-absolute rounded-pill text-white h-100" style="top: 0; left: 82.5%;">搜尋</button>
                             </div>
-                        </form>
+                        </div>
+                    </form>
                         <!-- <a href="../walletAndrecord/c_wallet.php?cid=<?php echo $cid; ?>&role=c">
                             <img class="wallet" src="./wallet.png" alt="wallet icon" width="40" height="40"
                                 onmouseover="this.src='./wallet_hover.png'" 
@@ -171,8 +170,6 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
                         </a> -->
                         
 
-                        
-
 
                         <div class="d-flex m-3 me-0" style="align-items: center;">
                             <a href="../image_search/phpfrontend/index.php?cid=<?php echo $cid; ?>&role=c">
@@ -180,6 +177,7 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
                                     onmouseover="this.src='./camara_hover.png'" 
                                     onmouseout="this.src='./camara.png'">
                             </a>
+                           
                             <!-- Crown Icon -->
                             <img class="crown" src="<?= $vipImage ?>" alt="VIP icon" width="35" height="35"
                             style="margin-bottom:0.5rem; margin-left:1rem; <?= $isVIP ? '' : 'cursor: pointer;' ?>"
@@ -231,18 +229,16 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
 
                                 <div id="myDropdown" class="dropdown-content" style="display: none; position: absolute; background-color: white; min-width: 120px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 1; right: 0; border-radius: 8px;">
 
-                                    <?php if ($_SESSION['role'] === 'm'): ?>
+                                    <?php if ($_SESSION['role'] === 'merchant'): ?>
                                         <a href="/database/merchant/setting.php" class="dropdown-item">商家設定</a>
                                     <?php elseif ($_SESSION['role'] === 'c'): ?>
-                                        <a href="../login/login_customer/setting.php?cid=<?php echo $cid; ?>" class="dropdown-item">個人設定</a>
-                                        <a href="/database_project/allergy/allergy.php?cid=<?php echo $cid; ?>" class="dropdown-item">過敏設定</a>
-                                        <a href="../claw_machine/claw.php?cid=<?php echo $cid; ?>" class="dropdown-item">優惠券活動</a>
+                                        <a href="/database/customer/setting.php" class="dropdown-item">個人設定</a>
+                                        <a href="/database_project/allergy/allergy.php" class="dropdown-item">過敏設定</a>
+                                        <a href="../claw_machine/claw.php" class="dropdown-item">優惠券活動</a>
                                         <a href="../walletAndrecord/c_wallet.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">錢包</a>
                                         <a href="../walletAndrecord/c_record.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">交易紀錄</a>
-                                        <a href="../customer/friends.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">我的好友</a>
-                                        <a href="../wheel/wheel.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">命運轉盤</a>
-                                        <a href="/database_project/customer/reservation.php" class="dropdown-item">我要訂位</a>
-                                    <?php elseif ($_SESSION['role'] === 'd'): ?>
+                                        <a href="friends.php" class="dropdown-item">我的好友</a>
+                                    <?php elseif ($_SESSION['role'] === 'delivery_person'): ?>
                                         <a href="/database/customer/setting.php" class="dropdown-item">外送員設定</a>
                                     <?php elseif ($_SESSION['role'] === 'platform'): ?>
                                         <a href="/database/customer/setting.php" class="dropdown-item">平台設定</a>
@@ -265,9 +261,18 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
             </div>
         </div>
         <!-- Navbar End -->
-        
+
+
+
 
         <!-- Fruits Shop Start-->
+        <?php
+        // 頁面頂端或適當位置先宣告
+        $keyword = isset($_GET['keyword']) ? trim($_GET['keyword']) : '';
+        ?>
+
+        
+
         <div class="container-fluid fruite py-5  hero-header">
         
             <div class="container py-5">
@@ -291,128 +296,149 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
                                     <option value="3" <?= ($_GET['priceRange'] ?? '')=='3' ? 'selected' : '' ?>>501 ~ 800 元</option>
                                     <option value="4" <?= ($_GET['priceRange'] ?? '')=='4' ? 'selected' : '' ?>>800 元以上</option>
                                 </select>
-                                <input type="hidden" name="activeTab" id="activeTab" value="<?= htmlspecialchars($activeTab) ?>">
+                                <input type="hidden" name="keyword" value="<?= htmlspecialchars($keyword) ?>">
                             </form>
                         </div>
                         
-                    </div>
 
 
-                        <div class="col-lg-4 text-start mb-4">
-                            <h1>商家類別</h1>
-                        </div>
+                    <div class="tab-content">
+                        <!-- 所有商品 -->
+                        <div id="tab-0" class="tab-pane fade show p-0 active">
+                            <div class="row g-4">
+                                <div class="col-lg-12">
+                                    <div class="g-4 row" >
+                                        <?php
+                                       
 
-                        <!-- 可橫向滑動容器 -->
-                        
-                        <div class="overflow-auto mb-4" style="white-space: nowrap;">
-                            <ul class="nav nav-pills d-inline-block" style="list-style: none; white-space: nowrap; padding-left: 0;">
-                                <!-- 所有商品 tab -->
-                                <li class="nav-item d-inline-block">
-                                    <a class="d-flex m-2 py-2 bg-light rounded-pill nav-link px-0 <?= $activeTab === 'tab-0' ? 'active' : '' ?>" data-bs-toggle="pill" href="#tab-0">
-
-                                        <span class="text-dark" style="width: 130px;">所有商品</span>
-                                    </a>
-                                </li>
-
-                                <?php
-                                $sqlCategories = "SELECT categoryId, categoryName FROM RestaurantCategoryList ORDER BY categoryId";
-                                $result = $conn->query($sqlCategories);
-
-                                while ($row = $result->fetch_assoc()) {
-                                    $tabId = "tab-" . $row["categoryId"];
-                                    $name = $row["categoryName"];
-                                    echo '
-                                    <li class="nav-item d-inline-block">
-                                        <a class="nav-link d-flex m-2 py-2 px-0 bg-light rounded-pill  ' . ($activeTab === $tabId ? 'active' : '') . '"
-                                        data-bs-toggle="pill"
-                                        href="#' . $tabId . '"
-                                        role="tab"
-                                        aria-selected="false">
-                                            <span class="text-dark" style="width: 130px;">' . htmlspecialchars($name) . '</span>
-                                        </a>
-                                    </li>';
-                                }
-                                ?>
-                            </ul>
-                        </div>
-                   
-                </div>
-
-                <div class="tab-content">
-                    <!-- 所有商品 -->
-                     <?php
-                     $activeTab = $_GET['activeTab'] ?? 'tab-0';
-                     $isAllActive = $activeTab === 'tab-0' ? 'show active' : '';
-                     ?>
-                     
-                    <div class="tab-pane fade <?= $activeTab === 'tab-0' ? 'show active' : '' ?>" id="tab-0">
-                        <div class="row g-4">
-                            <div class="col-lg-12">
-                                <div class="g-4 row">
-                                    <?php
-                                    $cid = $_SESSION['cid'] ?? null;
-
-                                    $sortRating = $_GET['sortRating'] ?? '';
-                                    $priceRange = $_GET['priceRange'] ?? '';
-
-                                    // 先組價格篩選條件，假設Merchant表有價格欄位 mPrice
-                                    $havingClauses = [];
-
-                                    if ($priceRange) {
-                                        switch ($priceRange) {
-                                            case '1': $havingClauses[] = "avgPrice <= 200"; break;
-                                            case '2': $havingClauses[] = "avgPrice BETWEEN 201 AND 500"; break;
-                                            case '3': $havingClauses[] = "avgPrice BETWEEN 501 AND 800"; break;
-                                            case '4': $havingClauses[] = "avgPrice > 800"; break;
+                                        $keyword = isset($_GET['keyword']) ? trim($_GET['keyword']) : '';
+                                        $sortRating = $_GET['sortRating'] ?? '';
+                                        $priceRange = $_GET['priceRange'] ?? '';
+                                
+                                        $matchedMids = [];
+                                
+                                        if ($keyword !== '') {
+                                            $keywordLike = '%' . $conn->real_escape_string($keyword) . '%';
+                                
+                                            // 1. Product 中 pName 或 pDescription
+                                            $sql = "SELECT DISTINCT mid FROM Product WHERE pName LIKE ? OR pDescription LIKE ?";
+                                            $stmt = $conn->prepare($sql);
+                                            $stmt->bind_param('ss', $keywordLike, $keywordLike);
+                                            $stmt->execute();
+                                            $stmt->bind_result($mid);
+                                            while ($stmt->fetch()) $matchedMids[] = $mid;
+                                            $stmt->close();
+                                
+                                            // 2. Merchant 中 mName
+                                            $sql = "SELECT DISTINCT mid FROM Merchant WHERE mName LIKE ?";
+                                            $stmt = $conn->prepare($sql);
+                                            $stmt->bind_param('s', $keywordLike);
+                                            $stmt->execute();
+                                            $stmt->bind_result($mid);
+                                            while ($stmt->fetch()) $matchedMids[] = $mid;
+                                            $stmt->close();
+                                
+                                            // 3. 餐廳類別 categoryName
+                                            $sql = "
+                                                SELECT DISTINCT rc.mid
+                                                FROM RestaurantCategoryList rcl
+                                                JOIN RestaurantCategories rc ON rcl.categoryId = rc.categoryId
+                                                WHERE rcl.categoryName LIKE ?
+                                            ";
+                                            $stmt = $conn->prepare($sql);
+                                            $stmt->bind_param('s', $keywordLike);
+                                            $stmt->execute();
+                                            $stmt->bind_result($mid);
+                                            while ($stmt->fetch()) $matchedMids[] = $mid;
+                                            $stmt->close();
+                                
+                                            // 4. 商品類別 productCategoryName
+                                            $sql = "
+                                                SELECT DISTINCT p.mid
+                                                FROM ProductCategoryList pcl
+                                                JOIN ProductCategories pc ON pcl.productCategoriesId = pc.productCategoriesId
+                                                JOIN Product p ON pc.pid = p.pid
+                                                WHERE pcl.productCategoryName LIKE ?
+                                            ";
+                                            $stmt = $conn->prepare($sql);
+                                            $stmt->bind_param('s', $keywordLike);
+                                            $stmt->execute();
+                                            $stmt->bind_result($mid);
+                                            while ($stmt->fetch()) $matchedMids[] = $mid;
+                                            $stmt->close();
+                                
+                                            // 移除重複
+                                            $matchedMids = array_unique($matchedMids);
                                         }
-                                    }
-
-                                    $havingSQL = "";
-                                    if (count($havingClauses) > 0) {
-                                        $havingSQL = "HAVING " . implode(" AND ", $havingClauses);
-                                    }
-                                    // 排序條件
-                                    $orderSQL = '';
-                                    if ($sortRating === 'desc') {
-                                        $orderSQL = "ORDER BY combinedRating DESC";
-                                    } else if ($sortRating === 'asc') {
-                                        $orderSQL = "ORDER BY combinedRating ASC";
-                                    } else {
-                                        $orderSQL = "ORDER BY RAND()"; // 預設亂數排序
-                                    }
-                                    
-
-                                    $sqlAll = "
+                                
+                                        $placeholder = implode(',', array_fill(0, count($matchedMids), '?'));
+                                        $sqlAll = "
                                             SELECT 
                                                 m.*, 
-                                                (SELECT AVG(p.price) FROM Product p WHERE p.mid = m.mid) AS avgPrice,
                                                 GROUP_CONCAT(rcl.categoryName SEPARATOR ', ') AS categoryNames,
                                                 COUNT(DISTINCT t.tranId) AS additionalRatingCount,
-                                                SUM(t.mRating) AS additionalRatingSum,
-                                                CASE 
-                                                    WHEN (m.ratingCount + COALESCE(COUNT(DISTINCT t.tranId), 0)) > 0 
-                                                    THEN ROUND(
-                                                        (m.rating * m.ratingCount + COALESCE(SUM(t.mRating), 0)) / (m.ratingCount + COALESCE(COUNT(DISTINCT t.tranId), 0)),
-                                                        1
-                                                    )
-                                                    ELSE NULL
-                                                END AS combinedRating
+                                                COALESCE(AVG(t.mRating), 0) AS additionalRatingAvg,
+                                                (
+                                                    (
+                                                        m.rating * m.ratingCount + 
+                                                        COALESCE(SUM(t.mRating), 0)
+                                                    ) / NULLIF((m.ratingCount + COUNT(t.mRating)), 0)
+                                                ) AS combinedRating
                                             FROM Merchant m
                                             LEFT JOIN RestaurantCategories rc ON m.mid = rc.mid
                                             LEFT JOIN RestaurantCategoryList rcl ON rc.categoryId = rcl.categoryId
                                             LEFT JOIN Transaction t ON m.mid = t.mid AND t.mRating IS NOT NULL
-                                            GROUP BY m.mid
-                                            $havingSQL
-                                            $orderSQL
-
                                         ";
+                                
+                                        if (!empty($matchedMids)) {
+                                            $sqlAll .= " WHERE m.mid IN ($placeholder)";
 
-                                    $resultAll = $conn->query($sqlAll);
+                                            // 價格範圍處理（抓該商家產品的平均價格）
+                                            switch ($priceRange) {
+                                                case '1': // 200 以下
+                                                    $sqlAll .= " AND (
+                                                        SELECT AVG(price) FROM Product WHERE mid = m.mid
+                                                    ) < 200";
+                                                    break;
+                                                case '2': // 201 ~ 500
+                                                    $sqlAll .= " AND (
+                                                        SELECT AVG(price) FROM Product WHERE mid = m.mid
+                                                    ) BETWEEN 201 AND 500";
+                                                    break;
+                                                case '3': // 501 ~ 800
+                                                    $sqlAll .= " AND (
+                                                        SELECT AVG(price) FROM Product WHERE mid = m.mid
+                                                    ) BETWEEN 501 AND 800";
+                                                    break;
+                                                case '4': // 800 以上
+                                                    $sqlAll .= " AND (
+                                                        SELECT AVG(price) FROM Product WHERE mid = m.mid
+                                                    ) > 800";
+                                                    break;
+                                            }
 
-                                    if ($resultAll && $resultAll->num_rows > 0) {
-                                        while ($row = $resultAll->fetch_assoc()) {
-                                            // 🔎 判斷是否已收藏
-                                            $isFavorited = false;
+                                            // 排序處理
+                                            $sqlAll .= " GROUP BY m.mid";
+
+                                            if ($sortRating == 'asc') {
+                                                $sqlAll .= " ORDER BY combinedRating ASC";
+                                            } elseif ($sortRating == 'desc') {
+                                                $sqlAll .= " ORDER BY combinedRating DESC";
+                                            } else {
+                                                $sqlAll .= " ORDER BY RAND()";
+                                            }                   
+                                            $stmt = $conn->prepare($sqlAll);
+                                            $stmt->bind_param(str_repeat('i', count($matchedMids)), ...$matchedMids);
+                                            $stmt->execute();
+                                            $resultAll = $stmt->get_result();
+                                        } else {
+                                            $resultAll = false;
+                                        }
+            
+
+                                        if ($resultAll && $resultAll->num_rows > 0) {
+                                            while ($row = $resultAll->fetch_assoc()) {
+                                                $isFavorited = false;
                                             if ($cid) {
                                                 $checkFav = $conn->prepare("SELECT 1 FROM Favorite WHERE cid = ? AND mid = ?");
                                                 $checkFav->bind_param("ii", $cid, $row["mid"]);
@@ -424,6 +450,7 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
 
                                             $heartClass = $isFavorited ? 'fa-solid text-danger' : 'fa-regular';
 
+
                                             echo '
                                             <div class="col-md-6 col-lg-4 col-xl-3">
                                                 <div class="rounded position-relative fruite-item" style="cursor: pointer;" onclick="location.href=\'merchant.php?mid=' . urlencode($row["mid"]) . '\'">
@@ -434,20 +461,20 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
                                                     <div class="p-4 border border-secondary border-top-0 rounded-bottom" style="height:175px; display:flex;flex-direction: column; justify-content: space-between;">
                                                         <div>
                                                             <h5>' . htmlspecialchars($row["mName"]) . '</h5>
-                                                            <p class="">' . htmlspecialchars($row["mAddress"]) . '</p>                            
-
+                                                            <p>' . htmlspecialchars($row["mAddress"]) . '</p>
                                                         </div>
-                                                        <div class="d-flex justify-content-between flex-lg-wrap" style="align-items: center;">
+                                                        <div class="d-flex justify-content-between flex-lg-wrap" 每個商家的「加總後評價星等」與「加總後評價人數」，和前面你使用 combinedRating 一樣的方式。>
                                                             <p class="text-dark fs-5 fw-bold mb-0" onclick="event.stopPropagation();">
                                                                 <i class="fa-heart favorite-icon ' . $heartClass . '" data-mid="' . $row["mid"] . '"></i>
+                                                                
                                                             </p>
                                                             <p class="mb-0" style="text-align:right;">
                                                                 <i class="fas fa-star fs-6 me-1 mb-0" style="color:#ffb524;"></i>' . 
-                                                                htmlspecialchars($row["combinedRating"] ?? $row["rating"]) . 
+                                                                number_format($row["combinedRating"], 1) . 
                                                                 '/5 (' . 
-                                                                htmlspecialchars($row["ratingCount"] + $row["additionalRatingCount"]) . 
+                                                                ($row["ratingCount"] + $row["additionalRatingCount"]) . 
                                                                 ')
-                                                            </p>  
+                                                            </p>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -457,642 +484,19 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
                                         echo "<p class='text-center'>尚無商家資料</p>";
                                     }
                                     ?>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                
-
-
-                        <!-- 各分類商品 -->
-                        <?php
-                        $sqlCategories = "SELECT categoryId, categoryName FROM RestaurantCategoryList ORDER BY categoryId";
-                        $resultCategories = $conn->query($sqlCategories);
-
-                        while ($catRow = $resultCategories->fetch_assoc()) {
-                            $catId = $catRow["categoryId"];
-                            $catName = $catRow["categoryName"];
-                            $tabId = "tab-" . $catId;
-
-                            $activeTab = $_GET['activeTab'] ?? 'tab-0';
-                            $isActive = ($activeTab === $tabId) ? 'show active' : '';
-
-                            echo '
-                            
-                            <div id="' . $tabId . '" class="tab-pane fade ' . $isActive . ' p-0">
-                                <div class="row g-4">
-                                    <div class="col-lg-12">
-                                        <div class="row g-4">
-                            ';
-                            $isCurrentTab = ($_GET['activeTab'] ?? 'tab-0') === $tabId;
-
-                            $sortRating = $_GET['sortRating'] ?? '';
-                            $priceRange = $_GET['priceRange'] ?? '';
-                            $havingClauses = [];
-
-                            if ($isCurrentTab) {
-                                if ($priceRange) {
-                                    switch ($priceRange) {
-                                        case '1': $havingClauses[] = "avgPrice <= 200"; break;
-                                        case '2': $havingClauses[] = "avgPrice BETWEEN 201 AND 500"; break;
-                                        case '3': $havingClauses[] = "avgPrice BETWEEN 501 AND 800"; break;
-                                        case '4': $havingClauses[] = "avgPrice > 800"; break;
-                                    }
-                                }
-                            
-                                if (count($havingClauses) > 0) {
-                                    $havingSQL = "HAVING " . implode(" AND ", $havingClauses);
-                                }
-                            
-                                if ($sortRating === 'desc') {
-                                    $orderSQL = "ORDER BY combinedRating DESC";
-                                } elseif ($sortRating === 'asc') {
-                                    $orderSQL = "ORDER BY combinedRating ASC";
-                                } else {
-                                    $orderSQL = "ORDER BY RAND()";
-                                }
-                            } else {
-                                // 其他 tab 就用預設隨機排序，避免空查詢
-                                $orderSQL = "ORDER BY RAND()";
-                            }
-                            
-
-                            $sqlMerchants = "
-                                SELECT 
-                                    m.*, 
-                                    (SELECT AVG(p.price) FROM Product p WHERE p.mid = m.mid) AS avgPrice,
-                                    COUNT(DISTINCT t.tranId) AS additionalRatingCount,
-                                    SUM(t.mRating) AS additionalRatingSum,
-                                    CASE 
-                                        WHEN (m.ratingCount + COALESCE(COUNT(DISTINCT t.tranId), 0)) > 0 
-                                        THEN ROUND(
-                                            (m.rating * m.ratingCount + COALESCE(SUM(t.mRating), 0)) / (m.ratingCount + COALESCE(COUNT(DISTINCT t.tranId), 0)),
-                                            1
-                                        )
-                                        ELSE NULL
-                                    END AS combinedRating
-                                FROM Merchant m
-                                JOIN RestaurantCategories rc ON m.mid = rc.mid
-                                LEFT JOIN Transaction t ON m.mid = t.mid AND t.mRating IS NOT NULL
-                                WHERE rc.categoryId = ?
-                                GROUP BY m.mid
-                                $havingSQL
-                                $orderSQL
-                            ";
-                            $stmt = $conn->prepare($sqlMerchants);
-                            $stmt->bind_param("i", $catId);
-                            $stmt->execute();
-                            $resMerchants = $stmt->get_result();
-
-                            if ($resMerchants->num_rows > 0) {
-                                while ($m = $resMerchants->fetch_assoc()) {
-                                    // 🔎 判斷是否已收藏
-                                    $isFavorited = false;
-                                    if ($cid) {
-                                        $checkFav = $conn->prepare("SELECT 1 FROM Favorite WHERE cid = ? AND mid = ?");
-                                        $checkFav->bind_param("ii", $cid, $m["mid"]);
-                                        $checkFav->execute();
-                                        $checkFav->store_result();
-                                        $isFavorited = $checkFav->num_rows > 0;
-                                        $checkFav->close();
-                                    }
-
-                                    $heartClass = $isFavorited ? 'fa-solid text-danger' : 'fa-regular';
-                                    echo '
-                                    <div class="col-md-6 col-lg-4 col-xl-3">
-                                        <div class="rounded position-relative fruite-item" style="cursor: pointer;" onclick="location.href=\'merchant.php?mid=' . urlencode($m["mid"]) . '\'">
-                                            <div class="fruite-img">
-                                                <img src="../' . $m["mPicture"] . '" class="img-fluid rounded-top w-100" alt="">
-                                            </div>
-                                           
-                                            <div class="text-white bg-secondary px-3 py-1 rounded position-absolute" style="top: 10px; left: 10px;">' . htmlspecialchars($catName) . '</div>
-                                            <div class="p-4 border border-secondary border-top-0 rounded-bottom"style="height:175px; display:flex;flex-direction: column; justify-content: space-between; ">
-                                                <div>
-                                                    <h4>' . htmlspecialchars($m["mName"]) . '</h4>
-                                                    <p>' . htmlspecialchars($m["mAddress"]) . '</p>
-                                                </div>
-                                                
-                                                <div class="d-flex justify-content-between flex-lg-wrap" style="align-items: center;">
-                                                    <p class="text-dark fs-5 fw-bold mb-0" onclick="event.stopPropagation();">
-                                                        <i class="fa-heart favorite-icon ' . $heartClass . '" data-mid="' . $m["mid"]  . '"></i>
-                                                                
-                                                    </p>
-                                                    <p class="mb-0" style="text-align:right;">
-                                                        <i class="fas fa-star fs-6 me-1 mb-0" style="color:#ffb524;"></i>' . 
-                                                        htmlspecialchars($m["combinedRating"] ?? $m["rating"]) . '/5 (' . 
-                                                        htmlspecialchars($m["ratingCount"] + $m["additionalRatingCount"]) . ')
-                                                    </p>  
-                                                </div>
-
-                                            </div>
-                                        </div>
-                                    </div>';
-                                }
-                            } else {
-                                echo "<p class='text-center'>該分類暫無商家</p>";
-                            }
-
-                            echo '
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>';
-                        }
-                        ?>  
+                    </div>  
                 </div> 
             </div> 
-        </div>     
-        <!-- Featurs End -->
+        </div>               
+                         
+        <!-- Fruits Shop End-->
+        
 
-
-        <!-- Vesitable Shop Start-->
-        <div class="container-fluid vesitable py-5">
-            <div class="container py-5">
-                <h1 class="mb-0">Fresh Organic Vegetables</h1>
-                <div class="owl-carousel vegetable-carousel justify-content-center">
-                    <div class="border border-primary rounded position-relative vesitable-item">
-                        <div class="vesitable-img">
-                            <img src="../img/vegetable-item-6.jpg" class="img-fluid w-100 rounded-top" alt="">
-                        </div>
-                        <div class="text-white bg-primary px-3 py-1 rounded position-absolute" style="top: 10px; right: 10px;">Vegetable</div>
-                        <div class="p-4 rounded-bottom">
-                            <h4>Parsely</h4>
-                            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit sed do eiusmod te incididunt</p>
-                            <div class="d-flex justify-content-between flex-lg-wrap">
-                                <p class="text-dark fs-5 fw-bold mb-0">$4.99 / kg</p>
-                                <a href="#" class="btn border border-secondary rounded-pill px-3 text-primary"><i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="border border-primary rounded position-relative vesitable-item">
-                        <div class="vesitable-img">
-                            <img src="../img/vegetable-item-1.jpg" class="img-fluid w-100 rounded-top" alt="">
-                        </div>
-                        <div class="text-white bg-primary px-3 py-1 rounded position-absolute" style="top: 10px; right: 10px;">Vegetable</div>
-                        <div class="p-4 rounded-bottom">
-                            <h4>Parsely</h4>
-                            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit sed do eiusmod te incididunt</p>
-                            <div class="d-flex justify-content-between flex-lg-wrap">
-                                <p class="text-dark fs-5 fw-bold mb-0">$4.99 / kg</p>
-                                <a href="#" class="btn border border-secondary rounded-pill px-3 text-primary"><i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="border border-primary rounded position-relative vesitable-item">
-                        <div class="vesitable-img">
-                            <img src="../img/vegetable-item-3.png" class="img-fluid w-100 rounded-top bg-light" alt="">
-                        </div>
-                        <div class="text-white bg-primary px-3 py-1 rounded position-absolute" style="top: 10px; right: 10px;">Vegetable</div>
-                        <div class="p-4 rounded-bottom">
-                            <h4>Banana</h4>
-                            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit sed do eiusmod te incididunt</p>
-                            <div class="d-flex justify-content-between flex-lg-wrap">
-                                <p class="text-dark fs-5 fw-bold mb-0">$7.99 / kg</p>
-                                <a href="#" class="btn border border-secondary rounded-pill px-3 text-primary"><i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="border border-primary rounded position-relative vesitable-item">
-                        <div class="vesitable-img">
-                            <img src="../img/vegetable-item-4.jpg" class="img-fluid w-100 rounded-top" alt="">
-                        </div>
-                        <div class="text-white bg-primary px-3 py-1 rounded position-absolute" style="top: 10px; right: 10px;">Vegetable</div>
-                        <div class="p-4 rounded-bottom">
-                            <h4>Bell Papper</h4>
-                            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit sed do eiusmod te incididunt</p>
-                            <div class="d-flex justify-content-between flex-lg-wrap">
-                                <p class="text-dark fs-5 fw-bold mb-0">$7.99 / kg</p>
-                                <a href="#" class="btn border border-secondary rounded-pill px-3 text-primary"><i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="border border-primary rounded position-relative vesitable-item">
-                        <div class="vesitable-img">
-                            <img src="../img/vegetable-item-5.jpg" class="img-fluid w-100 rounded-top" alt="">
-                        </div>
-                        <div class="text-white bg-primary px-3 py-1 rounded position-absolute" style="top: 10px; right: 10px;">Vegetable</div>
-                        <div class="p-4 rounded-bottom">
-                            <h4>Potatoes</h4>
-                            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit sed do eiusmod te incididunt</p>
-                            <div class="d-flex justify-content-between flex-lg-wrap">
-                                <p class="text-dark fs-5 fw-bold mb-0">$7.99 / kg</p>
-                                <a href="#" class="btn border border-secondary rounded-pill px-3 text-primary"><i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="border border-primary rounded position-relative vesitable-item">
-                        <div class="vesitable-img">
-                            <img src="../img/vegetable-item-6.jpg" class="img-fluid w-100 rounded-top" alt="">
-                        </div>
-                        <div class="text-white bg-primary px-3 py-1 rounded position-absolute" style="top: 10px; right: 10px;">Vegetable</div>
-                        <div class="p-4 rounded-bottom">
-                            <h4>Parsely</h4>
-                            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit sed do eiusmod te incididunt</p>
-                            <div class="d-flex justify-content-between flex-lg-wrap">
-                                <p class="text-dark fs-5 fw-bold mb-0">$7.99 / kg</p>
-                                <a href="#" class="btn border border-secondary rounded-pill px-3 text-primary"><i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="border border-primary rounded position-relative vesitable-item">
-                        <div class="vesitable-img">
-                            <img src="../img/vegetable-item-5.jpg" class="img-fluid w-100 rounded-top" alt="">
-                        </div>
-                        <div class="text-white bg-primary px-3 py-1 rounded position-absolute" style="top: 10px; right: 10px;">Vegetable</div>
-                        <div class="p-4 rounded-bottom">
-                            <h4>Potatoes</h4>
-                            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit sed do eiusmod te incididunt</p>
-                            <div class="d-flex justify-content-between flex-lg-wrap">
-                                <p class="text-dark fs-5 fw-bold mb-0">$7.99 / kg</p>
-                                <a href="#" class="btn border border-secondary rounded-pill px-3 text-primary"><i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="border border-primary rounded position-relative vesitable-item">
-                        <div class="vesitable-img">
-                            <img src="../img/vegetable-item-6.jpg" class="img-fluid w-100 rounded-top" alt="">
-                        </div>
-                        <div class="text-white bg-primary px-3 py-1 rounded position-absolute" style="top: 10px; right: 10px;">Vegetable</div>
-                        <div class="p-4 rounded-bottom">
-                            <h4>Parsely</h4>
-                            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit sed do eiusmod te incididunt</p>
-                            <div class="d-flex justify-content-between flex-lg-wrap">
-                                <p class="text-dark fs-5 fw-bold mb-0">$7.99 / kg</p>
-                                <a href="#" class="btn border border-secondary rounded-pill px-3 text-primary"><i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Vesitable Shop End -->
-
-
-        <!-- Banner Section Start-->
-        <div class="container-fluid banner bg-secondary my-5">
-            <div class="container py-5">
-                <div class="row g-4 align-items-center">
-                    <div class="col-lg-6">
-                        <div class="py-4">
-                            <h1 class="display-3 text-white">Fresh Exotic Fruits</h1>
-                            <p class="fw-normal display-3 text-dark mb-4">in Our Store</p>
-                            <p class="mb-4 text-dark">The generated Lorem Ipsum is therefore always free from repetition injected humour, or non-characteristic words etc.</p>
-                            <a href="#" class="banner-btn btn border-2 border-white rounded-pill text-dark py-3 px-5">BUY</a>
-                        </div>
-                    </div>
-                    <div class="col-lg-6">
-                        <div class="position-relative">
-                            <img src="../img/baner-1.png" class="img-fluid w-100 rounded" alt="">
-                            <div class="d-flex align-items-center justify-content-center bg-white rounded-circle position-absolute" style="width: 140px; height: 140px; top: 0; left: 0;">
-                                <h1 style="font-size: 100px;">1</h1>
-                                <div class="d-flex flex-column">
-                                    <span class="h2 mb-0">50$</span>
-                                    <span class="h4 text-muted mb-0">kg</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Banner Section End -->
-
-
-        <!-- Bestsaler Product Start -->
-        <div class="container-fluid py-5">
-            <div class="container py-5">
-                <div class="text-center mx-auto mb-5" style="max-width: 700px;">
-                    <h1 class="display-4">Bestseller Products</h1>
-                    <p>Latin words, combined with a handful of model sentence structures, to generate Lorem Ipsum which looks reasonable.</p>
-                </div>
-                <div class="row g-4">
-                    <div class="col-lg-6 col-xl-4">
-                        <div class="p-4 rounded bg-light">
-                            <div class="row align-items-center">
-                                <div class="col-6">
-                                    <img src="../img/best-product-1.jpg" class="img-fluid rounded-circle w-100" alt="">
-                                </div>
-                                <div class="col-6">
-                                    <a href="#" class="h5">Organic Tomato</a>
-                                    <div class="d-flex my-3">
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star"></i>
-                                    </div>
-                                    <h4 class="mb-3">3.12 $</h4>
-                                    <a href="#" class="btn border border-secondary rounded-pill px-3 text-primary"><i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 col-xl-4">
-                        <div class="p-4 rounded bg-light">
-                            <div class="row align-items-center">
-                                <div class="col-6">
-                                    <img src="../mg/best-product-2.jpg" class="img-fluid rounded-circle w-100" alt="">
-                                </div>
-                                <div class="col-6">
-                                    <a href="#" class="h5">Organic Tomato</a>
-                                    <div class="d-flex my-3">
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star"></i>
-                                    </div>
-                                    <h4 class="mb-3">3.12 $</h4>
-                                    <a href="#" class="btn border border-secondary rounded-pill px-3 text-primary"><i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 col-xl-4">
-                        <div class="p-4 rounded bg-light">
-                            <div class="row align-items-center">
-                                <div class="col-6">
-                                    <img src="../img/best-product-3.jpg" class="img-fluid rounded-circle w-100" alt="">
-                                </div>
-                                <div class="col-6">
-                                    <a href="#" class="h5">Organic Tomato</a>
-                                    <div class="d-flex my-3">
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star"></i>
-                                    </div>
-                                    <h4 class="mb-3">3.12 $</h4>
-                                    <a href="#" class="btn border border-secondary rounded-pill px-3 text-primary"><i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 col-xl-4">
-                        <div class="p-4 rounded bg-light">
-                            <div class="row align-items-center">
-                                <div class="col-6">
-                                    <img src="../img/best-product-4.jpg" class="img-fluid rounded-circle w-100" alt="">
-                                </div>
-                                <div class="col-6">
-                                    <a href="#" class="h5">Organic Tomato</a>
-                                    <div class="d-flex my-3">
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star"></i>
-                                    </div>
-                                    <h4 class="mb-3">3.12 $</h4>
-                                    <a href="#" class="btn border border-secondary rounded-pill px-3 text-primary"><i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 col-xl-4">
-                        <div class="p-4 rounded bg-light">
-                            <div class="row align-items-center">
-                                <div class="col-6">
-                                    <img src="../img/best-product-5.jpg" class="img-fluid rounded-circle w-100" alt="">
-                                </div>
-                                <div class="col-6">
-                                    <a href="#" class="h5">Organic Tomato</a>
-                                    <div class="d-flex my-3">
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star"></i>
-                                    </div>
-                                    <h4 class="mb-3">3.12 $</h4>
-                                    <a href="#" class="btn border border-secondary rounded-pill px-3 text-primary"><i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 col-xl-4">
-                        <div class="p-4 rounded bg-light">
-                            <div class="row align-items-center">
-                                <div class="col-6">
-                                    <img src="../img/best-product-6.jpg" class="img-fluid rounded-circle w-100" alt="">
-                                </div>
-                                <div class="col-6">
-                                    <a href="#" class="h5">Organic Tomato</a>
-                                    <div class="d-flex my-3">
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star"></i>
-                                    </div>
-                                    <h4 class="mb-3">3.12 $</h4>
-                                    <a href="#" class="btn border border-secondary rounded-pill px-3 text-primary"><i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-6 col-xl-3">
-                        <div class="text-center">
-                            <img src="../img/fruite-item-1.jpg" class="img-fluid rounded" alt="">
-                            <div class="py-4">
-                                <a href="#" class="h5">Organic Tomato</a>
-                                <div class="d-flex my-3 justify-content-center">
-                                    <i class="fas fa-star text-primary"></i>
-                                    <i class="fas fa-star text-primary"></i>
-                                    <i class="fas fa-star text-primary"></i>
-                                    <i class="fas fa-star text-primary"></i>
-                                    <i class="fas fa-star"></i>
-                                </div>
-                                <h4 class="mb-3">3.12 $</h4>
-                                <a href="#" class="btn border border-secondary rounded-pill px-3 text-primary"><i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-6 col-xl-3">
-                        <div class="text-center">
-                            <img src="../img/fruite-item-2.jpg" class="img-fluid rounded" alt="">
-                            <div class="py-4">
-                                <a href="#" class="h5">Organic Tomato</a>
-                                <div class="d-flex my-3 justify-content-center">
-                                    <i class="fas fa-star text-primary"></i>
-                                    <i class="fas fa-star text-primary"></i>
-                                    <i class="fas fa-star text-primary"></i>
-                                    <i class="fas fa-star text-primary"></i>
-                                    <i class="fas fa-star"></i>
-                                </div>
-                                <h4 class="mb-3">3.12 $</h4>
-                                <a href="#" class="btn border border-secondary rounded-pill px-3 text-primary"><i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-6 col-xl-3">
-                        <div class="text-center">
-                            <img src="../img/fruite-item-3.jpg" class="img-fluid rounded" alt="">
-                            <div class="py-4">
-                                <a href="#" class="h5">Organic Tomato</a>
-                                <div class="d-flex my-3 justify-content-center">
-                                    <i class="fas fa-star text-primary"></i>
-                                    <i class="fas fa-star text-primary"></i>
-                                    <i class="fas fa-star text-primary"></i>
-                                    <i class="fas fa-star text-primary"></i>
-                                    <i class="fas fa-star"></i>
-                                </div>
-                                <h4 class="mb-3">3.12 $</h4>
-                                <a href="#" class="btn border border-secondary rounded-pill px-3 text-primary"><i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-6 col-xl-3">
-                        <div class="text-center">
-                            <img src="../img/fruite-item-4.jpg" class="img-fluid rounded" alt="">
-                            <div class="py-2">
-                                <a href="#" class="h5">Organic Tomato</a>
-                                <div class="d-flex my-3 justify-content-center">
-                                    <i class="fas fa-star text-primary"></i>
-                                    <i class="fas fa-star text-primary"></i>
-                                    <i class="fas fa-star text-primary"></i>
-                                    <i class="fas fa-star text-primary"></i>
-                                    <i class="fas fa-star"></i>
-                                </div>
-                                <h4 class="mb-3">3.12 $</h4>
-                                <a href="#" class="btn border border-secondary rounded-pill px-3 text-primary"><i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Bestsaler Product End -->
-
-
-        <!-- Fact Start -->
-        <div class="container-fluid py-5">
-            <div class="container">
-                <div class="bg-light p-5 rounded">
-                    <div class="row g-4 justify-content-center">
-                        <div class="col-md-6 col-lg-6 col-xl-3">
-                            <div class="counter bg-white rounded p-5">
-                                <i class="fa fa-users text-secondary"></i>
-                                <h4>satisfied customers</h4>
-                                <h1>1963</h1>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-lg-6 col-xl-3">
-                            <div class="counter bg-white rounded p-5">
-                                <i class="fa fa-users text-secondary"></i>
-                                <h4>quality of service</h4>
-                                <h1>99%</h1>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-lg-6 col-xl-3">
-                            <div class="counter bg-white rounded p-5">
-                                <i class="fa fa-users text-secondary"></i>
-                                <h4>quality certificates</h4>
-                                <h1>33</h1>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-lg-6 col-xl-3">
-                            <div class="counter bg-white rounded p-5">
-                                <i class="fa fa-users text-secondary"></i>
-                                <h4>Available Products</h4>
-                                <h1>789</h1>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Fact Start -->
-
-
-        <!-- Tastimonial Start -->
-        <div class="container-fluid testimonial py-5">
-            <div class="container py-5">
-                <div class="testimonial-header text-center">
-                    <h4 class="text-primary">Our Testimonial</h4>
-                    <h1 class="display-5 mb-5 text-dark">Our Client Saying!</h1>
-                </div>
-                <div class="owl-carousel testimonial-carousel">
-                    <div class="testimonial-item img-border-radius bg-light rounded p-4">
-                        <div class="position-relative">
-                            <i class="fa fa-quote-right fa-2x text-secondary position-absolute" style="bottom: 30px; right: 0;"></i>
-                            <div class="mb-4 pb-4 border-bottom border-secondary">
-                                <p class="mb-0">Lorem Ipsum is simply dummy text of the printing Ipsum has been the industry's standard dummy text ever since the 1500s,
-                                </p>
-                            </div>
-                            <div class="d-flex align-items-center flex-nowrap">
-                                <div class="bg-secondary rounded">
-                                    <img src="../img/testimonial-1.jpg" class="img-fluid rounded" style="width: 100px; height: 100px;" alt="">
-                                </div>
-                                <div class="ms-4 d-block">
-                                    <h4 class="text-dark">Client Name</h4>
-                                    <p class="m-0 pb-3">Profession</p>
-                                    <div class="d-flex pe-5">
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="testimonial-item img-border-radius bg-light rounded p-4">
-                        <div class="position-relative">
-                            <i class="fa fa-quote-right fa-2x text-secondary position-absolute" style="bottom: 30px; right: 0;"></i>
-                            <div class="mb-4 pb-4 border-bottom border-secondary">
-                                <p class="mb-0">Lorem Ipsum is simply dummy text of the printing Ipsum has been the industry's standard dummy text ever since the 1500s,
-                                </p>
-                            </div>
-                            <div class="d-flex align-items-center flex-nowrap">
-                                <div class="bg-secondary rounded">
-                                    <img src="../img/testimonial-1.jpg" class="img-fluid rounded" style="width: 100px; height: 100px;" alt="">
-                                </div>
-                                <div class="ms-4 d-block">
-                                    <h4 class="text-dark">Client Name</h4>
-                                    <p class="m-0 pb-3">Profession</p>
-                                    <div class="d-flex pe-5">
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star text-primary"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="testimonial-item img-border-radius bg-light rounded p-4">
-                        <div class="position-relative">
-                            <i class="fa fa-quote-right fa-2x text-secondary position-absolute" style="bottom: 30px; right: 0;"></i>
-                            <div class="mb-4 pb-4 border-bottom border-secondary">
-                                <p class="mb-0">Lorem Ipsum is simply dummy text of the printing Ipsum has been the industry's standard dummy text ever since the 1500s,
-                                </p>
-                            </div>
-                            <div class="d-flex align-items-center flex-nowrap">
-                                <div class="bg-secondary rounded">
-                                    <img src="../img/testimonial-1.jpg" class="img-fluid rounded" style="width: 100px; height: 100px;" alt="">
-                                </div>
-                                <div class="ms-4 d-block">
-                                    <h4 class="text-dark">Client Name</h4>
-                                    <p class="m-0 pb-3">Profession</p>
-                                    <div class="d-flex pe-5">
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star text-primary"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Tastimonial End -->
+        
 
 
         <!-- Footer Start -->
@@ -1737,40 +1141,7 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
     });
     </script>
 
-
-    <!-- 🟦 Modal: 更換外送地址 -->
-    <div class="modal fade" id="addressModal" tabindex="-1" aria-labelledby="addressModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <form method="post" action="index.php">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="addressModalLabel">選擇外送地址</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <select class="form-select" name="selected_address_id" id="addressSelect">
-                            <?php
-                            $sql = "SELECT address_id, address_text FROM caddress WHERE cid = ?";
-                            $stmt = $conn->prepare($sql);
-                            $stmt->bind_param("i", $_SESSION['cid']); // 假設有 cid session
-                            $stmt->execute();
-                            $result = $stmt->get_result();
-                            while ($row = $result->fetch_assoc()) {
-                            echo '<option value="' . $row['address_id'] . '">' . htmlspecialchars($row['address_text']) . '</option>';
-                            }
-                            ?>
-                        </select>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary">使用此地址</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-
-
-    <script>
+<script>
     document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.favorite-icon').forEach(icon => {
         icon.addEventListener('click', function (e) {
@@ -1804,80 +1175,44 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
     });
     });
     </script>
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // 點擊 tab 時更新 hidden input
-            document.querySelectorAll('.nav-pills .nav-link').forEach(link => {
-                link.addEventListener('click', function () {
-                    const href = this.getAttribute('href').substring(1); // 例如 tab-2
-                    document.getElementById('activeTab').value = href;
-                });
-            });
-
-            // 如果 URL 有帶 activeTab，就自動啟用該 tab
-            // 取得 URL 中的參數
-            const urlParams = new URLSearchParams(window.location.search);
-            const activeTab = urlParams.get('activeTab'); // 會得到 'tab-6'
-
-            // 若存在對應 tab，觸發它
-            if (activeTab) {
-            const triggerEl = document.querySelector(`a[href="${activeTab}"]`);
-            if (triggerEl) {
-                new bootstrap.Tab(triggerEl).show();
-            }
-            }
-        });
-    </script>
-    <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const tabLinks = document.querySelectorAll('a[data-bs-toggle="pill"]');
-
-        tabLinks.forEach(link => {
-            link.addEventListener("shown.bs.tab", function (e) {
-                const targetId = e.target.getAttribute("href").substring(1); // 例如 "tab-6"
-            
-                // 取得當前 URL 並更新 activeTab 參數
-                const url = new URL(window.location);
-                url.searchParams.set('activeTab', targetId); // 只設定不帶 '#' 的值
 
 
-                // 不重新載入畫面，更新網址
-                history.pushState(null, '', url.toString());
-            });
-        });
-
-        // 根據 URL activeTab 自動啟用對應 tab
-        const urlParams = new URLSearchParams(window.location.search);
-        const activeTab = urlParams.get('activeTab');
-        if (activeTab) {
-            const tabTriggerEl = document.querySelector(`a[href="${activeTab}"]`);
-            if (tabTriggerEl) {
-                const tab = new bootstrap.Tab(tabTriggerEl);
-                tab.show(); // 切換 tab
-            }
-        }
-    });
-    </script>
-    <script>
-
-    document.querySelectorAll('.nav-link').forEach(link => {
-        link.addEventListener('click', function () {
-            const activeTabInput = document.getElementById('activeTab');
-            activeTabInput.value = this.getAttribute('href').substring(1); // 去掉 #
-        });
-    });
-    </script>
-    <script>
-    document.querySelectorAll('[data-bs-toggle="pill"]').forEach(tab => {
-        tab.addEventListener('shown.bs.tab', function (e) {
-            const activeTabId = e.target.getAttribute('href');
-            document.getElementById('activeTab').value = activeTabId;
-        });
-    });
-    </script>
+    <!-- 🟦 Modal: 更換外送地址 -->
+    <div class="modal fade" id="addressModal" tabindex="-1" aria-labelledby="addressModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <form method="post" action="index.php">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addressModalLabel">選擇外送地址</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <select class="form-select" name="selected_address_id" id="addressSelect">
+                            <?php
+                            $sql = "SELECT address_id, address_text FROM caddress WHERE cid = ?";
+                            $stmt = $conn->prepare($sql);
+                            $stmt->bind_param("i", $_SESSION['cid']); // 假設有 cid session
+                            $stmt->execute();
+                            $result = $stmt->get_result();
+                            while ($row = $result->fetch_assoc()) {
+                            echo '<option value="' . $row['address_id'] . '">' . htmlspecialchars($row['address_text']) . '</option>';
+                            }
+                            ?>
+                        </select>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">使用此地址</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
 
     
+
+
+
+
     </body>
 
 </html>
