@@ -44,7 +44,7 @@ if ($cIdExists && $emailExists) {
             <script>
                 setTimeout(function() {
                     window.history.back();
-                }, 4000); // 4000 毫秒＝4 秒
+                }, 2000); // 2000 毫秒＝2 秒
             </script>
         ";
 } elseif ($cIdExists) {
@@ -58,7 +58,7 @@ if ($cIdExists && $emailExists) {
             <script>
                 setTimeout(function() {
                     window.history.back();
-                }, 4000); // 4000 毫秒＝4 秒
+                }, 2000); // 2000 毫秒＝2 秒
             </script>
         ";
 } elseif ($emailExists) {
@@ -72,7 +72,7 @@ if ($cIdExists && $emailExists) {
             <script>
                 setTimeout(function() {
                     window.history.back();
-                }, 4000); // 4000 毫秒＝4 秒
+                }, 2000); // 2000 毫秒＝2 秒
             </script>
         ";
 } else {
@@ -124,12 +124,13 @@ if ($cIdExists && $emailExists) {
     $stmt->bind_param("ssssiss", $fullname, $email, $password, $address, $introducer, $imageURL, $role);
 
     if ($stmt->execute()) {
+        $new_user_id = $conn->insert_id; // 自動取得新註冊的使用者 cid
         echo "
-            <h2 style='color: green;'>註冊成功！2 秒後將自動跳轉到登入頁面。</h2>
+            <h2 style='color: green;'>註冊成功！將開始拍攝人臉以進行辨識。</h2>
             <script>
                 setTimeout(function() {
-                    window.location.href = 'system_blog.php';
-                }, 2000); // 2000 毫秒＝2 秒
+                    window.location.href = '../../face_login_project/register_face.php&cid={$new_user_id}';
+                }, 1500);
             </script>
         ";
         exit;
@@ -140,3 +141,9 @@ if ($cIdExists && $emailExists) {
 
 $stmt->close();
 ?>
+<!-- <h2 style='color: green;'>註冊成功！2 秒後將自動跳轉到登入頁面。</h2>
+<script>
+    setTimeout(function() {
+        window.location.href = 'system_blog.php';
+    }, 2000); // 2000 毫秒＝2 秒
+</script> -->
