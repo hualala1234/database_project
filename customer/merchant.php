@@ -421,7 +421,8 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['mid'])) {
             </div>
             <form method="post" action="merchant.php">
               <input type="hidden" name="mid" value="<?php echo $row['mid']; ?>">
-              <button type="submit" class=" btn py-3 px-3  text-white h-100" style="background-color:#ffc446;">餐廳訂位</button>
+
+              <button type="submit" style="background-color: #123524;    color: white;    padding: 10px 15px;    border-radius: 10px;">餐廳訂位</button>
             </form>
           </div>
             

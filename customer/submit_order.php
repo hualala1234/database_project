@@ -27,6 +27,10 @@ foreach ($requiredFields as $field) {
     }
 }
 
+
+
+
+
 // ✅ 4. 變數準備
 $mid = intval($data['mid']);
 $totalPrice = intval($data['totalPrice']);
@@ -38,16 +42,27 @@ $couponCode = $data['couponCode'] ?? null;
 $couponId = $data['id'] ?? null;
 $cartTime = $data['cartTime'];
 // ✅ 5. 開始資料庫交易
+
+// 先根據 paymentMethod 判斷 cardName 要帶什麼值
+if ($paymentMethod !== 'cash' && $paymentMethod !== 'wallet') {
+    $cardName = $paymentMethod; // 直接用 paymentMethod 的值
+    $paymentMethod = 'cardName';
+} else {
+    $cardName = null; // 其他狀況給 null
+}
 $conn->begin_transaction();
+
 
 try {
     // ✅ 6. 插入 Transaction 表（補上所有欄位）
+    // 準備 SQL，新增 cardName 欄位
     $stmt = $conn->prepare("
-        INSERT INTO Transaction 
-        (cid, mid, address_text, transactionTime, paymentMethod, totalPrice, tNote, id, couponCode ) 
-        VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?, ?, ?)
+    INSERT INTO Transaction 
+    (cid, mid, address_text, transactionTime, paymentMethod, cardName, totalPrice, tNote, id, couponCode) 
+    VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?, ?, ?, ?)
     ");
-    $stmt->bind_param("iissssis", $cid, $mid, $address, $paymentMethod, $totalPrice, $tNote, $couponId, $couponCode );
+
+    $stmt->bind_param("iissssiss", $cid, $mid, $address, $paymentMethod, $cardName, $totalPrice, $tNote, $couponId, $couponCode);
     $stmt->execute();
 
     $transactionId = $stmt->insert_id;
