@@ -648,3 +648,12 @@ span.address-label.text-white {
 .category-item:hover {
     transform: translateY(-5px); /* 往上移動 5px */
 }
+
+
+.card-scrollable::-webkit-scrollbar {
+    width: 6px;
+  }
+  .card-scrollable::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+  }

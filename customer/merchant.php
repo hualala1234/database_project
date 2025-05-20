@@ -410,7 +410,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['mid'])) {
       $row = mysqli_fetch_array($result);
     }
     ?>
-    <section class="py-2 overflow-hidden">
+    <section class="py-2 ">
       <div class="container-fluid">
         <div class="row">
           <div class="col-md-12">
@@ -421,6 +421,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['mid'])) {
             </div>
             <form method="post" action="merchant.php">
               <input type="hidden" name="mid" value="<?php echo $row['mid']; ?>">
+
               <button type="submit" style="background-color: #123524;    color: white;    padding: 10px 15px;    border-radius: 10px;">餐廳訂位</button>
             </form>
           </div>
@@ -430,8 +431,122 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['mid'])) {
       </div>
     </section>
 
+    <!-- 顯示評論 -->
+    <?php
+    if (isset($_GET["mid"])) {
+        $mid = $_GET["mid"];
+
+        $sql = "SELECT T.tranId, T.mComment, T.mRating, P.pName, P.pid, P.mid, P.pDescription, P.price, P.pPicture
+                FROM Transaction T
+                JOIN Record R ON T.tranId = R.tranId
+                JOIN Product P ON R.pid = P.pid
+                WHERE T.mid = $mid AND T.mComment IS NOT NULL AND T.mRating IS NOT NULL AND T.mComment <> ''";
+        $result = mysqli_query($conn, $sql);
+    }
+
+    function renderStars($rating) {
+        $stars = '';
+        for ($i = 1; $i <= 5; $i++) {
+            if ($i <= $rating) {
+                $stars .= '<i class="bi bi-star-fill text-warning"></i>';
+            } else {
+                $stars .= '<i class="bi bi-star text-warning"></i>';
+            }
+        }
+        return $stars;
+    }
+
+    // 將資料依照 tranId 分組
+    $groupedComments = [];
+
+    if ($result && mysqli_num_rows($result) > 0) {
+        while ($row = mysqli_fetch_assoc($result)) {
+            $tranId = $row['tranId'];
+
+            if (!isset($groupedComments[$tranId])) {
+                $groupedComments[$tranId] = [
+                    'mComment' => htmlspecialchars($row['mComment']),
+                    'mRating' => intval($row['mRating']),
+                    'products' => [],
+                ];
+            }
+
+            $groupedComments[$tranId]['products'][] = [
+                'pName' => htmlspecialchars($row['pName']),
+                'pDescription' => addslashes($row['pDescription']),
+                'price' => $row['price'],
+                'pPicture' => '../' . $row['pPicture'],
+                'pid' => $row['pid'],
+                'mid' => $row['mid'],
+            ];
+        }
+    }
+    ?>
+
+    <section class="py-5">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="section-header d-flex mb-5" style="align-items: center;">
+              <h2 class="section-title me-3">評論</h2>
+              <a href="all_comments.php?mid=<?= $mid ?>" class="text-primary small" style="text-decoration:underline;">查看全部</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex flex-nowrap overflow-auto gap-4">
+          <?php
+          if (!empty($groupedComments)) {
+              foreach ($groupedComments as $commentData) {
+                  $comment = $commentData['mComment'];
+                  $rating = $commentData['mRating'];
+                  $stars = renderStars($rating);
+                  $productLinks = [];
+
+                  foreach ($commentData['products'] as $product) {
+                      $pName = addslashes($product['pName']);
+                      $pDescription = $product['pDescription'];
+                      $price = $product['price'];
+                      $pPicture = $product['pPicture'];
+                      $pid = $product['pid'];
+                      $mid = $product['mid'];
+
+                      $productLinks[] = '<a href="#"
+                          class="text-decoration-underline text-primary"
+                          data-bs-toggle="modal"
+                          data-bs-target="#productModal"
+                          onclick="openProductModal(\'' . $pName . '\', \'' . $pDescription . '\', \'' . $price . '\', \'' . $pPicture . '\', ' . $pid . ', ' . $mid . ')">'
+                          . $pName .
+                          '</a>';
+                  }
+
+                  echo '
+                  <div class="card shadow-sm flex-shrink-0" style="width: 300px;">
+                    <div class="card-body card-scrollable overflow-auto" style="height: 12.5em; display: flex; flex-direction: column; justify-content: space-between;">
+                      <h6 class="card-text mb-2">' . $comment . '</h6>
+                      <div>
+                        <p class="card-text mb-2">購買商品：' . implode(', ', $productLinks) . '</p>
+                        <p class="card-text">評分：' . $stars . ' (' . $rating . ' 星)</p>
+                      </div>
+                    </div>
+                  </div>';
+              }
+          } else {
+              echo '<div class="col-12"><p class="text-muted">目前尚無評論。</p></div>';
+          }
+          ?>
+        </div>
+      </div>
+    </section>
+
+
+
+
+
+    
+
     <!-- 顯示類別 -->
-    <section class="py-5 overflow-hidden">
+    <section class="py-5 ">
       <div class="container-fluid">
         <div class="row">
           <div class="col-md-12">
@@ -467,10 +582,10 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['mid'])) {
         ?>
 
         
-        <div class="row sticky-top" style="top: 160px; z-index: 1020;">
+        <div class="row " style=" position:sticky; top: 300px; z-index: 1020; ">
           <div class="col-12">
             <!-- 滑動容器 -->
-            <div class="category-scroll-wrapper overflow-auto border-top border-bottom sticky-top py-2" style="white-space: nowrap;">
+            <div class="category-scroll-wrapper py-2" style="overflow-x: auto; overflow-y: visible; white-space: nowrap;">
 
               <?php
               while ($category = mysqli_fetch_assoc($result)) {
@@ -1341,7 +1456,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['mid'])) {
       </div>
     </section>
 
-    <section class="py-5 overflow-hidden">
+    <section class="py-5 ">
       <div class="container-fluid">
         <div class="row">
           <div class="col-md-12">
@@ -1646,7 +1761,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['mid'])) {
       </div>
     </section>
 
-    <section class="py-5 overflow-hidden">
+    <section class="py-5 ">
       <div class="container-fluid">
         <div class="row">
           <div class="col-md-12">
@@ -1904,7 +2019,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['mid'])) {
       </div>
     </section>
 
-    <section class="py-5 overflow-hidden">
+    <section class="py-5 ">
       <div class="container-fluid">
         <div class="row">
           <div class="col-md-12">
