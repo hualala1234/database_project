@@ -123,7 +123,7 @@ $create_email = $_GET['create'] ?? 'Log in to stay connected with us';
                     >
                     <button type="submit">Log in</button>
                     <div style="text-align: center; ">
-                        <a href="../../face_login_project/face_login.php">
+                        <a href="../../face_login_project/face_login.html">
                             <button type="button" style="padding: 10px 22px;">😀 人臉辨識登入</button>
                         </a>
                     </div>
