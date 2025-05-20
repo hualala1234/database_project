@@ -9,13 +9,13 @@ $cid = isset($_SESSION["cid"]) ? $_SESSION["cid"] : '';
 ?>
 <script>
   const cid = "<?php echo htmlspecialchars($cid, ENT_QUOTES, 'UTF-8'); ?>";
-window.addEventListener('DOMContentLoaded', () => {
+  window.addEventListener('DOMContentLoaded', () => {
   const cid = "<?php echo $cid; ?>";
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('cid') && urlParams.get('role') === 'c') {
-        // 自動觸發圖片選擇器
-        document.getElementById('imageInput').click();
-    }
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('cid') && urlParams.get('role') === 'c') {
+      // 自動觸發圖片選擇器
+      document.getElementById('imageInput').click();
+  }
 });
 </script>
 
