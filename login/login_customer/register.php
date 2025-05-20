@@ -1,4 +1,7 @@
 <?php
+header("Access-Control-Allow-Origin: http://localhost");
+header("Access-Control-Allow-Credentials: true");
+session_start();
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -129,7 +132,7 @@ if ($cIdExists && $emailExists) {
             <h2 style='color: green;'>註冊成功！將開始拍攝人臉以進行辨識。</h2>
             <script>
                 setTimeout(function() {
-                    window.location.href = '../../face_login_project/register_face.php&cid={$new_user_id}';
+                    window.location.href = '../../face_login_project/register_face.html?cid={$new_user_id}';
                 }, 1500);
             </script>
         ";
