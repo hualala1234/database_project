@@ -313,7 +313,15 @@ withdrawForm.addEventListener('submit', function (e) {
     }
 
     const amount = parseInt(document.getElementById('withdraw-amount').value);
+    const currentBalanceText = document.getElementById("balance").textContent.replace("NTD", "").trim();
+    const currentBalance = parseInt(currentBalanceText);
 
+    // ✅ 加在這裡
+    if (amount > currentBalance) {
+        alert("❌ 餘額不足！");
+        return;
+    }
+    
     fetch('../walletAndrecord/withdraw.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -325,8 +333,9 @@ withdrawForm.addEventListener('submit', function (e) {
         if (data.success) {
             // triggerMoneyFlyUp();  // ✅ 呼叫錢飛走動畫
             // setTimeout(() => location.reload(), 1500);
+            
             triggerMoneyFlyToLuggage();
-            setTimeout(() => location.reload(), 1800);
+            setTimeout(() => location.reload(), 1500);
         }
     });
 });
@@ -371,6 +380,29 @@ function triggerMoneyFlyToLuggage() {
     setTimeout(() => {
         luggageBox.style.display = 'none';
     }, 1600);
+}
+function animateBalance(from, to) {
+    const duration = 1000;
+    const startTime = performance.now();
+    const balanceElem = document.getElementById("balance");
+
+    function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const value = Math.floor(from + (to - from) * progress);
+        balanceElem.textContent = `${value} NTD`;
+        if (progress < 1) requestAnimationFrame(update);
+    }
+
+    requestAnimationFrame(update);
+}
+function showSparkle(x, y) {
+    const sparkle = document.createElement("div");
+    sparkle.className = "sparkle";
+    sparkle.style.left = `${x}px`;
+    sparkle.style.top = `${y}px`;
+    document.body.appendChild(sparkle);
+    setTimeout(() => sparkle.remove(), 600);
 }
 
 
