@@ -12,23 +12,7 @@ if ($cid !== '') {
     $row = mysqli_fetch_array($result);
 }
 
-// ✅ 預設不是 VIP
-$isVIP = false;
-$vipImage = './vip.png';
 
-if (!empty($cid)) {
-    $sql = "SELECT vipTime FROM customer WHERE cid = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $cid);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if ($row = $result->fetch_assoc()) {
-        if (!is_null($row['vipTime'])) {
-            $isVIP = true;
-            $vipImage = './is_vip.png';
-        }
-    }
-}
 
 $storeCount = 0;
 if (isset($_SESSION['cid'], $_SESSION['cartTime'])) {
@@ -53,6 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_address_id']
     if ($row = $result->fetch_assoc()) {
         $_SESSION['current_address'] = $row['address_text']; // 更新 session 地址
     }
+    $stmt->close();
     // 重定向回 index.php，讓頁面更新
     header("Location: index.php?cid=$cid");
     exit;
@@ -60,6 +45,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_address_id']
 
 // 取得目前使用的地址（如果有從 modal 選擇過）
 $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選擇地址');
+
+// ✅ 預設不是 VIP
+$isVIP = false;
+$vipImage = './vip.png';
+
+if (!empty($cid)) {
+    $sql = "SELECT vipTime FROM customer WHERE cid = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $cid);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($row = $result->fetch_assoc()) {
+        if (!is_null($row['vipTime'])) {
+            $isVIP = true;
+            $vipImage = './is_vip.png';
+        }
+    }
+}
 
 //訂單進度
 $sql = "
@@ -155,7 +158,7 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
                             <div class="navbar-nav mx-auto">
                                 <div class="position-relative mx-auto">
                                     <input name="keyword" class="form-control border-2 border-secondary py-3 px-4 rounded-pill" style="width: 30rem;" type="text" placeholder="Search">
-                                    <button type="submit" class="btn btn-primary border-2 border-secondary py-3 px-4 position-absolute rounded-pill text-white h-100" style="top: 0; left: 82.5%;">搜尋</button>
+                                    
                                 </div>
                             </div>
                         </form>
@@ -1167,6 +1170,36 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
             </div>
         </div>
         <!-- Footer End -->
+        <!-- 🟦 Modal: 更換外送地址 -->
+        <div class="modal fade" id="addressModal" tabindex="-1" aria-labelledby="addressModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <form method="post" action="index.php?cid=<?php echo $cid; ?>">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="addressModalLabel">選擇外送地址</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <select class="form-select" name="selected_address_id" id="addressSelect">
+                                <?php
+                                $sql = "SELECT address_id, address_text FROM caddress WHERE cid = ?";
+                                $stmt = $conn->prepare($sql);
+                                $stmt->bind_param("i", $cid); // 假設有 cid session
+                                $stmt->execute();
+                                $result = $stmt->get_result();
+                                while ($row = $result->fetch_assoc()) {
+                                echo '<option value="' . $row['address_id'] . '">' . htmlspecialchars($row['address_text']) . '</option>';
+                                }
+                                ?>
+                            </select>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">使用此地址</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
         <!-- 購物車 Modal -->
         <div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered modal-scrollable">
@@ -1437,9 +1470,19 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
                         <?php endif; ?>
                     <?php endif; ?>
 
-                    <button class="btn btn-outline-primary my-2" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOrder<?= $order['tranId'] ?>">
+                    <button class="btn btn-outline-primary my-2 me-2" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOrder<?= $order['tranId'] ?>">
                         顯示訂單明細
                     </button>
+                    <?php if (
+                        ($deliveryStatus === 'accept' || $deliveryStatus === 'arrived' ||
+                        $status === 'takeaway') 
+                        // 配送中或已送達時顯示外送員名稱
+                    ): ?>
+                        <a href="generate_pdf.php?tranId=<?= $order['tranId'] ?>" target="_blank" class="btn btn-danger my-2">
+                        下載 PDF
+                        </a>
+                    <?php endif; ?>
+                    
 
                     <div class="collapse" id="collapseOrder<?= $order['tranId'] ?>">
                         <div class="card card-body">
@@ -1637,7 +1680,9 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
             
         </div>
     </div>
+    
     <script>
+
     function toggleDropdown() {
         var dropdown = document.getElementById("myDropdown");
         dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
@@ -1648,6 +1693,13 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
             dropdown.style.display = "none";
         }
     }
+    </script>
+    <script>
+        document.getElementById('openAddressModalBtn').addEventListener('click', () => {
+            const modal = document.getElementById('addressModal');
+            const modalInstance = bootstrap.Modal.getOrCreateInstance(modal);
+            modalInstance.show();
+        });
     </script>
         
         
@@ -1738,36 +1790,7 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
     </script>
 
 
-    <!-- 🟦 Modal: 更換外送地址 -->
-    <div class="modal fade" id="addressModal" tabindex="-1" aria-labelledby="addressModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <form method="post" action="index.php">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="addressModalLabel">選擇外送地址</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <select class="form-select" name="selected_address_id" id="addressSelect">
-                            <?php
-                            $sql = "SELECT address_id, address_text FROM caddress WHERE cid = ?";
-                            $stmt = $conn->prepare($sql);
-                            $stmt->bind_param("i", $_SESSION['cid']); // 假設有 cid session
-                            $stmt->execute();
-                            $result = $stmt->get_result();
-                            while ($row = $result->fetch_assoc()) {
-                            echo '<option value="' . $row['address_id'] . '">' . htmlspecialchars($row['address_text']) . '</option>';
-                            }
-                            ?>
-                        </select>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary">使用此地址</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
+    
 
 
     <script>
