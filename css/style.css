@@ -178,7 +178,8 @@ span#current-address {
 
     .navbar-expand-xl .navbar-collapse {
         display: flex !important;
-        flex-basis: auto
+        flex-basis: auto;
+        justify-content: space-around;
     }
 
     .navbar-expand-xl .navbar-toggler {

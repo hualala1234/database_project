@@ -5,7 +5,9 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-
+// echo "<pre>";
+// print_r($_SESSION);
+// echo "</pre>";
 
 // echo "Session ID: " . session_id() . "<br>";
 // echo "GET: " . json_encode($_GET) . "<br>";
@@ -34,7 +36,7 @@ if (isset($_GET['cid']) && !isset($_SESSION['cid'])) {
 
 // ✅ 沒有登入就導回人臉登入頁
 if (!isset($_SESSION['cid'])) {
-    header("Location: ../face_login.html");
+    header("Location: http://localhost/database_project/face_login_project/face_login.html");
     exit();
 }
 
@@ -47,28 +49,49 @@ if ($conn->connect_error) {
 }
 
 // ✅ 執行 SQL 查詢
-$sql = "SELECT * FROM customer WHERE cid = '$cid'";
-$result = $conn->query($sql);
+// $sql = "SELECT * FROM customer WHERE cid = '$cid'";
+// $result = $conn->query($sql);
 
-// ✅ 檢查查詢是否成功
-if (!$result) {
-    die("SQL 錯誤：" . $conn->error);
-}
+// // ✅ 檢查查詢是否成功
+// if (!$result) {
+//     die("SQL 錯誤：" . $conn->error);
+// }
 
-$row = mysqli_fetch_array($result);
+// $row = mysqli_fetch_array($result);
 
 // ✅ 測試輸出（可改成你自己的 HTML 顯示）
-echo "<h2>歡迎回來，客戶編號：{$row['cid']}</h2>";
-echo "<p>姓名：" . htmlspecialchars($row['cName']) . "</p>";
-echo "<p>Email：" . htmlspecialchars($row['email']) . "</p>";
+// echo "<h2>歡迎回來，客戶編號：{$row['cid']}</h2>";
+// echo "<p>姓名：" . htmlspecialchars($row['cName']) . "</p>";
+// echo "<p>Email：" . htmlspecialchars($row['email']) . "</p>";
+//  $login_success = $_SESSION['login_success'] ?? '';
+//  if ($login_success !== '') {
+//     echo "<div style='color: green;'>$login_success</div>";
+//     // unset($_SESSION['login_success']); // ✅ 顯示一次就清掉
+// }
 
 
-if ($cid !== '') {
-    $sql = "SELECT * FROM Customer WHERE cid = $cid";
+// if ($cid !== '') {
+//     $sql = "SELECT * FROM Customer WHERE cid = $cid";
+//     $result = mysqli_query($conn, $sql);
+//     if (!$result) {
+//         die("SQL Error: " . mysqli_error($conn));
+//     }
+//     $row = mysqli_fetch_array($result);
+//     echo $cid;
+// }
+if (!empty($cid) && is_numeric($cid)) {
+    $sql = "SELECT * FROM customer WHERE cid = $cid";
     $result = mysqli_query($conn, $sql);
+
+    if (!$result) {
+        die("SQL Error: " . mysqli_error($conn));
+    }
+
     $row = mysqli_fetch_array($result);
-    echo $cid;
+} else {
+    die("❌ 無效的 cid：$cid");
 }
+
 echo "cid",$cid;
 // ✅ 預設不是 VIP
 $isVIP = false;

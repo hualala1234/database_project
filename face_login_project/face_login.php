@@ -17,6 +17,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['face_login']) && isse
         $_SESSION['cid'] = $user['cid'];
         $_SESSION['cName'] = $user['cName'];
         $_SESSION['email'] = $user['email'];
+        $_SESSION['login_success'] = "登入成功！";
+        $_SESSION['role'] = 'c';
         echo "OK - Session Set: " . session_id();
 
         // 登入成功，什麼都不用輸出（由 JS 導向）

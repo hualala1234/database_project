@@ -2,11 +2,18 @@
 <?php
 header("Access-Control-Allow-Origin: http://localhost");
 header("Access-Control-Allow-Credentials: true");
-echo "OK - Session Set for cid: " . $_SESSION['cid'];
+// echo "OK - Session Set for cid: " . $_SESSION['cid'];
 session_start();
 include "../../dbh.php";
 $wrong_password = "Enter your password";
 $error_email = "Enter your email";
+
+
+// ✅ Debug 測試用（可刪）
+if (isset($_SESSION['cid'])) {
+    echo "✅ SESSION 正常：cid = " . $_SESSION['cid'] . "<br>";
+}
+
 
 // ✅ 表單登入
 if ($_SERVER["REQUEST_METHOD"]=="POST"){
@@ -67,6 +74,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['face_login']) && isse
         $_SESSION['cid'] = $user['cid'];
         $_SESSION['cName'] = $user['cName'];
         $_SESSION['email'] = $user['email'];
+        $_SESSION['login_success'] = "登入成功！";
+        $_SESSION['role'] = 'c';
+        echo "face login success";
         exit();
     } else {
         http_response_code(401);
