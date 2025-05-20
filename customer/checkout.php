@@ -227,7 +227,7 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
                                 <ul class="dropdown-menu" aria-labelledby="couponDropdown">
                                     <?php
                                     // 撈出該使用者的所有優惠券
-                                    $query = "SELECT id, message, code FROM coupons WHERE cid = ?";
+                                    $query = "SELECT coupon_id, message, code FROM coupon WHERE cid = ?";
                                     $stmt = $conn->prepare($query);
                                     $stmt->bind_param("i", $cid);
                                     $stmt->execute();
@@ -235,7 +235,7 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
 
                                     // 顯示選單項目
                                     while ($row = $result->fetch_assoc()) {
-                                        echo '<li><a class="dropdown-item use-coupon" data-code="' . htmlspecialchars($row['code']) . '" data-id="' . $row['id'] . '">' . htmlspecialchars($row['message']) . '</a></li>';
+                                        echo '<li><a class="dropdown-item use-coupon" data-code="' . htmlspecialchars($row['code']) . '" data-id="' . $row['coupon_id'] . '">' . htmlspecialchars($row['message']) . '</a></li>';
                                     }
                                     ?>
                                     <li><a  class="dropdown-item " href="../claw_machine/claw.php?cid=<?= $cid ?>">新增優惠卷</a></li>
@@ -269,7 +269,7 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
                                 
                                 <div style="display:flex; flex-direction:row; justify-content:flex-start; flex-wrap: wrap;">
                                     <div class="form-check text-start me-4">
-                                        <input type="radio" class="form-check-input bg-primary border-0" id="Shipping-1" name="paymentMethod" value="wallet">
+                                        <input type="radio" class="form-check-input bg-primary border-0" id="Shipping-1" name="paymentMethod" value="walletBalance">
                                         <label class="form-check-label text-dark" for="Shipping-1">錢包</label>
                                     </div>
 
@@ -294,7 +294,7 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
                                         <label class="form-check-label text-dark" for="Shipping-1">新增信用卡</label>
                                     </div>
                                     <div class="form-check text-start me-4">
-                                        <input type="radio" class="form-check-input bg-primary border-0" id="Shipping-cash" name="paymentMethod" value="cash">
+                                        <input type="radio" class="form-check-input bg-primary border-0" id="Shipping-cash" name="paymentMethod" value="cashOnDelivery">
                                         <label class="form-check-label text-dark" for="Shipping-3">貨到付款</label>
                                     </div>
                                 </div>
