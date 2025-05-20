@@ -65,7 +65,7 @@
         })
         .then(res => res.json())
         .then(data => {
-        alert(data.message);
+        alert(data.message || "伺服器沒有傳回錯誤訊息");
         if (data.status === 'success') {
             window.location.href = "http://localhost/database_project/customer/index.php";
         }

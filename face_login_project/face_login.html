@@ -1,14 +1,16 @@
-<?php
+<!-- <?php
 session_start();
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['face_login']) && $_POST['face_login'] == 1) {
     if (isset($_POST['cid'])) {
         $_SESSION['cid'] = $_POST['cid'];
         echo "OK";
+        exit;
     } else {
         echo "缺少 cid";
+        exit;
     }
 }
-?>
+?> -->
 
 <!DOCTYPE html>
 <html>
@@ -17,7 +19,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['face_login']) && $_PO
   <title>人臉登入</title>
 </head>
 <body>
-  <h2>請輸入 Email 並看鏡頭鏡頭</h2>Enter Email：
+  <h2>請輸入 Email 並看鏡頭</h2>
+  Enter Email：
   <input type="email" id="email" placeholder="請輸入 Email" style="width:65%"><br><br>
   <video id="video" width="320" height="240" autoplay></video><br>
   <button id="loginBtn" style="margin-top: 20px;">🔒 拍照登入</button>
@@ -52,32 +55,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['face_login']) && $_PO
         if (data.status === 'success') {
           const cid = data.user_id;
 
-          fetch("login.php", {
+          fetch("face_login.php", {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            credentials: "include", // ✅ 加這行！
+            credentials: "include",
             body: `face_login=1&cid=${cid}`
-          }).then(() => {
-            window.location.href = "../customer/index.php";
+          })
+          .then(res => res.text())
+          .then(msg => {
+            console.log("後端回應：", msg); // Debug 確認 Session 被設
+            // ✅ 修正 URL 拼接錯誤 (原來是 index.php&cid=...)
+            window.location.href = `../customer/index.php?cid=${cid}`;
           });
         } else {
           alert("登入失敗：" + data.message);
         }
+      }).catch(err => {
+        alert("伺服器錯誤：" + err);
       });
     });
   </script>
 </body>
 </html>
+
 <style>
-    html{
+  html {
     display: flex;
     justify-content: center;
     text-align: center;
     padding-top: 100px;
-    }
-    body{
-        background-image: url('../walletAndrecord/image/hide.png');
-        background-repeat: no-repeat;
-        background-size: cover;
-    }
+  }
+  body {
+    background-image: url('../walletAndrecord/image/hide.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
 </style>

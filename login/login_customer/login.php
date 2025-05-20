@@ -1,5 +1,8 @@
 
 <?php
+header("Access-Control-Allow-Origin: http://localhost");
+header("Access-Control-Allow-Credentials: true");
+echo "OK - Session Set for cid: " . $_SESSION['cid'];
 session_start();
 include "../../dbh.php";
 $wrong_password = "Enter your password";

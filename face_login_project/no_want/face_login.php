@@ -1,4 +1,6 @@
 <?php
+header("Access-Control-Allow-Origin: http://localhost");
+header("Access-Control-Allow-Credentials: true");
 session_start();
 require '../dbh.php'; // 根據實際路徑修改
 
@@ -15,6 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['face_login']) && isse
         $_SESSION['cid'] = $user['cid'];
         $_SESSION['cName'] = $user['cName'];
         $_SESSION['email'] = $user['email'];
+        echo "OK - Session Set: " . session_id();
 
         // 登入成功，什麼都不用輸出（由 JS 導向）
         exit();

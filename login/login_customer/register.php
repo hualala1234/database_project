@@ -129,7 +129,7 @@ if ($cIdExists && $emailExists) {
             <h2 style='color: green;'>註冊成功！將開始拍攝人臉以進行辨識。</h2>
             <script>
                 setTimeout(function() {
-                    window.location.href = '../../face_login_project/register_face.php&cid={$new_user_id}';
+                    window.location.href = '../../face_login_project/register_face.html?cid={$new_user_id}';
                 }, 1500);
             </script>
         ";

@@ -5,13 +5,71 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-$cid = isset($_SESSION["cid"]) ? $_SESSION["cid"] : '';
+
+
+// echo "Session ID: " . session_id() . "<br>";
+// echo "GET: " . json_encode($_GET) . "<br>";
+// echo "SESSION: " . json_encode($_SESSION) . "<br>";
+
+// if (isset($_GET['cid']) && !isset($_SESSION['cid'])) {
+//     $_SESSION['cid'] = $_GET['cid'];
+//     echo "✅ OK - Session Set for cid: " . $_SESSION['cid'];
+// } elseif (isset($_SESSION['cid'])) {
+//     echo "🟢 已經有 SESSION['cid']: " . $_SESSION['cid'];
+// } else {
+//     echo "⚠️ 沒有收到 GET['cid'] 或 SESSION 已設好";
+// }
+
+
+
+
+// ✅ 若網址中有 cid，則存入 session
+if (isset($_GET['cid']) && !isset($_SESSION['cid'])) {
+    $_SESSION['cid'] = $_GET['cid'];
+    echo "OK - Session Set for cid: " . $_SESSION['cid'];
+    // ✅ 設完後重新導向以移除 URL 中的 cid
+    header("Location: index.php");
+    exit();
+}
+
+// ✅ 沒有登入就導回人臉登入頁
+if (!isset($_SESSION['cid'])) {
+    header("Location: ../face_login.html");
+    exit();
+}
+
+$cid = $_SESSION['cid'];
+
+// ✅ 資料庫連線
+$conn = new mysqli("localhost", "root", "", "junglebite");
+if ($conn->connect_error) {
+    die("資料庫連線失敗：" . $conn->connect_error);
+}
+
+// ✅ 執行 SQL 查詢
+$sql = "SELECT * FROM customer WHERE cid = '$cid'";
+$result = $conn->query($sql);
+
+// ✅ 檢查查詢是否成功
+if (!$result) {
+    die("SQL 錯誤：" . $conn->error);
+}
+
+$row = mysqli_fetch_array($result);
+
+// ✅ 測試輸出（可改成你自己的 HTML 顯示）
+echo "<h2>歡迎回來，客戶編號：{$row['cid']}</h2>";
+echo "<p>姓名：" . htmlspecialchars($row['cName']) . "</p>";
+echo "<p>Email：" . htmlspecialchars($row['email']) . "</p>";
+
+
 if ($cid !== '') {
     $sql = "SELECT * FROM Customer WHERE cid = $cid";
     $result = mysqli_query($conn, $sql);
     $row = mysqli_fetch_array($result);
+    echo $cid;
 }
-
+echo "cid",$cid;
 // ✅ 預設不是 VIP
 $isVIP = false;
 $vipImage = './vip.png';
