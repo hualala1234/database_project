@@ -467,7 +467,7 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
                                             SELECT 
                                                 m.*, 
                                                 (SELECT AVG(p.price) FROM Product p WHERE p.mid = m.mid) AS avgPrice,
-                                                GROUP_CONCAT(rcl.categoryName SEPARATOR ', ') AS categoryNames,
+                                                GROUP_CONCAT(DISTINCT rcl.categoryName SEPARATOR ', ') AS categoryNames,
                                                 COUNT(DISTINCT t.tranId) AS additionalRatingCount,
                                                 SUM(t.mRating) AS additionalRatingSum,
                                                 CASE 
@@ -1896,6 +1896,22 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
                 });
             });
 
+            const tabLinks = document.querySelectorAll('a[data-bs-toggle="pill"]');
+
+            tabLinks.forEach(link => {
+                link.addEventListener("shown.bs.tab", function (e) {
+                    const targetId = e.target.getAttribute("href").substring(1); // 例如 "tab-6"
+                
+                    // 取得當前 URL 並更新 activeTab 參數
+                    const url = new URL(window.location);
+                    url.searchParams.set('activeTab', targetId); // 只設定不帶 '#' 的值
+
+
+                    // 不重新載入畫面，更新網址
+                    history.pushState(null, '', url.toString());
+                });
+            });
+
             // 如果 URL 有帶 activeTab，就自動啟用該 tab
             // 取得 URL 中的參數
             const urlParams = new URLSearchParams(window.location.search);
@@ -1909,53 +1925,6 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
             }
             }
         });
-    </script>
-    <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const tabLinks = document.querySelectorAll('a[data-bs-toggle="pill"]');
-
-        tabLinks.forEach(link => {
-            link.addEventListener("shown.bs.tab", function (e) {
-                const targetId = e.target.getAttribute("href").substring(1); // 例如 "tab-6"
-            
-                // 取得當前 URL 並更新 activeTab 參數
-                const url = new URL(window.location);
-                url.searchParams.set('activeTab', targetId); // 只設定不帶 '#' 的值
-
-
-                // 不重新載入畫面，更新網址
-                history.pushState(null, '', url.toString());
-            });
-        });
-
-        // 根據 URL activeTab 自動啟用對應 tab
-        const urlParams = new URLSearchParams(window.location.search);
-        const activeTab = urlParams.get('activeTab');
-        if (activeTab) {
-            const tabTriggerEl = document.querySelector(`a[href="${activeTab}"]`);
-            if (tabTriggerEl) {
-                const tab = new bootstrap.Tab(tabTriggerEl);
-                tab.show(); // 切換 tab
-            }
-        }
-    });
-    </script>
-    <script>
-
-    document.querySelectorAll('.nav-link').forEach(link => {
-        link.addEventListener('click', function () {
-            const activeTabInput = document.getElementById('activeTab');
-            activeTabInput.value = this.getAttribute('href').substring(1); // 去掉 #
-        });
-    });
-    </script>
-    <script>
-    document.querySelectorAll('[data-bs-toggle="pill"]').forEach(tab => {
-        tab.addEventListener('shown.bs.tab', function (e) {
-            const activeTabId = e.target.getAttribute('href');
-            document.getElementById('activeTab').value = activeTabId;
-        });
-    });
     </script>
 
     
