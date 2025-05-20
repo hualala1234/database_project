@@ -10,9 +10,39 @@ $cid = isset($_SESSION["cid"]) ? $_SESSION["cid"] : '';
 if ($cid !== '') {
     $sql = "SELECT * FROM Customer WHERE cid = $cid";
     $result = mysqli_query($conn, $sql);
-    $row = mysqli_fetch_array($result);
-    
+    $userRow = mysqli_fetch_array($result);
 }
+
+$storeCount = 0;
+$cartDate = $_SESSION['cartTime'] ?? date('Y-m-d'); // 補上這行
+if (isset($_SESSION['cid'], $_SESSION['cartTime'])) {
+    $stmt = $conn->prepare("SELECT COUNT(DISTINCT mid) AS storeCount FROM CartItem WHERE cid = ? AND DATE(cartTime) = ?");
+    $stmt->bind_param("is", $_SESSION['cid'], $cartDate);
+    $stmt->execute();
+    $stmt->bind_result($storeCount);
+    $stmt->fetch();
+    $stmt->close();
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_address_id'])) {
+    $selected_address_id = $_POST['selected_address_id'];
+    $sql = "SELECT address_text FROM caddress WHERE address_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $selected_address_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($row = $result->fetch_assoc()) {
+        $_SESSION['current_address'] = $row['address_text'];
+        $mid = intval($_POST['mid']);
+    }
+    $stmt->close();
+    header("Location: merchant.php?mid=$mid");
+    exit;
+}
+
+$defaultAddress = $_SESSION['current_address'] ?? ($userRow['address'] ?? '尚未選擇地址');
+
+
 // ✅ 預設不是 VIP
 $isVIP = false;
 $vipImage = './vip.png';
@@ -30,38 +60,6 @@ if (!empty($cid)) {
         }
     }
 }
-
-$storeCount = 0;
-if (isset($_SESSION['cid'], $_SESSION['cartTime'])) {
-    $stmt = $conn->prepare("SELECT COUNT(DISTINCT mid) AS storeCount FROM CartItem WHERE cid = ? AND DATE(cartTime) = ?");
-    $stmt->bind_param("is", $_SESSION['cid'], $cartDate);  // $cartDate 是 '2025-05-06' 或與資料庫日期匹配的日期
-
-    $stmt->execute();
-    $stmt->bind_result($storeCount);
-    $stmt->fetch();
-    $stmt->close();
-}
-
-// 處理表單提交更新地址
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_address_id'])) {
-
-    $selected_address_id = $_POST['selected_address_id'];
-    // 根據選擇的地址 ID 更新 session 中的地址
-    $sql = "SELECT address_text FROM caddress WHERE address_id = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $selected_address_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if ($row = $result->fetch_assoc()) {
-        $_SESSION['current_address'] = $row['address_text']; // 更新 session 地址
-    }
-    // 重定向回 index.php，讓頁面更新
-    header("Location: merchant.php");
-    exit;
-}
-
-// 取得目前使用的地址（如果有從 modal 選擇過）
-$defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選擇地址');
 
 //訂單進度
 $sql = "
@@ -88,6 +86,15 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['mid'])) {
   // 或直接用 GET 傳過去 reservation.php
   header("Location: reservation.php?mid={$mid}");
   exit;
+}
+
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['action']) && $_POST['action'] === 'change_address') {
+        // ✅ 更換地址邏輯
+    } elseif (isset($_POST['action']) && $_POST['action'] === 'booking') {
+        // ✅ 餐廳訂位邏輯
+    }
 }
 
 ?>
@@ -420,8 +427,9 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['mid'])) {
             <h4 class="text-muted"><?php echo htmlspecialchars($row['mAddress']); ?></h4>
             </div>
             <form method="post" action="merchant.php">
-              <input type="hidden" name="mid" value="<?php echo $row['mid']; ?>">
-              <button type="submit" class=" btn py-3 px-3  text-white h-100" style="background-color:#ffc446;">餐廳訂位</button>
+              <input type="hidden" name="action" value="booking">
+              <input type="hidden" name="mid" value="<?= htmlspecialchars($row['mid']) ?>">
+              <button type="submit" class="btn py-3 px-3 text-white h-100" style="background-color:#ffc446;">餐廳訂位</button>
             </form>
           </div>
             
@@ -2813,7 +2821,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['mid'])) {
                 <input type="hidden" name="action" value="change_address">
                 <input type="hidden" name="cartTime" value="<?= htmlspecialchars($cartTime) ?>">
                 <input type="hidden" name="cid" value="<?= htmlspecialchars($_SESSION['cid']) ?>">
-                <input type="hidden" name="pid" value="<?= htmlspecialchars($_GET['pid']) ?>">
+                <input type="hidden" name="pid" value="<?= htmlspecialchars($_GET['pid'] ?? '') ?>">
                 <input type="hidden" name="mid" value="<?= htmlspecialchars($_GET['mid']) ?>">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -2825,7 +2833,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['mid'])) {
                             <?php
                             $sql = "SELECT address_id, address_text FROM caddress WHERE cid = ?";
                             $stmt = $conn->prepare($sql);
-                            $stmt->bind_param("i", $_SESSION['cid']); // 假設有 cid session
+                            $stmt->bind_param("i", $cid); // 假設有 cid session
                             $stmt->execute();
                             $result = $stmt->get_result();
                             while ($row = $result->fetch_assoc()) {

@@ -10,25 +10,9 @@ if ($cid !== '') {
     $sql = "SELECT * FROM Customer WHERE cid = $cid";
     $result = mysqli_query($conn, $sql);
     $row = mysqli_fetch_array($result);
+    
 }
 
-// ✅ 預設不是 VIP
-$isVIP = false;
-$vipImage = './vip.png';
-
-if (!empty($cid)) {
-    $sql = "SELECT vipTime FROM customer WHERE cid = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $cid);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if ($row = $result->fetch_assoc()) {
-        if (!is_null($row['vipTime'])) {
-            $isVIP = true;
-            $vipImage = './is_vip.png';
-        }
-    }
-}
 
 $storeCount = 0;
 if (isset($_SESSION['cid'], $_SESSION['cartTime'])) {
@@ -54,12 +38,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_address_id']
         $_SESSION['current_address'] = $row['address_text']; // 更新 session 地址
     }
     // 重定向回 index.php，讓頁面更新
-    header("Location: index.php?cid=$cid");
+    header("Location: index.php");
     exit;
+    $stmt->close();
 }
 
 // 取得目前使用的地址（如果有從 modal 選擇過）
 $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選擇地址');
+
+// ✅ 預設不是 VIP
+$isVIP = false;
+$vipImage = './vip.png';
+
+if (!empty($cid)) {
+    $sql = "SELECT vipTime FROM customer WHERE cid = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $cid);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($row = $result->fetch_assoc()) {
+        if (!is_null($row['vipTime'])) {
+            $isVIP = true;
+            $vipImage = './is_vip.png';
+        }
+    }
+}
+
 
 //訂單進度
 $sql = "
@@ -241,6 +245,7 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
                                         <a href="../walletAndrecord/c_record.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">交易紀錄</a>
                                         <a href="../customer/friends.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">我的好友</a>
                                         <a href="../wheel/wheel.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">命運轉盤</a>
+                                        <a href="../customer/myfavorite.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item text-decoration-none">我的愛店</a>
                                         <a href="/database_project/customer/reservation.php" class="dropdown-item">我要訂位</a>
                                     <?php elseif ($_SESSION['role'] === 'd'): ?>
                                         <a href="/database/customer/setting.php" class="dropdown-item">外送員設定</a>
@@ -1637,6 +1642,36 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
             
         </div>
     </div>
+    <!-- 🟦 Modal: 更換外送地址 -->
+    <div class="modal fade" id="addressModal" tabindex="-1" aria-labelledby="addressModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <form method="post" action="index.php?cid=<?=$cid?>">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addressModalLabel">選擇外送地址</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <select class="form-select" name="selected_address_id" id="addressSelect">
+                            <?php
+                            $sql = "SELECT address_id, address_text FROM caddress WHERE cid = ?";
+                            $stmt = $conn->prepare($sql);
+                            $stmt->bind_param("i", $_SESSION['cid']); // 假設有 cid session
+                            $stmt->execute();
+                            $result = $stmt->get_result();
+                            while ($row = $result->fetch_assoc()) {
+                            echo '<option value="' . $row['address_id'] . '">' . htmlspecialchars($row['address_text']) . '</option>';
+                            }
+                            ?>
+                        </select>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">使用此地址</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
     <script>
     function toggleDropdown() {
         var dropdown = document.getElementById("myDropdown");
@@ -1738,36 +1773,7 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
     </script>
 
 
-    <!-- 🟦 Modal: 更換外送地址 -->
-    <div class="modal fade" id="addressModal" tabindex="-1" aria-labelledby="addressModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <form method="post" action="index.php">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="addressModalLabel">選擇外送地址</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <select class="form-select" name="selected_address_id" id="addressSelect">
-                            <?php
-                            $sql = "SELECT address_id, address_text FROM caddress WHERE cid = ?";
-                            $stmt = $conn->prepare($sql);
-                            $stmt->bind_param("i", $_SESSION['cid']); // 假設有 cid session
-                            $stmt->execute();
-                            $result = $stmt->get_result();
-                            while ($row = $result->fetch_assoc()) {
-                            echo '<option value="' . $row['address_id'] . '">' . htmlspecialchars($row['address_text']) . '</option>';
-                            }
-                            ?>
-                        </select>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary">使用此地址</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
+    
 
 
     <script>
