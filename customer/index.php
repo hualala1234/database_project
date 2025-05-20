@@ -235,8 +235,8 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
                         <form method="GET" action="search.php">
                             <div class="navbar-nav mx-auto">
                                 <div class="position-relative mx-auto">
-                                    <input name="keyword" class="form-control border-2 border-secondary py-3 px-4 rounded-pill" style="width: 30rem;" type="text" placeholder="Search">
-                                    <button type="submit" class="btn btn-primary border-2 border-secondary py-3 px-4 position-absolute rounded-pill text-white h-100" style="top: 0; left: 82.5%;">搜尋</button>
+                                    <input name="keyword" class="form-control border-2 border-secondary py-3 px-4 rounded-pill" style="width: 30rem;margin-left:200px;" type="text" placeholder="Search">
+                                    <button type="submit" class="btn btn-primary border-2 border-secondary py-3 px-4 position-absolute rounded-pill text-white h-100" style="top: 0; left: 87.64%;">搜尋</button>
                                 </div>
                             </div>
                         </form>
