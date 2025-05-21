@@ -9,13 +9,13 @@ $cid = isset($_SESSION["cid"]) ? $_SESSION["cid"] : '';
 ?>
 <script>
   const cid = "<?php echo htmlspecialchars($cid, ENT_QUOTES, 'UTF-8'); ?>";
-window.addEventListener('DOMContentLoaded', () => {
+  window.addEventListener('DOMContentLoaded', () => {
   const cid = "<?php echo $cid; ?>";
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('cid') && urlParams.get('role') === 'c') {
-        // 自動觸發圖片選擇器
-        document.getElementById('imageInput').click();
-    }
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('cid') && urlParams.get('role') === 'c') {
+      // 自動觸發圖片選擇器
+      document.getElementById('imageInput').click();
+  }
 });
 </script>
 
@@ -23,7 +23,9 @@ window.addEventListener('DOMContentLoaded', () => {
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
-  <title>JungleBite - 以圖搜圖</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Raleway:wght@600;800&display=swap" rel="stylesheet"> 
+    
+  <title>以圖搜圖</title>
   <style>
     body {
       font-family: "Segoe UI", sans-serif;
@@ -39,6 +41,19 @@ window.addEventListener('DOMContentLoaded', () => {
       color: #333;
       margin-bottom: 20px;
     }
+    .logo{
+      margin-left: 30px;
+      text-decoration: none !important;
+      color: black !important;
+      font-size: calc(1.375rem + 1.5vw);
+      font-weight: 800;
+      line-height: 1.2;
+      font-size: calc(1.375rem + 1.5vw);
+      margin-top: 0;
+      margin-bottom: .5rem;
+      font-family: "Raleway", sans-serif;
+      border-bottom: none;
+  }
 
     .upload-section {
       background: #fff;
@@ -115,6 +130,7 @@ window.addEventListener('DOMContentLoaded', () => {
   </style>
 </head>
 <body>
+  <a href="../../customer/index.php" class="logo" style="text-decoration:none;"><p>Junglebite</p></a>
   <div id="content">
     <div id="block1">
       <h1>🍽️ 圖搜圖系統</h1>
@@ -145,7 +161,7 @@ window.addEventListener('DOMContentLoaded', () => {
       formData.append('image', file);
       formData.append('cid', cid); // 👈 傳給 Flask
 
-      fetch('http://localhost:5001/search', {
+      fetch('http://localhost:5000/search', {
         method: 'POST',
         body: formData
       })

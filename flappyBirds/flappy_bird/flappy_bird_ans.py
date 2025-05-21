@@ -10,8 +10,7 @@ cid = int(sys.argv[1])
 
 # 建立資料庫連線
 conn = mysql.connector.connect(
-    host='127.0.0.1',
-    port=3307,
+    host="localhost",
     user="root",
     password="",
     database="junglebite",
@@ -23,10 +22,9 @@ bird_frame = 1
 bird_x, bird_y = 200, 200
 bird_size = [40, 30]
 bird_image = [
-    cv2.resize(cv2.imread('/Applications/XAMPP/xamppfiles/htdocs/database_project/flappyBirds/flappy_bird/Flappy-Bird1.png'), tuple(bird_size)),
-    cv2.resize(cv2.imread('/Applications/XAMPP/xamppfiles/htdocs/database_project/flappyBirds/flappy_bird/Flappy-Bird2.png'), tuple(bird_size))
+    cv2.resize(cv2.imread('./Flappy-Bird1.png'), tuple(bird_size)),
+    cv2.resize(cv2.imread('./Flappy-Bird2.png'), tuple(bird_size))
 ]
-
 
 pipes = [[350, 200, False], [700, 300, False], [1050, 100, False]]
 pipe_width, pipe_gap = 70, 150

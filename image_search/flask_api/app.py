@@ -51,6 +51,9 @@ import numpy as np
 import faiss
 from PIL import Image
 import io
+import os, sys
+print("📂 正在執行的 app.py 檔案路徑：", os.path.abspath(__file__))
+print("🐍 Python 執行環境：", sys.executable)
 
 # 自定義的模型
 from tensorflow.keras.models import load_model
@@ -138,4 +141,7 @@ def search_image():
 #     app.run(debug=True)
 if __name__ == '__main__':
     print("✅ 正在執行 JungleBite Flask API")
-    app.run(debug=True, host="0.0.0.0", port=5001)
+    app.run(debug=True, host="0.0.0.0", port=5000)
+
+
+# C:\Users\clair\AppData\Local\Programs\Python\Python311\python.exe app.py

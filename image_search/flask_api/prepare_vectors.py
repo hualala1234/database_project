@@ -25,7 +25,7 @@ for idx, fname in enumerate(os.listdir(image_folder)):
     vectors.append(vec)
 
     # 圖片網址改為 Flask 伺服器提供靜態資源的位置
-    image_url = f"http://localhost:5001/static/{fname}"
+    image_url = f"http://localhost:5000/static/{fname}"
     info.append({'name': fname.split('.')[0], 'image_url': image_url})
 
 # 儲存 numpy 檔案
