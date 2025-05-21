@@ -256,9 +256,9 @@ if (savedDepositSelect.value === '') newDepositFields.style.display = 'block';
 if (savedWithdrawSelect.value === '') newWithdrawFields.style.display = 'block';
 
 limitInputDigits(document.getElementById('deposit-bankCode'), 3);
-limitInputDigits(document.getElementById('deposit-accountNumber'), 12);
+limitInputDigits(document.getElementById('deposit-accountNumber'), 16);
 limitInputDigits(document.getElementById('withdraw-bankCode'), 3);
-limitInputDigits(document.getElementById('withdraw-accountNumber'), 12);
+limitInputDigits(document.getElementById('withdraw-accountNumber'), 16);
 
 updateFormattedAccount(
     document.getElementById('deposit-bankCode'),

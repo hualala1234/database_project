@@ -13,23 +13,7 @@ if ($cid !== '') {
     $row = mysqli_fetch_array($result);
     
 }
-// ✅ 預設不是 VIP
-$isVIP = false;
-$vipImage = './vip.png';
 
-if (!empty($cid)) {
-    $sql = "SELECT vipTime FROM customer WHERE cid = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $cid);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if ($row = $result->fetch_assoc()) {
-        if (!is_null($row['vipTime'])) {
-            $isVIP = true;
-            $vipImage = './is_vip.png';
-        }
-    }
-}
 
 $storeCount = 0;
 if (isset($_SESSION['cid'], $_SESSION['cartTime'])) {
@@ -65,6 +49,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_address_id']
 
 // 取得目前使用的地址（如果有從 modal 選擇過）
 $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選擇地址');
+
+// ✅ 預設不是 VIP
+$isVIP = false;
+$vipImage = './vip.png';
+
+if (!empty($cid)) {
+    $sql = "SELECT vipTime FROM customer WHERE cid = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $cid);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($row = $result->fetch_assoc()) {
+        if (!is_null($row['vipTime'])) {
+            $isVIP = true;
+            $vipImage = './is_vip.png';
+        }
+    }
+}
+echo $row['vipTime'];
+echo "cid",$cid;
 
 //訂單進度
 $sql = "

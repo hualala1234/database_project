@@ -1,10 +1,12 @@
 <?php
 include('connect.php'); // 連線資料庫
-
+session_start();
+$id = $_SESSION['did'] ?? NULL;
+$role = $_SESSION['role'] ?? null;
 // 抓取 URL 中的 id 和 role
-$id = $_GET['id'] ?? null;
-$role = $_GET['role'] ?? null;
-
+// $id = $_GET['id'] ?? null;
+// $role = $_GET['role'] ?? null;
+echo  $id;
 if (!$id || !$role) {
     die("Missing ID or role in URL.");
 }
@@ -36,11 +38,28 @@ switch ($role) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./d_wallet.css">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Raleway:wght@600;800&display=swap" rel="stylesheet"> 
     <script src="./d_wallet.js" type="text/javascript"></script>
     <title>Wallet</title>
 </head>
+<style>
+    .logo h1{
+    margin-left: 30px;
+    text-decoration: none !important;
+    color: black !important;
+    font-size: calc(1.375rem + 1.5vw);
+    font-weight: 800;
+    line-height: 1.2;
+    font-size: calc(1.375rem + 1.5vw);
+    margin-top: 0;
+    margin-bottom: .5rem;
+    font-family: "Raleway", sans-serif;
+    border-bottom: none;
+}
+</style>
 <body>
     <div class="block1">
+        <a href="../deliveryperson/delivery_index.php " class="logo" style="text-decoration:none;"><h1>Junglebite</h1></a>
         <img id="wallet" src="./image/wallet.png" alt="wallet icon" width="30" height="30">
         <h1>Delivery Man Wallet</h1>
         <!-- <span style="font-size: 22px; margin: 0px; margin-left: 30px;">Welcome to your wallet!</span> -->
@@ -86,6 +105,7 @@ switch ($role) {
                         </p>
                     </div>
                         <?php
+                        // echo $id;
                         // 只撈一筆銀行帳戶資料
                         $sql = "SELECT * FROM `dbank` WHERE did = $id LIMIT 1";
                         $result = $conn->query($sql);
@@ -102,7 +122,15 @@ switch ($role) {
                             echo '<p style="margin:0;">Number: ' . htmlspecialchars($row['accountNumber']) . '</p>';
                             echo '</div>';
                         } else {
-                            echo '<p>No bank info found.</p>';
+                            // echo '<p>No bank info found.</p>';
+                            echo '<a href="addBank.php?id=' . htmlspecialchars(urlencode($id)) . '&role=' . htmlspecialchars(urlencode($role)) . '" style="text-decoration: none;text-align: center;">
+                                <div class="bank-info card" style="background-color: #f0f0f0; color: #333;">
+                                    <p class="c_title" style="font-size: 22px; margin: 0;margin-top:10px; font-weight: bold;padding-top:25px;">
+                                        Click to Add<br> Salary Account
+                                    </p>
+                                </div>
+                            </a>';
+
                         }
                         ?>
                     </div>
@@ -131,6 +159,7 @@ switch ($role) {
             <?php
                 include('connect.php');
 
+                // echo $id;
                 // 查詢 did = 1 的外送員名稱
                 $sql = "SELECT dpName FROM deliveryperson d
                         WHERE d.did = $id ";
@@ -147,11 +176,11 @@ switch ($role) {
 
                 // 查詢 transaction + merchant 資料
                 $sql = "
-                SELECT t.transactionTime, m.mName, t.mRating, t.mComment, t.cid, c.cName
+                SELECT t.transactionTime, d.mName, d.dRating, t.dComment, t.cid, c.cName
                 FROM transaction t
-                INNER JOIN merchant m ON t.mid = m.mid
+                INNER JOIN deliveryperson d ON t.did = d.did
                 INNER JOIN customer c ON t.cid = c.cid
-                WHERE m.mid='1'
+                WHERE d.did = $id
                 ORDER BY t.transactionTime DESC";
                 $result = $conn->query($sql);
 
@@ -170,7 +199,7 @@ switch ($role) {
 
                             while ($row = $result->fetch_assoc()) {
                                 // 安全轉成數字
-                                $rating = isset($row['mRating']) ? (float)$row['mRating'] : 0;
+                                $rating = isset($row['dRating']) ? (float)$row['dRating'] : 0;
                                 $rating = max(0, min(5, $rating)); // 👉 限制 rating 一定在 0～5 之間
                         
                                 // 計算星星
@@ -186,14 +215,14 @@ switch ($role) {
                                 $stars .= str_repeat('<img src="./image/star.png" alt="half star" style="width:20px; height:20px; margin:0px; padding:0px; vertical-align:middle; padding: 0px 2px 3px 2px;">', $emptyStars);
                         
                                 // 安全處理 comment
-                                $comment = isset($row['mComment']) ? trim($row['mComment']) : '';
+                                $comment = isset($row['dComment']) ? trim($row['dComment']) : '';
                                 $shortComment = mb_strimwidth($comment, 0, 100, '...');
                                 $safeFullComment = htmlspecialchars($comment, ENT_QUOTES, 'UTF-8'); // ENT_QUOTES 把單雙引號都轉換
                                 $safeShortComment = htmlspecialchars($shortComment, ENT_QUOTES, 'UTF-8');
 
                                 echo '<tr style="transition: background-color 0.3s;">
                                         <td>' . htmlspecialchars($row['transactionTime']) . '</td>
-                                        <td>' . htmlspecialchars($row['mName']) . '</td>
+                                        <td>' . htmlspecialchars($row['dName']) . '</td>
                                         <td>' . htmlspecialchars($row['cName']) . '</td>
                                         <td>' . $stars . '</td>
                                         <td class="comment-cell"  
@@ -205,7 +234,7 @@ switch ($role) {
 
                             echo '</tbody></table>';
                         } else {
-                            echo '<p style="font-size:22px; color:gray;">No transactions found for m1.</p>';
+                            echo '<p style="font-size:22px; color:gray;">No record found for ' . $deliveryName . '.</p>';
                         }
                         ?>
 

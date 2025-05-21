@@ -179,7 +179,7 @@ span#current-address {
     .navbar-expand-xl .navbar-collapse {
         display: flex !important;
         flex-basis: auto;
-        justify-content: space-around;
+        justify-content: space-between;
     }
 
     .navbar-expand-xl .navbar-toggler {
@@ -587,6 +587,7 @@ body {
     padding-top: 4px;
     padding-bottom: 4px;
     line-height: 1.2;
+    padding: 10px 20px;
 }
 
 .custom-list-group-item {
