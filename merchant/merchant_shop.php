@@ -111,7 +111,7 @@ if (!empty($row['businessHours'])) {
                     <div class="collapse navbar-collapse bg-white" id="navbarCollapse">
                         <div class="navbar-nav mx-auto">
                             <!-- <a href="index.php" class="nav-item nav-link active">Home</a> -->
-                            <a href="merchant_shop.php?mid=<?php echo $mid; ?>" class="nav-item nav-link">店面資訊</a>
+                            <a href="merchant_shop.php?mid=<?php echo $mid; ?>" class="nav-item nav-link" style="color:#ffb524">店面資訊</a>
                             <a href="menu.php?mid=<?php echo $mid; ?>" class="nav-item nav-link">菜單管理</a>
 
 

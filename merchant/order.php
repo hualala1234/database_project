@@ -98,7 +98,7 @@ if ($mid !== '') {
                             <!-- <a href="index.php" class="nav-item nav-link active">Home</a> -->
                             <a href="merchant_shop.php?mid=<?php echo $mid; ?>" class="nav-item nav-link">店面資訊</a>
                             <a href="menu.php?mid=<?php echo $mid; ?>" class="nav-item nav-link">菜單管理</a>
-                            <a href="order.php?mid=<?= $mid; ?>" class="nav-item nav-link position-relative">
+                            <a href="order.php?mid=<?= $mid; ?>" class="nav-item nav-link position-relative" style="color:#ffb524">
                                 訂單
                                 <?php if ($newOrderCount > 0): ?>
                                     <span class="position-absolute bg-warning rounded-circle d-flex align-items-center justify-content-center text-dark fw-bold"
