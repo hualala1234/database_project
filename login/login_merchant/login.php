@@ -24,7 +24,7 @@ if ($_SERVER["REQUEST_METHOD"]=="POST"){
             $_SESSION['fullname'] = $user['name'];
             $_SESSION['login_success'] = "登入成功！";
             // 為了分辨是誰登入
-            $_SESSION['role'] = 'merchant';
+            $_SESSION['role'] = 'm';
 
 
             // 取得 merchant 的 mId

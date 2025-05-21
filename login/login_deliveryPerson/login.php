@@ -22,7 +22,7 @@ if ($_SERVER["REQUEST_METHOD"]=="POST"){
             $_SESSION['fullname'] = $user['name'];
             $_SESSION['login_success'] = "登入成功！";
             $_SESSION['did'] = $user['did'];
-            $_SESSION['role'] = 'delivery_person';
+            $_SESSION['role'] = 'd';
             // 跳回原本頁面
             header("Location: /database_project/deliveryperson/delivery_index.php?did=$did");
             exit();

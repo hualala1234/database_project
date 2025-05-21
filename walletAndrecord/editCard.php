@@ -156,7 +156,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <form class="form" autocomplete="off" novalidate method="POST">
       <fieldset>
           <label for="card-name">Card Name</label>
-          <input type="text" id="card-name" name="card-name" placeholder="<?php echo htmlspecialchars($card['cardName'] ?? '', ENT_QUOTES); ?>"
+          <input type="text" id="card-name" name="card-name" placeholder="<?php echo htmlspecialchars($card['cardName'] ?? '', ENT_QUOTES); ?>maxlength='3'"
                value="<?php echo htmlspecialchars($card['cardName'] ?? '', ENT_QUOTES); ?>"
                required />
       </fieldset>

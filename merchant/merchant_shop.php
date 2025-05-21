@@ -124,6 +124,7 @@ if (!empty($row['businessHours'])) {
                                     </span>
                                 <?php endif; ?>
                             </a>
+                            <a href="../walletAndrecord/m_wallet.php?id=<?php echo $mid; ?>&role=m" class="nav-item nav-link active">接單紀錄</a>
 
                             <!-- <div class="nav-item dropdown">
                                 <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>

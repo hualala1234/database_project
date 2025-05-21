@@ -1,6 +1,7 @@
 <?php
 // connect to DB
 include('connect.php');
+session_start();
 
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
@@ -9,7 +10,6 @@ if ($conn->connect_error) {
 $id = $_GET['id'] ?? '';
 $role = $_GET['role'] ?? '';
 
-// echo  $id,$role;
 // 根據角色選擇不同表格
 $table = '';
 $key = '';
@@ -23,38 +23,37 @@ if ($role === 'm') {
     die("Invalid role");
 }
 
-// 查詢資料
-$sql = "SELECT * FROM `$table` WHERE `$key` = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("s", $id);
-$stmt->execute();
-$result = $stmt->get_result();
-$row = $result->fetch_assoc();
-if (!$row) {
-    die("找不到帳號資料，請確認 $table 表中是否有 id = $id 的資料");
-}
-$number = str_split($row['accountNumber'] ?? '', 4);
-
 // 處理表單提交
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $bankCode = $_POST['bankCode'];
     $accountNumber = $_POST['card-number'] . $_POST['card-number-1'] . $_POST['card-number-2'] . $_POST['card-number-3'];
 
-    $updateSql = "UPDATE `$table` SET bankCode = ?, accountNumber = ? WHERE `$key` = ?";
-    $updateStmt = $conn->prepare($updateSql);
-    $updateStmt->bind_param("sss", $bankCode, $accountNumber, $id);
+    // 檢查是否已存在該帳戶資料
+    $checkSql = "SELECT * FROM `$table` WHERE `$key` = ?";
+    $checkStmt = $conn->prepare($checkSql);
+    $checkStmt->bind_param("s", $id);
+    $checkStmt->execute();
+    $checkResult = $checkStmt->get_result();
+    if ($checkResult->num_rows > 0) {
+        die("此帳戶已存在，無法重複新增！");
+    }
+    $checkStmt->close();
 
-    if ($updateStmt->execute()) {
+    // 執行 INSERT
+    $insertSql = "INSERT INTO `$table` (`$key`, bankCode, accountNumber) VALUES (?, ?, ?)";
+    $insertStmt = $conn->prepare($insertSql);
+    $insertStmt->bind_param("sss", $id, $bankCode, $accountNumber);
+
+    if ($insertStmt->execute()) {
         header("Location: ./{$role}_wallet.php?id={$id}&role={$role}");
         exit();
     } else {
-        echo "Error: " . $updateStmt->error;
+        echo "Error: " . $insertStmt->error;
     }
-    $updateStmt->close();
-    echo "更新筆數：" . $updateStmt->affected_rows;
+    $insertStmt->close();
 }
-$stmt->close();
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -63,13 +62,13 @@ $stmt->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./addCard.css">
     <script src="./addCard.js"></script>
-    <title>Edit Bank Account</title>
+    <title>Add Bank Account</title>
 </head>
 <body>
 <div class="checkout">
     <div id="top_word" style="display: flex; flex-direction: row;">
         <img src="./image/credit-card.png" alt="credit card icon" width="35" height="35">
-        <h1 style="margin:0;margin-left:10px">Edit Bank Account</h1>
+        <h1 style="margin:0;margin-left:10px">Add Bank Account</h1>
     </div>
     <form class="form" autocomplete="off" method="POST">
         <fieldset>
