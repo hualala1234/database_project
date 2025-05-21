@@ -9,8 +9,9 @@ $cid = isset($_SESSION["cid"]) ? $_SESSION["cid"] : '';
 
 // 呼叫 Python 並傳 cid
 // $command = "python ../flappyBirds/flappy_bird/flappy_bird_ans.py $cid";
-$python = "C:\\Users\\clair\\AppData\\Local\\Programs\\Python\\Python311\\python.exe";
-$script = "C:\\xampp\\htdocs\\database_project\\flappyBirds\\flappy_bird\\flappy_bird_ans.py";
+$python = "/Users/ba/anaconda3/bin/python3";
+$script = "/Applications/XAMPP/xamppfiles/htdocs/database_project/flappyBirds/flappy_bird/flappy_bird_ans.py
+";
 
 $command = "\"$python\" \"$script\" $cid";
 $output = shell_exec($command . " 2>&1");
