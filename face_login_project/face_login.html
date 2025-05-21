@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['face_login']) && $_PO
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
       const imageData = canvas.toDataURL('image/jpeg');
       // 傳給 Flask 做人臉辨識
-      fetch('http://localhost:5003/face-login-image', {
+      fetch('http://localhost:5000/face-login-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ image: imageData, email: email })

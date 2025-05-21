@@ -90,15 +90,13 @@ deepface_model = DeepFace.build_model("SFace")
 # ✅ 資料庫連線封裝
 def get_db_connection():
     return pymysql.connect(
-        host='127.0.0.1',
-        port=3307,
+        host='localhost',
         user='root',
-        password='',  # ← 如果有密碼就填上
+        password='',  # ← 若有密碼請填上
         database='junglebite',
         charset='utf8mb4',
         cursorclass=pymysql.cursors.DictCursor
     )
-
 
 # ✅ 拍照註冊（前端呼叫）
 @app.route('/capture-face', methods=['GET'])
@@ -194,17 +192,9 @@ def face_login_image():
     except Exception as e:
         return jsonify({'status': 'fail', 'message': f'錯誤：{str(e)}'})
 
-import sys
-
 if __name__ == '__main__':
-    port = 5003
-    if '--port' in sys.argv:
-        try:
-            port_index = sys.argv.index('--port') + 1
-            port = int(sys.argv[port_index])
-        except (IndexError, ValueError):
-            print("Invalid port specified. Using default port 5000.")
-    app.run(port=port)
+    app.run(debug=True)
+
 
 
 # python -m venv .venv
