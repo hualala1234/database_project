@@ -5,14 +5,47 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-
 $cid = isset($_SESSION["cid"]) ? $_SESSION["cid"] : '';
 if ($cid !== '') {
     $sql = "SELECT * FROM Customer WHERE cid = $cid";
     $result = mysqli_query($conn, $sql);
     $row = mysqli_fetch_array($result);
-    
 }
+
+
+
+$storeCount = 0;
+if (isset($_SESSION['cid'], $_SESSION['cartTime'])) {
+    $stmt = $conn->prepare("SELECT COUNT(DISTINCT mid) AS storeCount FROM CartItem WHERE cid = ? AND DATE(cartTime) = ?");
+    $stmt->bind_param("is", $_SESSION['cid'], $cartDate);  // $cartDate 是 '2025-05-06' 或與資料庫日期匹配的日期
+
+    $stmt->execute();
+    $stmt->bind_result($storeCount);
+    $stmt->fetch();
+    $stmt->close();
+}
+
+// 處理表單提交更新地址
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_address_id'])) {
+    $selected_address_id = $_POST['selected_address_id'];
+    // 根據選擇的地址 ID 更新 session 中的地址
+    $sql = "SELECT address_text FROM caddress WHERE address_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $selected_address_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($row = $result->fetch_assoc()) {
+        $_SESSION['current_address'] = $row['address_text']; // 更新 session 地址
+    }
+    $stmt->close();
+    // 重定向回 index.php，讓頁面更新
+    header("Location: index.php?cid=$cid");
+    exit;
+}
+
+// 取得目前使用的地址（如果有從 modal 選擇過）
+$defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選擇地址');
+
 // ✅ 預設不是 VIP
 $isVIP = false;
 $vipImage = './vip.png';
@@ -31,38 +64,6 @@ if (!empty($cid)) {
     }
 }
 
-$storeCount = 0;
-if (isset($_SESSION['cid'], $_SESSION['cartTime'])) {
-    $stmt = $conn->prepare("SELECT COUNT(DISTINCT mid) AS storeCount FROM CartItem WHERE cid = ? AND DATE(cartTime) = ?");
-    $stmt->bind_param("is", $_SESSION['cid'], $cartDate);  // $cartDate 是 '2025-05-06' 或與資料庫日期匹配的日期
-
-    $stmt->execute();
-    $stmt->bind_result($storeCount);
-    $stmt->fetch();
-    $stmt->close();
-}
-
-// 處理表單提交更新地址
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_address_id'])) {
-
-    $selected_address_id = $_POST['selected_address_id'];
-    // 根據選擇的地址 ID 更新 session 中的地址
-    $sql = "SELECT address_text FROM caddress WHERE address_id = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $selected_address_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if ($row = $result->fetch_assoc()) {
-        $_SESSION['current_address'] = $row['address_text']; // 更新 session 地址
-    }
-    // 重定向回 index.php，讓頁面更新
-    header("Location: merchant.php");
-    exit;
-}
-
-// 取得目前使用的地址（如果有從 modal 選擇過）
-$defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選擇地址');
-
 //訂單進度
 $sql = "
 SELECT t.*, d.dpName, d.latitude AS dLatitude, d.longitude AS dLongitude, o.orderStatus AS deliveryStatus, o.arrivePicture
@@ -80,17 +81,11 @@ $stmt->execute();
 $result = $stmt->get_result();
 $orders = $result->fetch_all(MYSQLI_ASSOC);
 
-// 如果從自己按「餐廳訂位」送過來，就 redirect 到 reservation.php
-if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['mid'])) {
-  $mid = intval($_POST['mid']);
-  // 將 mid 存到 session（後續 reservation.php 也能用）
-  $_SESSION['mid'] = $mid;
-  // 或直接用 GET 傳過去 reservation.php
-  header("Location: reservation.php?mid={$mid}");
-  exit;
-}
+
+
 
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -686,42 +681,39 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['mid'])) {
       </div>
     </div>
 
-
     <!-- 🟦 Modal: 更換外送地址 -->
     <div class="modal fade" id="addressModal" tabindex="-1" aria-labelledby="addressModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <form method="post" action="merchant.php?mid=<?= htmlspecialchars($_GET['mid']) ?>">
-                <input type="hidden" name="action" value="change_address">
-                <input type="hidden" name="cartTime" value="<?= htmlspecialchars($cartTime) ?>">
-                <input type="hidden" name="cid" value="<?= htmlspecialchars($_SESSION['cid']) ?>">
-                <input type="hidden" name="pid" value="<?= htmlspecialchars($_GET['pid']) ?>">
-                <input type="hidden" name="mid" value="<?= htmlspecialchars($_GET['mid']) ?>">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="addressModalLabel">選擇外送地址</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="modal-dialog">
+                <form method="post" action="index.php?cid=<?php echo $cid; ?>">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="addressModalLabel">選擇外送地址</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <select class="form-select" name="selected_address_id" id="addressSelect">
+                                <?php
+                                $sql = "SELECT address_id, address_text FROM caddress WHERE cid = ?";
+                                $stmt = $conn->prepare($sql);
+                                $stmt->bind_param("i", $cid); // 假設有 cid session
+                                $stmt->execute();
+                                $result = $stmt->get_result();
+                                while ($row = $result->fetch_assoc()) {
+                                echo '<option value="' . $row['address_id'] . '">' . htmlspecialchars($row['address_text']) . '</option>';
+                                }
+                                ?>
+                            </select>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">使用此地址</button>
+                        </div>
                     </div>
-                    <div class="modal-body">
-                        <select class="form-select" name="selected_address_id" id="addressSelect">
-                            <?php
-                            $sql = "SELECT address_id, address_text FROM caddress WHERE cid = ?";
-                            $stmt = $conn->prepare($sql);
-                            $stmt->bind_param("i", $_SESSION['cid']); // 假設有 cid session
-                            $stmt->execute();
-                            $result = $stmt->get_result();
-                            while ($row = $result->fetch_assoc()) {
-                            echo '<option value="' . $row['address_id'] . '">' . htmlspecialchars($row['address_text']) . '</option>';
-                            }
-                            ?>
-                        </select>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary">使用此地址</button>
-                    </div>
-                </div>
-            </form>
-        </div>
+                </form>
+            </div>
     </div>
+
+
+    
     <!-- 訂單進度 -->
     <div class="modal fade" id="multiOrderModal" tabindex="-1" aria-labelledby="multiOrderModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-lg modal-dialog-centered">

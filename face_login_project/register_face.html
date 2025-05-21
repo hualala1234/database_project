@@ -6,38 +6,13 @@
   <title>註冊人臉</title>
 </head>
 <body>
-  <h2>請輸入 Email 並拍照註冊</h2>
+  <h1>~Register~</h1>
+  <h2>請輸入 Email 並拍照註冊</h2>Enter Email：
   <input type="email" id="email" placeholder="請輸入 Email"><br><br>
   <video id="video" width="320" height="240" autoplay></video><br>
   <button onclick="register()">📷 註冊人臉</button>
   <canvas id="canvas" width="320" height="240" style="display: none;"></canvas>
 
-  <!-- <script>
-    const video = document.getElementById('video');
-    const canvas = document.getElementById('canvas');
-    const context = canvas.getContext('2d');
-
-    navigator.mediaDevices.getUserMedia({ video: true })
-      .then(stream => video.srcObject = stream);
-
-    function register() {
-      const email = document.getElementById('email').value.trim();
-      if (!email) {
-        alert("請輸入 Email");
-        return;
-      }
-
-      context.drawImage(video, 0, 0, canvas.width, canvas.height);
-      const imageData = canvas.toDataURL('image/jpeg');
-
-      // 呼叫後端擷取人臉（可修改為自動儲存）
-      fetch(`http://localhost:5000/capture-face?cid=${email}`, {
-        method: 'GET'
-      }).then(res => res.json()).then(data => {
-        alert(data.message);
-      });
-    }
-  </script> -->
   <script>
     const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
@@ -65,12 +40,34 @@
         })
         .then(res => res.json())
         .then(data => {
-        alert(data.message);
+        alert(data.message || "伺服器沒有傳回錯誤訊息");
         if (data.status === 'success') {
-            window.location.href = "http://localhost/database_project/customer/index.php";
+            // window.location.href = "http://localhost/database_project/customer/index.php?cid=" + cid;
+            window.location.href = "http://localhost/database_project/face_login_project/face_login.html?cid=" + cid;
+
         }
         });
     }
     </script>
 </body>
 </html>
+
+<style>
+  html {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    padding-top: 100px;
+  }
+  body {
+    width: 100%;
+    background-image: url('../walletAndrecord/image/hide.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+  video {
+    /* width: 800px; */
+    border: 2px solid #000;
+    border-radius: 10px;
+  }
+</style>

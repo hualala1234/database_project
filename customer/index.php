@@ -5,12 +5,91 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-$cid = isset($_SESSION["cid"]) ? $_SESSION["cid"] : '';
-if ($cid !== '') {
-    $sql = "SELECT * FROM Customer WHERE cid = $cid";
+// echo "<pre>";
+// print_r($_SESSION);
+// echo "</pre>";
+
+// echo "Session ID: " . session_id() . "<br>";
+// echo "GET: " . json_encode($_GET) . "<br>";
+// echo "SESSION: " . json_encode($_SESSION) . "<br>";
+
+// if (isset($_GET['cid']) && !isset($_SESSION['cid'])) {
+//     $_SESSION['cid'] = $_GET['cid'];
+//     echo "✅ OK - Session Set for cid: " . $_SESSION['cid'];
+// } elseif (isset($_SESSION['cid'])) {
+//     echo "🟢 已經有 SESSION['cid']: " . $_SESSION['cid'];
+// } else {
+//     echo "⚠️ 沒有收到 GET['cid'] 或 SESSION 已設好";
+// }
+
+
+
+
+// ✅ 若網址中有 cid，則存入 session
+if (isset($_GET['cid']) && !isset($_SESSION['cid'])) {
+    $_SESSION['cid'] = $_GET['cid'];
+    echo "OK - Session Set for cid: " . $_SESSION['cid'];
+    // ✅ 設完後重新導向以移除 URL 中的 cid
+    header("Location: index.php");
+    exit();
+}
+
+// ✅ 沒有登入就導回人臉登入頁
+if (!isset($_SESSION['cid'])) {
+    header("Location: http://localhost/database_project/face_login_project/face_login.html");
+    exit();
+}
+
+$cid = $_SESSION['cid'];
+
+// ✅ 資料庫連線
+$conn = new mysqli("localhost", "root", "", "junglebite");
+if ($conn->connect_error) {
+    die("資料庫連線失敗：" . $conn->connect_error);
+}
+
+// ✅ 執行 SQL 查詢
+// $sql = "SELECT * FROM customer WHERE cid = '$cid'";
+// $result = $conn->query($sql);
+
+// // ✅ 檢查查詢是否成功
+// if (!$result) {
+//     die("SQL 錯誤：" . $conn->error);
+// }
+
+// $row = mysqli_fetch_array($result);
+
+// ✅ 測試輸出（可改成你自己的 HTML 顯示）
+// echo "<h2>歡迎回來，客戶編號：{$row['cid']}</h2>";
+// echo "<p>姓名：" . htmlspecialchars($row['cName']) . "</p>";
+// echo "<p>Email：" . htmlspecialchars($row['email']) . "</p>";
+//  $login_success = $_SESSION['login_success'] ?? '';
+//  if ($login_success !== '') {
+//     echo "<div style='color: green;'>$login_success</div>";
+//     // unset($_SESSION['login_success']); // ✅ 顯示一次就清掉
+// }
+
+
+// if ($cid !== '') {
+//     $sql = "SELECT * FROM Customer WHERE cid = $cid";
+//     $result = mysqli_query($conn, $sql);
+//     if (!$result) {
+//         die("SQL Error: " . mysqli_error($conn));
+//     }
+//     $row = mysqli_fetch_array($result);
+//     echo $cid;
+// }
+if (!empty($cid) && is_numeric($cid)) {
+    $sql = "SELECT * FROM customer WHERE cid = $cid";
     $result = mysqli_query($conn, $sql);
+
+    if (!$result) {
+        die("SQL Error: " . mysqli_error($conn));
+    }
+
     $row = mysqli_fetch_array($result);
-    
+} else {
+    die("❌ 無效的 cid：$cid");
 }
 
 
@@ -37,6 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_address_id']
     if ($row = $result->fetch_assoc()) {
         $_SESSION['current_address'] = $row['address_text']; // 更新 session 地址
     }
+    $stmt->close();
     // 重定向回 index.php，讓頁面更新
     header("Location: index.php");
     exit;
@@ -63,7 +143,10 @@ if (!empty($cid)) {
         }
     }
 }
-
+echo "cid",$cid;
+// ✅ 預設不是 VIP
+$isVIP = false;
+$vipImage = './vip.png';
 
 //訂單進度
 $sql = "
@@ -158,8 +241,10 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
                         <form method="GET" action="search.php">
                             <div class="navbar-nav mx-auto">
                                 <div class="position-relative mx-auto">
-                                    <input name="keyword" class="form-control border-2 border-secondary py-3 px-4 rounded-pill" style="width: 30rem;" type="text" placeholder="Search">
-                                    <button type="submit" class="btn btn-primary border-2 border-secondary py-3 px-4 position-absolute rounded-pill text-white h-100" style="top: 0; left: 82.5%;">搜尋</button>
+
+                                    <input name="keyword" class="form-control border-2 border-secondary py-3 px-4 rounded-pill" style="width: 30rem;margin-left:200px;" type="text" placeholder="Search">
+                                    <button type="submit" class="btn btn-primary border-2 border-secondary py-3 px-4 position-absolute rounded-pill text-white h-100" style="top: 0; left: 87.64%;">搜尋</button>
+
                                 </div>
                             </div>
                         </form>
@@ -1172,6 +1257,36 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
             </div>
         </div>
         <!-- Footer End -->
+        <!-- 🟦 Modal: 更換外送地址 -->
+        <div class="modal fade" id="addressModal" tabindex="-1" aria-labelledby="addressModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <form method="post" action="index.php?cid=<?php echo $cid; ?>">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="addressModalLabel">選擇外送地址</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <select class="form-select" name="selected_address_id" id="addressSelect">
+                                <?php
+                                $sql = "SELECT address_id, address_text FROM caddress WHERE cid = ?";
+                                $stmt = $conn->prepare($sql);
+                                $stmt->bind_param("i", $cid); // 假設有 cid session
+                                $stmt->execute();
+                                $result = $stmt->get_result();
+                                while ($row = $result->fetch_assoc()) {
+                                echo '<option value="' . $row['address_id'] . '">' . htmlspecialchars($row['address_text']) . '</option>';
+                                }
+                                ?>
+                            </select>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">使用此地址</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
         <!-- 購物車 Modal -->
         <div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered modal-scrollable">
@@ -1442,9 +1557,19 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
                         <?php endif; ?>
                     <?php endif; ?>
 
-                    <button class="btn btn-outline-primary my-2" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOrder<?= $order['tranId'] ?>">
+                    <button class="btn btn-outline-primary my-2 me-2" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOrder<?= $order['tranId'] ?>">
                         顯示訂單明細
                     </button>
+                    <?php if (
+                        ($deliveryStatus === 'accept' || $deliveryStatus === 'arrived' ||
+                        $status === 'takeaway') 
+                        // 配送中或已送達時顯示外送員名稱
+                    ): ?>
+                        <a href="generate_pdf.php?tranId=<?= $order['tranId'] ?>" target="_blank" class="btn btn-danger my-2">
+                        下載 PDF
+                        </a>
+                    <?php endif; ?>
+                    
 
                     <div class="collapse" id="collapseOrder<?= $order['tranId'] ?>">
                         <div class="card card-body">
@@ -1642,37 +1767,9 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
             
         </div>
     </div>
-    <!-- 🟦 Modal: 更換外送地址 -->
-    <div class="modal fade" id="addressModal" tabindex="-1" aria-labelledby="addressModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <form method="post" action="index.php?cid=<?=$cid?>">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="addressModalLabel">選擇外送地址</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <select class="form-select" name="selected_address_id" id="addressSelect">
-                            <?php
-                            $sql = "SELECT address_id, address_text FROM caddress WHERE cid = ?";
-                            $stmt = $conn->prepare($sql);
-                            $stmt->bind_param("i", $_SESSION['cid']); // 假設有 cid session
-                            $stmt->execute();
-                            $result = $stmt->get_result();
-                            while ($row = $result->fetch_assoc()) {
-                            echo '<option value="' . $row['address_id'] . '">' . htmlspecialchars($row['address_text']) . '</option>';
-                            }
-                            ?>
-                        </select>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary">使用此地址</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
+    
     <script>
+
     function toggleDropdown() {
         var dropdown = document.getElementById("myDropdown");
         dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
@@ -1683,6 +1780,13 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
             dropdown.style.display = "none";
         }
     }
+    </script>
+    <script>
+        document.getElementById('openAddressModalBtn').addEventListener('click', () => {
+            const modal = document.getElementById('addressModal');
+            const modalInstance = bootstrap.Modal.getOrCreateInstance(modal);
+            modalInstance.show();
+        });
     </script>
         
         

@@ -107,6 +107,32 @@ def capture_face_api():
     capture_face(cid)
     return jsonify({"status": "success", "message": f"已擷取 {cid} 的人臉圖像"})
 
+@app.route('/register-face', methods=['POST'])
+def register_face_api():
+    data = request.get_json()
+    cid = data.get("cid")
+    image_data = data.get("image")
+
+    if not cid or not image_data:
+        return jsonify({'status': 'fail', 'message': '缺少 cid 或圖像資料'})
+
+    try:
+        # 儲存人臉圖像到 faces/{cid}/1.jpg
+        image_data = image_data.split(',')[1]
+        img_bytes = base64.b64decode(image_data)
+        img_array = np.frombuffer(img_bytes, np.uint8)
+        img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
+
+        save_dir = os.path.join("faces", str(cid))
+        os.makedirs(save_dir, exist_ok=True)
+        save_path = os.path.join(save_dir, "1.jpg")
+        cv2.imwrite(save_path, img)
+
+        return jsonify({'status': 'success', 'message': f'人臉已儲存於 {save_path}'})
+    except Exception as e:
+        return jsonify({'status': 'fail', 'message': f'儲存失敗：{str(e)}'})
+
+
 # ✅ 人臉辨識登入
 @app.route('/face-login-image', methods=['POST', 'OPTIONS'])
 def face_login_image():
@@ -175,4 +201,8 @@ if __name__ == '__main__':
 # .\.venv\Scripts\Activate.ps1
 # pip install deepface
 # pip install pymysql
-#
+#pip install deepface opencv-python
+
+# py -m pip install tf-keras
+# python -m site
+# py -m pip install pymysql
