@@ -5,91 +5,13 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// echo "<pre>";
-// print_r($_SESSION);
-// echo "</pre>";
 
-// echo "Session ID: " . session_id() . "<br>";
-// echo "GET: " . json_encode($_GET) . "<br>";
-// echo "SESSION: " . json_encode($_SESSION) . "<br>";
-
-// if (isset($_GET['cid']) && !isset($_SESSION['cid'])) {
-//     $_SESSION['cid'] = $_GET['cid'];
-//     echo "✅ OK - Session Set for cid: " . $_SESSION['cid'];
-// } elseif (isset($_SESSION['cid'])) {
-//     echo "🟢 已經有 SESSION['cid']: " . $_SESSION['cid'];
-// } else {
-//     echo "⚠️ 沒有收到 GET['cid'] 或 SESSION 已設好";
-// }
-
-
-
-
-// ✅ 若網址中有 cid，則存入 session
-if (isset($_GET['cid']) && !isset($_SESSION['cid'])) {
-    $_SESSION['cid'] = $_GET['cid'];
-    echo "OK - Session Set for cid: " . $_SESSION['cid'];
-    // ✅ 設完後重新導向以移除 URL 中的 cid
-    header("Location: index.php");
-    exit();
-}
-
-// ✅ 沒有登入就導回人臉登入頁
-if (!isset($_SESSION['cid'])) {
-    header("Location: http://localhost/database_project/face_login_project/face_login.html");
-    exit();
-}
-
-$cid = $_SESSION['cid'];
-
-// ✅ 資料庫連線
-$conn = new mysqli("localhost", "root", "", "junglebite");
-if ($conn->connect_error) {
-    die("資料庫連線失敗：" . $conn->connect_error);
-}
-
-// ✅ 執行 SQL 查詢
-// $sql = "SELECT * FROM customer WHERE cid = '$cid'";
-// $result = $conn->query($sql);
-
-// // ✅ 檢查查詢是否成功
-// if (!$result) {
-//     die("SQL 錯誤：" . $conn->error);
-// }
-
-// $row = mysqli_fetch_array($result);
-
-// ✅ 測試輸出（可改成你自己的 HTML 顯示）
-// echo "<h2>歡迎回來，客戶編號：{$row['cid']}</h2>";
-// echo "<p>姓名：" . htmlspecialchars($row['cName']) . "</p>";
-// echo "<p>Email：" . htmlspecialchars($row['email']) . "</p>";
-//  $login_success = $_SESSION['login_success'] ?? '';
-//  if ($login_success !== '') {
-//     echo "<div style='color: green;'>$login_success</div>";
-//     // unset($_SESSION['login_success']); // ✅ 顯示一次就清掉
-// }
-
-
-// if ($cid !== '') {
-//     $sql = "SELECT * FROM Customer WHERE cid = $cid";
-//     $result = mysqli_query($conn, $sql);
-//     if (!$result) {
-//         die("SQL Error: " . mysqli_error($conn));
-//     }
-//     $row = mysqli_fetch_array($result);
-//     echo $cid;
-// }
-if (!empty($cid) && is_numeric($cid)) {
-    $sql = "SELECT * FROM customer WHERE cid = $cid";
+$cid = isset($_SESSION["cid"]) ? $_SESSION["cid"] : '';
+if ($cid !== '') {
+    $sql = "SELECT * FROM Customer WHERE cid = $cid";
     $result = mysqli_query($conn, $sql);
-
-    if (!$result) {
-        die("SQL Error: " . mysqli_error($conn));
-    }
-
     $row = mysqli_fetch_array($result);
-} else {
-    die("❌ 無效的 cid：$cid");
+    
 }
 
 
@@ -106,6 +28,7 @@ if (isset($_SESSION['cid'], $_SESSION['cartTime'])) {
 
 // 處理表單提交更新地址
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_address_id'])) {
+
     $selected_address_id = $_POST['selected_address_id'];
     // 根據選擇的地址 ID 更新 session 中的地址
     $sql = "SELECT address_text FROM caddress WHERE address_id = ?";
@@ -116,10 +39,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_address_id']
     if ($row = $result->fetch_assoc()) {
         $_SESSION['current_address'] = $row['address_text']; // 更新 session 地址
     }
-    $stmt->close();
     // 重定向回 index.php，讓頁面更新
-    header("Location: index.php?cid=$cid");
+
+    header("Location: index.php?cid=<?=$cid?>");
+
     exit;
+    $stmt->close();
 }
 
 // 取得目前使用的地址（如果有從 modal 選擇過）
@@ -162,8 +87,15 @@ $stmt->execute();
 $result = $stmt->get_result();
 $orders = $result->fetch_all(MYSQLI_ASSOC);
 
-
-
+// 如果從自己按「餐廳訂位」送過來，就 redirect 到 reservation.php
+if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['mid'])) {
+  $mid = intval($_POST['mid']);
+  // 將 mid 存到 session（後續 reservation.php 也能用）
+  $_SESSION['mid'] = $mid;
+  // 或直接用 GET 傳過去 reservation.php
+  header("Location: reservation.php?mid={$mid}");
+  exit;
+}
 
 ?>
 
@@ -327,6 +259,7 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
                                         <a href="../walletAndrecord/c_record.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">交易紀錄</a>
                                         <a href="../customer/friends.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">我的好友</a>
                                         <a href="../wheel/wheel.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">命運轉盤</a>
+                                        <a href="../customer/myfavorite.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item text-decoration-none">我的愛店</a>
                                         <a href="/database_project/customer/reservation.php" class="dropdown-item">我要訂位</a>
                                     <?php elseif ($_SESSION['role'] === 'd'): ?>
                                         <a href="/database/customer/setting.php" class="dropdown-item">外送員設定</a>
@@ -424,6 +357,7 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
                    
                 </div>
 
+                
                 <div class="tab-content">
                     <!-- 所有商品 -->
                      <?php

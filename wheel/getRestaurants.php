@@ -12,7 +12,8 @@ if ($category !== '') {
           m.mName,
           m.mPicture,
           m.mAddress,
-          IFNULL(m.favoritesCount, 0) AS favoritesCount,
+          m.rating,
+          IFNULL(m.ratingCount, 0) AS ratingCount,
           GROUP_CONCAT(rcl.categoryName SEPARATOR ', ') AS categoryNames
         FROM merchant AS m
         LEFT JOIN restaurantcategories AS rc
