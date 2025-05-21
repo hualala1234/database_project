@@ -56,8 +56,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_address_id']
         $_SESSION['current_address'] = $row['address_text']; // 更新 session 地址
     }
     // 重定向回 index.php，讓頁面更新
-    header("Location: merchant.php");
+
+    header("Location: index.php?cid=<?=$cid?>");
+
     exit;
+    $stmt->close();
 }
 
 // 取得目前使用的地址（如果有從 modal 選擇過）
@@ -252,6 +255,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['mid'])) {
                                         <a href="../walletAndrecord/c_record.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">交易紀錄</a>
                                         <a href="../customer/friends.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">我的好友</a>
                                         <a href="../wheel/wheel.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">命運轉盤</a>
+                                        <a href="../customer/myfavorite.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item text-decoration-none">我的愛店</a>
                                         <a href="/database_project/customer/reservation.php" class="dropdown-item">我要訂位</a>
                                     <?php elseif ($_SESSION['role'] === 'd'): ?>
                                         <a href="/database/customer/setting.php" class="dropdown-item">外送員設定</a>
@@ -349,6 +353,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['mid'])) {
                    
                 </div>
 
+                
                 <div class="tab-content">
                     <!-- 所有商品 -->
                      <?php

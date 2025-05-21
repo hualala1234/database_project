@@ -285,6 +285,14 @@ $cid = $_SESSION['cid'] ?? null;
               <div class="d-flex justify-content-between flex-lg-wrap">
                 <p class="text-dark fs-5 fw-bold mb-0">❤ ${m.favoritesCount}</p>
               </div>
+              
+              <p class="mb-0" style="text-align:right;">
+                  <i class="fas fa-star fs-6 me-1 mb-0" style="color:#ffb524;"></i>' . 
+                  htmlspecialchars($row["combinedRating"] ?? $row["rating"]) . 
+                  '/5 (' . 
+                  htmlspecialchars($row["ratingCount"] + $row["additionalRatingCount"]) . 
+                  ')
+              </p>  
             </div>
           </div>
         </div>
