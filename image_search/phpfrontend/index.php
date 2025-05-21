@@ -23,7 +23,9 @@ $cid = isset($_SESSION["cid"]) ? $_SESSION["cid"] : '';
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
-  <title>JungleBite - 以圖搜圖</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Raleway:wght@600;800&display=swap" rel="stylesheet"> 
+    
+  <title>以圖搜圖</title>
   <style>
     body {
       font-family: "Segoe UI", sans-serif;
@@ -39,6 +41,19 @@ $cid = isset($_SESSION["cid"]) ? $_SESSION["cid"] : '';
       color: #333;
       margin-bottom: 20px;
     }
+    .logo{
+      margin-left: 30px;
+      text-decoration: none !important;
+      color: black !important;
+      font-size: calc(1.375rem + 1.5vw);
+      font-weight: 800;
+      line-height: 1.2;
+      font-size: calc(1.375rem + 1.5vw);
+      margin-top: 0;
+      margin-bottom: .5rem;
+      font-family: "Raleway", sans-serif;
+      border-bottom: none;
+  }
 
     .upload-section {
       background: #fff;
@@ -115,6 +130,7 @@ $cid = isset($_SESSION["cid"]) ? $_SESSION["cid"] : '';
   </style>
 </head>
 <body>
+  <a href="../../customer/index.php" class="logo" style="text-decoration:none;"><p>Junglebite</p></a>
   <div id="content">
     <div id="block1">
       <h1>🍽️ 圖搜圖系統</h1>

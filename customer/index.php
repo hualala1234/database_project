@@ -142,10 +142,8 @@ if (!empty($cid)) {
         }
     }
 }
+echo $row['vipTime'];
 echo "cid",$cid;
-// ✅ 預設不是 VIP
-$isVIP = false;
-$vipImage = './vip.png';
 
 //訂單進度
 $sql = "
