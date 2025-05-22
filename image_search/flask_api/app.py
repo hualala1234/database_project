@@ -145,3 +145,5 @@ if __name__ == '__main__':
 
 
 # C:\Users\clair\AppData\Local\Programs\Python\Python311\python.exe app.py
+# flask run --port=5000
+# 11524

@@ -79,7 +79,7 @@ switch ($role) {
 </style>
 <body>
 <div class="block1">
-    <a href="../merchant/merchant_index.php " class="logo" style="text-decoration:none;"><h1>Junglebite</h1></a>
+    <a href="../merchant/merchant_shop.php" class="logo" style="text-decoration:none;"><h1>Junglebite</h1></a>
         <img id="wallet" src="./image/wallet.png" alt="wallet icon" width="30" height="30">
         <h1>Marchent Wallet</h1>
         <!-- <span style="font-size: 22px; margin: 0px; margin-left: 30px;">Welcome to your wallet!</span> -->

@@ -6,7 +6,7 @@ $role = $_SESSION['role'] ?? null;
 // 抓取 URL 中的 id 和 role
 // $id = $_GET['id'] ?? null;
 // $role = $_GET['role'] ?? null;
-echo  $id;
+// echo  $id;
 if (!$id || !$role) {
     die("Missing ID or role in URL.");
 }
