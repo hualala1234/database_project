@@ -62,9 +62,9 @@ while ($row = $logs->fetch_assoc()) {
     if ($row['qualified']&& $row['game_score'] > 0) {
         $desc = "✅ 成績 {$row['game_score']} 已儲存，獲得 {$row['discount']}% off 優惠券";
     } elseif ($row['qualified'] && $row['game_score'] == 0) {
-        $desc = "❌ 成績 {$row['game_score']} 已儲存，但無優惠券";
+        $desc = "❌ 成績 {$row['game_score']} 已儲存，但0分無優惠券";
     } else {
-        $desc = "❌ 成績 {$row['game_score']} 已儲存，但已達上限，無優惠券";
+        $desc = "❌ 成績 {$row['game_score']} 已儲存，但遊戲已達三次上限，無優惠券";
     }
     $log_entries[] = [
         'time' => $row['created_at'],
