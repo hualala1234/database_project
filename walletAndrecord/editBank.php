@@ -9,6 +9,7 @@ if ($conn->connect_error) {
 $id = $_GET['id'] ?? '';
 $role = $_GET['role'] ?? '';
 
+// echo  $id,$role;
 // 根據角色選擇不同表格
 $table = '';
 $key = '';
@@ -44,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $updateStmt->bind_param("sss", $bankCode, $accountNumber, $id);
 
     if ($updateStmt->execute()) {
-        header("Location: ./{$role}_wallet.php?cid={$id}&role={$role}");
+        header("Location: ./{$role}_wallet.php?id={$id}&role={$role}");
         exit();
     } else {
         echo "Error: " . $updateStmt->error;
@@ -62,13 +63,13 @@ $stmt->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./addCard.css">
     <script src="./addCard.js"></script>
-    <title>Edit Bank Info</title>
+    <title>Edit Bank Account</title>
 </head>
 <body>
 <div class="checkout">
     <div id="top_word" style="display: flex; flex-direction: row;">
         <img src="./image/credit-card.png" alt="credit card icon" width="35" height="35">
-        <h1 style="margin:0;margin-left:10px">Edit Bank Info</h1>
+        <h1 style="margin:0;margin-left:10px">Edit Bank Account</h1>
     </div>
     <form class="form" autocomplete="off" method="POST">
         <fieldset>

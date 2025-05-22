@@ -11,10 +11,20 @@ if (!$id) die("未提供 cid");
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="stylesheet" href="./c_record.css" />
   <script src="./c_record.js" type="text/javascript"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100..900;1,100..900&family=Raleway:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
   <title>Customer Record</title>
 </head>
 <body>
   <div class="block1">
+    <a href="../customer/index.php" class="logo" style="text-decoration:none; margin-left: 30px;
+    text-decoration: none !important;
+    color: black !important;
+    font-size: 47px;
+    font-weight: 800;
+    line-height: 1.2;
+    font-size: calc(1.375rem + 1.5vw);
+    margin: 0 0 8px 30px;
+    margin-bottom: .5rem;font-family: 'Raleway', sans-serif;"><p>Junglebite</p></a>
     <img id="wallet" src="./image/folder.png" alt="wallet icon" width="30" height="30" />
     <h1>Transaction Records</h1>
   </div>

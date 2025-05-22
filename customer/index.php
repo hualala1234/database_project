@@ -13,23 +13,7 @@ if ($cid !== '') {
     $row = mysqli_fetch_array($result);
     
 }
-// ✅ 預設不是 VIP
-$isVIP = false;
-$vipImage = './vip.png';
 
-if (!empty($cid)) {
-    $sql = "SELECT vipTime FROM customer WHERE cid = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $cid);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if ($row = $result->fetch_assoc()) {
-        if (!is_null($row['vipTime'])) {
-            $isVIP = true;
-            $vipImage = './is_vip.png';
-        }
-    }
-}
 
 $storeCount = 0;
 if (isset($_SESSION['cid'], $_SESSION['cartTime'])) {
@@ -65,6 +49,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_address_id']
 
 // 取得目前使用的地址（如果有從 modal 選擇過）
 $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選擇地址');
+
+// ✅ 預設不是 VIP
+$isVIP = false;
+$vipImage = './vip.png';
+
+if (!empty($cid)) {
+    $sql = "SELECT vipTime FROM customer WHERE cid = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $cid);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($row = $result->fetch_assoc()) {
+        if (!is_null($row['vipTime'])) {
+            $isVIP = true;
+            $vipImage = './is_vip.png';
+        }
+    }
+}
+// echo $row['vipTime'];
+// echo "cid",$cid;
 
 //訂單進度
 $sql = "
@@ -157,7 +161,16 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['mid'])) {
             </div>
             <div class="container px-0">
                 <nav class="navbar navbar-light bg-white navbar-expand-xl">
-                    <a href="index.php?cid=<?php echo $cid; ?>" class="navbar-brand"><h1 class="text-primary display-6">Junglebite</h1></a>
+                    <style>
+                        .logo{
+                            margin-left: 10px;
+                        }
+                        .logo:hover{
+                            scale: 1.1;
+                        }
+                    </style>
+                    <a href="index.php?cid=<?php echo $cid; ?>" class="navbar-brand"><img class="logo" src="../image/logo.png" alt="logo"  height="100"></a>
+                    <!-- <a href="index.php?cid=<?php echo $cid; ?>" class="navbar-brand"><h1 class="text-primary display-6">Junglebite</h1></a> -->
                     <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                         <span class="fa fa-bars text-primary"></span>
                     </button>
