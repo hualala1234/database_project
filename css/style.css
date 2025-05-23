@@ -660,9 +660,9 @@ background-color: rgba(0, 0, 0, 0.2);
 border-radius: 3px;
 }
 
-body.p-4 {
+/* body.p-4 {
    margin-top: 200px;
-}
+} */
 
 body {
     font-family: 'Open Sans', sans-serif;
