@@ -3,7 +3,7 @@ body {
     background-color: #e6f2e6; /* 淺綠背景 */
     color: #2e3d27; /* 深綠褐色文字 */
     padding-top: 120px;
-
+    margin-top: 200px !important;
 }
 
 
@@ -12,7 +12,7 @@ h3 {
     color: #355e3b; /* 森林綠 */
 }
 
- .allergy-container {
+.allergy-container {
   background-color: #f5fbef;
   padding: 40px;
   max-width: 800px;
