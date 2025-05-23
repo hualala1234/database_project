@@ -4,6 +4,17 @@ session_start();
 $id = $_SESSION['cid'] ?? 0;
 $role = $_GET['role'] ?? null;
 
+// 檢查該使用者是否已有錢包
+$walletCheckSql = "SELECT * FROM wallet WHERE cid = '$id' AND role = 'c'";
+$walletCheckResult = $conn->query($walletCheckSql);
+
+if ($walletCheckResult->num_rows == 0) {
+    // 若不存在，則建立 wallet 資料（初始餘額為 0）
+    $createWalletSql = "INSERT INTO wallet (cid,role, balance) VALUES ('$id','c', 0)";
+    $conn->query($createWalletSql);
+    echo "create wallet";
+}
+
 // 查詢餘額
 $balance = 0;
 if ($id) {
@@ -256,9 +267,9 @@ if (savedDepositSelect.value === '') newDepositFields.style.display = 'block';
 if (savedWithdrawSelect.value === '') newWithdrawFields.style.display = 'block';
 
 limitInputDigits(document.getElementById('deposit-bankCode'), 3);
-limitInputDigits(document.getElementById('deposit-accountNumber'), 12);
+limitInputDigits(document.getElementById('deposit-accountNumber'), 16);
 limitInputDigits(document.getElementById('withdraw-bankCode'), 3);
-limitInputDigits(document.getElementById('withdraw-accountNumber'), 12);
+limitInputDigits(document.getElementById('withdraw-accountNumber'), 16);
 
 updateFormattedAccount(
     document.getElementById('deposit-bankCode'),
