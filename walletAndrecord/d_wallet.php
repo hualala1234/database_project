@@ -81,7 +81,7 @@ switch ($role) {
                             if ($id) {
                                 // 查詢本月外送員收入（加總 totalPrice）
                                 $stmt = $conn->prepare("
-                                    SELECT COUNt(totalPrice) AS income
+                                    SELECT COUNt(totalPrice) AS orderCount
                                     FROM transaction
                                     WHERE did = ? 
                                     AND MONTH(transactionTime) = MONTH(CURDATE())
@@ -93,8 +93,9 @@ switch ($role) {
 
                                 $income = 0;
                                 if ($row = $result->fetch_assoc()) {
-                                    $income = $row['income'] ?? 0;
+                                    $orderCount = $row['orderCount'] ?? 0;
                                 }
+                                $income = $orderCount * 30; // 假設每筆訂單收入 30 NTD
 
                                 echo htmlspecialchars($income) . ' NTD';
                                 $stmt->close();
@@ -174,15 +175,21 @@ switch ($role) {
                 <?php
                 include('connect.php');
 
-                // 查詢 transaction + merchant 資料
+                // 查詢 transaction + dpman 資料
                 $sql = "
-                SELECT t.transactionTime, d.mName, d.dRating, t.dComment, t.cid, c.cName
+                SELECT t.transactionTime, d.dpName, t.dRating, t.dComment, t.cid, c.cName, m.mName
                 FROM transaction t
                 INNER JOIN deliveryperson d ON t.did = d.did
                 INNER JOIN customer c ON t.cid = c.cid
+                INNER JOIN merchant m ON t.mid = m.mid
                 WHERE d.did = $id
                 ORDER BY t.transactionTime DESC";
                 $result = $conn->query($sql);
+
+                if (!$result) {
+                    echo 'SQL Error: ' . $conn->error;
+                }
+
 
                 if ($result && $result->num_rows > 0) {
                     echo '<table style="width:100%; border-collapse:collapse;">
@@ -222,7 +229,7 @@ switch ($role) {
 
                                 echo '<tr style="transition: background-color 0.3s;">
                                         <td>' . htmlspecialchars($row['transactionTime']) . '</td>
-                                        <td>' . htmlspecialchars($row['dName']) . '</td>
+                                        <td>' . htmlspecialchars($row['mName']) . '</td>
                                         <td>' . htmlspecialchars($row['cName']) . '</td>
                                         <td>' . $stars . '</td>
                                         <td class="comment-cell"  

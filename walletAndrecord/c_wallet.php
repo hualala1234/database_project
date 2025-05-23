@@ -60,6 +60,12 @@ while ($row = $res->fetch_assoc()) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./c_wallet.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,710;1,710&family=Poetsen+One&family=Raleway:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100..900;1,100..900&family=Poetsen+One&family=Raleway:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Raleway:wght@600;800&display=swap" rel="stylesheet"> 
     <script src="./c_wallet.js" defer></script>
     <title>Customer Wallet</title>
@@ -67,9 +73,24 @@ while ($row = $res->fetch_assoc()) {
 <body>
     <div id="out_block">
         <div class="block1">
+            <style>
+                body{
+                    /* font-family: "Poetsen One", sans-serif;
+                    font-weight: 300;
+                    font-style: normal; */
+                }
+                .logo{
+                    margin-left: 10px;
+                }
+                .logo:hover{
+                    scale: 1.1;
+                }
+            </style>
+            <!-- <a href="../customer/index.php" class="navbar-brand"><img class="logo" src="./image/logo.png" alt="logo"  height="100"></a> -->
             <a href="../customer/index.php" class="logo" style="text-decoration:none;"><h1>Junglebite</h1></a>
-            <img id="wallet" src="./image/wallet.png" alt="wallet icon" width="30" height="30">
-            <h1>Wallet</h1><span style="font-size: 22px; margin: 0px; margin-left: 30px;">Welcome to your wallet!</span>
+            <!-- <img id="wallet" src="./image/wallet.png" alt="wallet icon" width="30" height="30"> -->
+            <!-- <h1>Wallet</h1> -->
+            <span style="font-size: 22px; margin: 0px; margin-left: 30px;">Welcome to your wallet!</span>
         </div>
         <div class="balance" data-card-id="balance" style="margin-top: 30px;">
             <img id="piggy" src="./image/piggy.png" alt="piggy icon" width="40px" height="40px">

@@ -129,8 +129,17 @@ $cid = isset($_SESSION["cid"]) ? $_SESSION["cid"] : '';
     }
   </style>
 </head>
+<style>
+                        .logo{
+                            margin-left: 10px;
+                        }
+                        .logo:hover{
+                            scale: 1.1;
+                        }
+                    </style>
 <body>
-  <a href="../../customer/index.php" class="logo" style="text-decoration:none;"><p>Junglebite</p></a>
+  <a href="../../customer/index.php" class="navbar-brand"><img class="logo" src="../../image/logo_.png" alt="logo"  height="100"></a>
+  <!-- <a href="../../customer/index.php" class="logo" style="text-decoration:none;"><p>Junglebite</p></a> -->
   <div id="content">
     <div id="block1">
       <h1>🍽️ 圖搜圖系統</h1>
