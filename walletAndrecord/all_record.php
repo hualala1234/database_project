@@ -23,11 +23,12 @@
 
         // 查詢 transaction + merchant 資料
         $sql = "
-            SELECT t.transactionTime, m.mName, t.mRating, t.mComment, d.dpName, t.dRating, t.dComment, t.tranId
+            SELECT t.transactionTime, m.mName, t.mRating, t.mComment, d.dpName, t.dRating, t.dComment, t.tranId, t.orderStatus
             FROM transaction t
             INNER JOIN merchant m ON t.mId = m.mId
             INNER JOIN deliveryperson d ON t.did = d.did
             ORDER BY t.transactionTime DESC
+            WHERE t.orderStatus = 'done'
         ";
         $result = $conn->query($sql);
 

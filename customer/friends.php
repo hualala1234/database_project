@@ -183,7 +183,7 @@ $friends = $friendsStmt->fetchAll(PDO::FETCH_ASSOC);
             <!-- Navbar End -->
     
 
-    <div class="allfriendslist" style="margin-top: 100px;">
+    <div class="allfriendslist" style="margin-top: 150px;width: 80%;margin-left: 150px;">
         <h2>我的好友列表</h2>
     
         <?php if (empty($friends)): ?>
