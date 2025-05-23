@@ -44,7 +44,7 @@ $cartTime = $data['cartTime'];
 // ✅ 5. 開始資料庫交易
 
 // 先根據 paymentMethod 判斷 cardName 要帶什麼值
-if ($paymentMethod !== 'cash' && $paymentMethod !== 'wallet') {
+if ($paymentMethod !== 'walletBalance' && $paymentMethod !== 'cashOnDelivery') {
     $cardName = $paymentMethod; // 直接用 paymentMethod 的值
     $paymentMethod = 'cardName';
 } else {
@@ -85,13 +85,13 @@ try {
 
     // ✅ 8. 使用優惠券則刪除
     if ($couponCode) {
-        $stmt = $conn->prepare("DELETE FROM coupons WHERE cid = ? AND code = ?");
+        $stmt = $conn->prepare("UPDATE coupon SET used = 0 WHERE cid = ? AND code = ?");
         $stmt->bind_param("is", $cid, $couponCode);
         $stmt->execute();
     }
      
     // ✅ 9. 若用錢包付從錢包扣錢
-    if ($paymentMethod === 'wallet') {
+    if ($paymentMethod === 'walletBalance') {
         // 扣除顧客錢包的金額
         $stmt4 = $conn->prepare("UPDATE wallet SET balance = balance - ? WHERE cid = ?");
         $stmt4->bind_param("ii", $totalPrice, $cid);

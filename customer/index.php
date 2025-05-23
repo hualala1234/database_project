@@ -1499,15 +1499,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['mid'])) {
                     <button class="btn btn-outline-primary my-2 me-2" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOrder<?= $order['tranId'] ?>">
                         顯示訂單明細
                     </button>
-                    <?php if (
-                        ($deliveryStatus === 'accept' || $deliveryStatus === 'arrived' ||
-                        $status === 'takeaway') 
-                        // 配送中或已送達時顯示外送員名稱
-                    ): ?>
-                        <a href="generate_pdf.php?tranId=<?= $order['tranId'] ?>" target="_blank" class="btn btn-danger my-2">
-                        下載 PDF
-                        </a>
-                    <?php endif; ?>
+                    
                     
 
                     <div class="collapse" id="collapseOrder<?= $order['tranId'] ?>">
