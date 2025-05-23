@@ -73,12 +73,14 @@ $cid = $_SESSION['cid'] ?? null;
                                 <?php if ($_SESSION['role'] === 'm'): ?>
                                     <a href="/database/merchant/setting.php" class="dropdown-item">商家設定</a>
                                 <?php elseif ($_SESSION['role'] === 'c'): ?>
-                                    <a href="../login/login_customer/setting.php" class="dropdown-item">個人設定</a>
-                                    <a href="/database_project/allergy/allergy.php" class="dropdown-item">過敏設定</a>
-                                    <!-- <a href="../claw_machine/claw.php" class="dropdown-item">優惠券活動</a> -->
+                                    <a href="../login/login_customer/setting.php?cid=<?php echo $cid; ?>" class="dropdown-item">個人設定</a>
+                                    <a href="/database_project/allergy/allergy.php?cid=<?php echo $cid; ?>" class="dropdown-item">過敏設定</a>
+                                    <a href="../claw_machine/claw.php?cid=<?php echo $cid; ?>" class="dropdown-item">優惠券活動</a>
                                     <a href="../walletAndrecord/c_wallet.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">錢包</a>
                                     <a href="../walletAndrecord/c_record.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">交易紀錄</a>
-                                    <a href="friends.php" class="dropdown-item">我的好友</a>
+                                    <a href="../customer/friends.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">我的好友</a>
+                                    <!-- <a href="../wheel/wheel.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">命運轉盤</a> -->
+                                    <a href="../customer/myfavorite.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item text-decoration-none">我的愛店</a>
                                     <a href="/database_project/customer/reservation.php" class="dropdown-item">我要訂位</a>
                                 <?php elseif ($_SESSION['role'] === 'd'): ?>
                                     <a href="/database/customer/setting.php" class="dropdown-item">外送員設定</a>
@@ -252,56 +254,62 @@ $cid = $_SESSION['cid'] ?? null;
     const winnerText = items[idx].trim();
     document.getElementById("winner").innerText = winnerText;
 
-    fetch(`getRestaurants.php?category=${encodeURIComponent(winnerText)}`)
+    fetch(`getRestaurants.php?category=${encodeURIComponent(winnerText)}&cid=<?= $cid ?>`)
       .then(res => {
         if (!res.ok) throw new Error(`伺服器 ${res.status}`);
         return res.json();
       })
       .then(data => {
+        console.log("Winner:", winnerText);
+        console.log("Fetched merchants:", data);
+
         const cards = document.getElementById("restaurant-cards");
         if (!Array.isArray(data) || data.length === 0) {
           cards.innerHTML = "<p class='text-center'>抱歉，沒有找到相關店家。</p>";
           return;
         }
 
-      // 產生每個餐廳卡片，onclick 會導到 merchant.php?mid=該店家 id
-      cards.innerHTML = data.map(m => `
+    
+
+    cards.innerHTML = data.map(m => {
+      const heartClass = m.isFavorited ? 'fa-solid text-danger' : 'fa-regular';
+      return `
         <div class="col-md-6 col-lg-4 col-xl-3">
           <div class="rounded position-relative fruite-item" style="cursor:pointer;"
-               onclick="location.href='../customer/merchant.php?mid=${encodeURIComponent(m.mid)}'">
+              onclick="location.href='../customer/merchant.php?mid=${encodeURIComponent(m.mid)}'">
             <div class="fruite-img">
               <img src="../${m.mPicture}" class="img-fluid w-100 rounded-top" alt="${m.mName}">
             </div>
-            <div class="text-white bg-secondary px-3 py-1 rounded position-absolute"
-                 style="top:10px; left:10px;">
+            <div class="text-white bg-secondary px-3 py-1 rounded position-absolute" style="top:10px; left:10px;">
               ${m.categoryNames || '未分類'}
             </div>
             <div class="p-4 border border-secondary border-top-0 rounded-bottom"
-                 style="height:175px; display:flex; flex-direction:column; justify-content:space-between;">
+                style="height:175px; display:flex; flex-direction:column; justify-content:space-between;">
               <div>
                 <h5>${m.mName}</h5>
                 <p>${m.mAddress}</p>
               </div>
-              <div class="d-flex justify-content-between flex-lg-wrap">
-                <p class="text-dark fs-5 fw-bold mb-0">❤ ${m.favoritesCount}</p>
+              <div class="d-flex justify-content-between flex-lg-wrap" style="align-items: center;">
+                <p class="text-dark fs-5 fw-bold mb-0">
+                  <i class="fa-heart favorite-icon ${heartClass}" data-mid="${m.mid}" style="cursor:pointer;" onclick="event.stopPropagation();"></i>
+                </p>
+                <p class="mb-0" style="text-align:right;">
+                  <i class="fas fa-star fs-6 me-1 mb-0" style="color:#ffb524;"></i>
+                  ${m.rating ?? '尚無評分'}/5 (${m.ratingCount})
+                </p>
               </div>
-              
-              <p class="mb-0" style="text-align:right;">
-                  <i class="fas fa-star fs-6 me-1 mb-0" style="color:#ffb524;"></i>' . 
-                  htmlspecialchars($row["combinedRating"] ?? $row["rating"]) . 
-                  '/5 (' . 
-                  htmlspecialchars($row["ratingCount"] + $row["additionalRatingCount"]) . 
-                  ')
-              </p>  
             </div>
           </div>
-        </div>
-      `).join("");
+        </div>`;
+    }).join("");
     })
     .catch(err => {
+      console.error("載入錯誤：", err);
       document.getElementById("restaurant-cards")
               .innerHTML = `<p class="text-center">載入失敗：${err.message}</p>`;
     });
+
+    ;
 }
 
 
@@ -319,9 +327,43 @@ $cid = $_SESSION['cid'] ?? null;
 
     // 初始畫面
     draw();
-
-    
   </script>
+
+  <script>
+  document.addEventListener('click', function (e) {
+    const icon = e.target.closest('.favorite-icon');
+    if (icon) {
+      e.stopPropagation(); // 防止跳轉
+      const mid = icon.dataset.mid;
+
+      fetch('toggleFavorite.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: `mid=${mid}`
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          if (data.favorited) {
+            icon.classList.remove('fa-regular');
+            icon.classList.add('fa-solid', 'text-danger');
+          } else {
+            icon.classList.remove('fa-solid', 'text-danger');
+            icon.classList.add('fa-regular');
+          }
+        } else {
+          alert(data.message || "操作失敗！");
+        }
+      })
+      .catch(err => {
+        console.error("收藏操作錯誤：", err);
+      });
+    }
+  });
+  </script>
+
 </body>
 
 </html>
