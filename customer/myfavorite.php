@@ -11,7 +11,9 @@ $cid = $_SESSION['cid'];
 
 $sql = "
     SELECT m.*, 
-           GROUP_CONCAT(rcl.categoryName SEPARATOR ', ') AS categoryNames
+           GROUP_CONCAT(rcl.categoryName SEPARATOR ', ') AS categoryNames,
+           m.rating,
+           IFNULL(m.ratingCount, 0) AS ratingCount
     FROM Favorite f
     JOIN Merchant m ON f.mid = m.mid
     LEFT JOIN RestaurantCategories rc ON m.mid = rc.mid
@@ -20,6 +22,7 @@ $sql = "
     GROUP BY m.mid
     ORDER BY m.mName ASC
 ";
+
 
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $cid);
@@ -184,6 +187,10 @@ $result = $stmt->get_result();
                                 <div class="d-flex justify-content-between flex-lg-wrap">
                                     <p class="text-dark fs-5 fw-bold mb-0">
                                         <i class="fa-solid fa-heart favorite-icon" data-mid="<?= $m['mid'] ?>"></i>
+                                    </p>
+                                    <p class="mb-0" style="text-align:right;">
+                                        <i class="fas fa-star fs-6 me-1 mb-0" style="color:#ffb524;"></i>
+                                        <?= htmlspecialchars($m['rating'] ?? '尚無評分') ?>/5 (<?= $m['ratingCount'] ?>)
                                     </p>
                                 </div>
                             </div>
