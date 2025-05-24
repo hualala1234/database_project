@@ -12,6 +12,7 @@ if ($cid !== '') {
     $result = mysqli_query($conn, $sql);
     $row = mysqli_fetch_array($result);
     
+    $defaultAddress = $row['address'] ?? '尚未設定預設';
 }
 
 
@@ -1196,6 +1197,8 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['mid'])) {
             </div>
         </div> -->
         <!-- Footer End -->
+
+        
         <!-- 🟦 Modal: 更換外送地址 -->
         <div class="modal fade" id="addressModal" tabindex="-1" aria-labelledby="addressModalLabel" aria-hidden="true">
             <div class="modal-dialog">
@@ -1208,16 +1211,37 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['mid'])) {
                         <div class="modal-body">
                             <select class="form-select" name="selected_address_id" id="addressSelect">
                                 <?php
+                                // 1) 先顯示 customer table 裡的預設地址 (value 0)
+                                $sql0 = "SELECT address FROM customer WHERE cid = ?";
+                                $stmt0 = $conn->prepare($sql0);
+                                $stmt0->bind_param("i", $cid);
+                                $stmt0->execute();
+                                $res0 = $stmt0->get_result();
+                                if ($row0 = $res0->fetch_assoc()) {
+                                    echo '<option value="0">'
+                                        . htmlspecialchars($row0['address'])
+                                        . '（預設地址）'
+                                        . '</option>';
+                                }
+                                $stmt0->close();
+
+                                // 2) 再跑原本的子地址
                                 $sql = "SELECT address_id, address_text FROM caddress WHERE cid = ?";
                                 $stmt = $conn->prepare($sql);
-                                $stmt->bind_param("i", $cid); // 假設有 cid session
+                                $stmt->bind_param("i", $cid);
                                 $stmt->execute();
                                 $result = $stmt->get_result();
                                 while ($row = $result->fetch_assoc()) {
-                                echo '<option value="' . $row['address_id'] . '">' . htmlspecialchars($row['address_text']) . '</option>';
+                                    echo '<option value="'
+                                        . $row['address_id']
+                                        . '">'
+                                        . htmlspecialchars($row['address_text'])
+                                        . '</option>';
                                 }
+                                $stmt->close();
                                 ?>
                             </select>
+
                         </div>
                         <div class="modal-footer">
                             <button type="submit" class="btn btn-primary">使用此地址</button>
