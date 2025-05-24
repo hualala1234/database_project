@@ -99,9 +99,9 @@ $result = $stmt->get_result();
                                 </span>
                             <?php endif; ?>
                         </a>
-                        <a href="../walletAndrecord/m_wallet.php?id=<?php echo $mid; ?>&role=m" class="nav-item nav-link active">接單紀錄</a>
+                        <a href="../walletAndrecord/m_wallet.php?id=<?php echo $mid; ?>&role=m" class="nav-item nav-link">接單紀錄</a>
                         <a href="merchant_reservations.php?mid=<?php echo $mid; ?>" class="nav-item nav-link" style="color:#ffb524">訂位管理</a>
-                        <a href="contact.html" class="nav-item nav-link">聯繫平台</a>
+                        <!-- <a href="contact.html" class="nav-item nav-link">聯繫平台</a> -->
                     </div>
                     
                     <div class="d-flex m-3 me-0"> 

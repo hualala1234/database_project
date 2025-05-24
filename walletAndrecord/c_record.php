@@ -223,12 +223,11 @@ if (!$id) die("未提供 cid");
               if ($result && $result->num_rows > 0) {
                 while ($row = $walletResult->fetch_assoc()) {
                     // 安全轉成數字
-                    $mrating = isset($row['mRating']) ? (float)$row['mRating'] : 0;
+                    $mrating = isset($row['mRating']) ? (float)$row['mRating'] : NULL;
+                    if (is_null($mrating)) {
+                        $mStars = '<span style="color:gray;">no rating</span>';
+                    } else {
                     $mrating = max(0, min(5, $mrating));
-                
-                    $drating = isset($row['dRating']) ? (float)$row['dRating'] : 0;
-                    $drating = max(0, min(5, $drating)); // ⚠️ 原本這邊錯誤寫成使用 $mrating
-                
                     // ⭐ 商家星星計算
                     $mfullStars = (int)floor($mrating);
                     $mhasHalfStar = ($mrating - $mfullStars) >= 0.5;
@@ -239,7 +238,13 @@ if (!$id) die("未提供 cid");
                         $mStars .= '<img src="./image/half-star.png" alt="half star" style="width:20px; height:20px; vertical-align:middle;">';
                     }
                     $mStars .= str_repeat('<img src="./image/star.png" alt="empty star" style="width:20px; height:20px; vertical-align:middle;">', $memptyStars);
+                    }
                 
+                    $drating = isset($row['dRating']) ? (float)$row['dRating'] : NULL;
+                    if (is_null($drating)) {
+                        $dStars = '<span style="color:gray;">no rating</span>';
+                    } else {
+                    $drating = max(0, min(5, $drating)); // ⚠️ 原本這邊錯誤寫成使用 $mrating
                     // ⭐ 外送員星星計算（如有需要顯示）
                     $dfullStars = (int)floor($drating);
                     $dhasHalfStar = ($drating - $dfullStars) >= 0.5;
@@ -250,14 +255,24 @@ if (!$id) die("未提供 cid");
                         $dStars .= '<img src="./image/half-star.png" alt="half star" style="width:20px; height:20px; vertical-align:middle;">';
                     }
                     $dStars .= str_repeat('<img src="./image/star.png" alt="empty star" style="width:20px; height:20px; vertical-align:middle;">', $demptyStars);
+                    }
                 
-                    // 處理評論
                     $mcomment = isset($row['mComment']) ? trim($row['mComment']) : '';
+                    if ($mcomment === '' || strtolower($mcomment) === 'null') {
+                        $mcomment = 'No comment';
+                    }
+                    $dcomment = isset($row['dComment']) ? trim($row['dComment']) : '';
+                    if ($dcomment === '' || strtolower($dcomment) === 'null') {
+                        $dcomment = 'No comment';
+                    }
+
+                    // 處理評論
+                    // $mcomment = isset($row['mComment']) ? trim($row['mComment']) : '';
                     $mshortComment = mb_strimwidth($mcomment, 0, 100, '...');
                     $msafeFullComment = htmlspecialchars($mcomment, ENT_QUOTES, 'UTF-8');
                     $msafeShortComment = htmlspecialchars($mshortComment, ENT_QUOTES, 'UTF-8');
 
-                    $dcomment = isset($row['dComment']) ? trim($row['dComment']) : '';
+                    // $dcomment = isset($row['dComment']) ? trim($row['dComment']) : '';
                     $dshortComment = mb_strimwidth($dcomment, 0, 100, '...');
                     $dsafeFullComment = htmlspecialchars($dcomment, ENT_QUOTES, 'UTF-8');
                     $dsafeShortComment = htmlspecialchars($dshortComment, ENT_QUOTES, 'UTF-8');
@@ -332,41 +347,58 @@ if (!$id) die("未提供 cid");
             if ($t_result && $t_result->num_rows > 0) {
                 while ($t = $t_result->fetch_assoc()) {
                     // 安全轉成數字
-                    $mrating = isset($t['mRating']) ? (float)$t['mRating'] : 0;
-                    $mrating = max(0, min(5, $mrating));
-                
-                    $drating = isset($t['dRating']) ? (float)$t['dRating'] : 0;
-                    $drating = max(0, min(5, $drating)); // ⚠️ 原本這邊錯誤寫成使用 $mrating
-                
-                    // ⭐ 商家星星計算
-                    $mfullStars = (int)floor($mrating);
-                    $mhasHalfStar = ($mrating - $mfullStars) >= 0.5;
-                    $memptyStars = 5 - $mfullStars - ($mhasHalfStar ? 1 : 0);
-                
-                    $mStars = str_repeat('⭐', $mfullStars);
-                    if ($mhasHalfStar) {
-                        $mStars .= '<img src="./image/half-star.png" alt="half star" style="width:20px; height:20px; vertical-align:middle;">';
+                    $mrating = isset($t['mRating']) ? (float)$t['mRating'] : NULL;
+                    if (is_null($mrating)) {
+                        $mStars = '<span style="color:gray;">no rating</span>';
+                    } else {
+                        $mrating = max(0, min(5, $mrating));
+                    
+                        // ⭐ 商家星星計算
+                        $mfullStars = (int)floor($mrating);
+                        $mhasHalfStar = ($mrating - $mfullStars) >= 0.5;
+                        $memptyStars = 5 - $mfullStars - ($mhasHalfStar ? 1 : 0);
+                    
+                        $mStars = str_repeat('⭐', $mfullStars);
+                        if ($mhasHalfStar) {
+                            $mStars .= '<img src="./image/half-star.png" alt="half star" style="width:20px; height:20px; vertical-align:middle;">';
+                        }
+                        $mStars .= str_repeat('<img src="./image/star.png" alt="empty star" style="width:20px; height:20px; vertical-align:middle;">', $memptyStars);
                     }
-                    $mStars .= str_repeat('<img src="./image/star.png" alt="empty star" style="width:20px; height:20px; vertical-align:middle;">', $memptyStars);
                 
-                    // ⭐ 外送員星星計算（如有需要顯示）
-                    $dfullStars = (int)floor($drating);
-                    $dhasHalfStar = ($drating - $dfullStars) >= 0.5;
-                    $demptyStars = 5 - $dfullStars - ($dhasHalfStar ? 1 : 0);
                 
-                    $dStars = str_repeat('⭐', $dfullStars);
-                    if ($dhasHalfStar) {
-                        $dStars .= '<img src="./image/half-star.png" alt="half star" style="width:20px; height:20px; vertical-align:middle;">';
+                    $drating = isset($t['dRating']) ? (float)$t['dRating'] : NULL;
+                    if (is_null($drating)) {
+                        $dStars = '<span style="color:gray;">no rating</span>';
+                    } else {
+                        $drating = max(0, min(5, $drating)); // ⚠️ 原本這邊錯誤寫成使用 $mrating
+                        // ⭐ 外送員星星計算（如有需要顯示）
+                        $dfullStars = (int)floor($drating);
+                        $dhasHalfStar = ($drating - $dfullStars) >= 0.5;
+                        $demptyStars = 5 - $dfullStars - ($dhasHalfStar ? 1 : 0);
+                    
+                        $dStars = str_repeat('⭐', $dfullStars);
+                        if ($dhasHalfStar) {
+                            $dStars .= '<img src="./image/half-star.png" alt="half star" style="width:20px; height:20px; vertical-align:middle;">';
+                        }
+                        $dStars .= str_repeat('<img src="./image/star.png" alt="empty star" style="width:20px; height:20px; vertical-align:middle;">', $demptyStars);
                     }
-                    $dStars .= str_repeat('<img src="./image/star.png" alt="empty star" style="width:20px; height:20px; vertical-align:middle;">', $demptyStars);
+                    $mcomment = isset($row['mComment']) ? trim($row['mComment']) : '';
+                    if ($mcomment === '' || strtolower($mcomment) === 'null') {
+                        $mcomment = 'No comment';
+                    }
+                    $dcomment = isset($row['dComment']) ? trim($row['dComment']) : '';
+                    if ($dcomment === '' || strtolower($dcomment) === 'null') {
+                        $dcomment = 'No comment';
+                    }
+
                 
                     // 處理評論
-                    $mcomment = isset($t['mComment']) ? trim($t['mComment']) : '';
+                    // $mcomment = isset($t['mComment']) ? trim($t['mComment']) : '';
                     $mshortComment = mb_strimwidth($mcomment, 0, 100, '...');
                     $msafeFullComment = htmlspecialchars($mcomment, ENT_QUOTES, 'UTF-8');
                     $msafeShortComment = htmlspecialchars($mshortComment, ENT_QUOTES, 'UTF-8');
 
-                    $dcomment = isset($t['dComment']) ? trim($t['dComment']) : '';
+                    // $dcomment = isset($t['dComment']) ? trim($t['dComment']) : '';
                     $dshortComment = mb_strimwidth($dcomment, 0, 100, '...');
                     $dsafeFullComment = htmlspecialchars($dcomment, ENT_QUOTES, 'UTF-8');
                     $dsafeShortComment = htmlspecialchars($dshortComment, ENT_QUOTES, 'UTF-8');

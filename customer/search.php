@@ -144,7 +144,8 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
             </div>
             <div class="container px-0">
                 <nav class="navbar navbar-light bg-white navbar-expand-xl">
-                    <a href="index.php?cid=<?php echo $cid; ?>" class="navbar-brand"><h1 class="text-primary display-6">Junglebite</h1></a>
+                    <a href="index.php?cid=<?php echo $cid; ?>" class="navbar-brand"><img class="logo" src="../image/logo.png" alt="logo"  height="100"></a>
+                    <!-- <a href="index.php?cid=<?php echo $cid; ?>" class="navbar-brand"><h1 class="text-primary display-6">Junglebite</h1></a> -->
                     <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                         <span class="fa fa-bars text-primary"></span>
                     </button>

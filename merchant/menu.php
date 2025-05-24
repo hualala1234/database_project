@@ -111,7 +111,9 @@ var_dump($mid); // 確保 mid 有值
                                     <a href="404.html" class="dropdown-item">404 Page</a>
                                 </div>
                             </div> -->
-                            <a href="contact.html" class="nav-item nav-link">聯繫平台</a>
+                            <a href="../walletAndrecord/m_wallet.php?id=<?php echo $mid; ?>&role=m" class="nav-item nav-link">接單紀錄</a>
+                            <a href="merchant_reservations.php?mid=<?php echo $mid; ?>" class="nav-item nav-link" >訂位管理</a>
+                            <!-- <a href="contact.html" class="nav-item nav-link">聯繫平台</a> -->
                         </div>
                         <div class="d-flex m-3 me-0">
                             <!-- <button class="btn-search btn border border-secondary btn-md-square rounded-circle bg-white me-4" data-bs-toggle="modal" data-bs-target="#searchModal"><i class="fas fa-search text-primary"></i></button> -->

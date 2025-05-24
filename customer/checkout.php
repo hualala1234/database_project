@@ -190,16 +190,16 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
             }
             ?>
                 <div class="table-responsive">
-                    <table class="table">
+                    <table class="table" style="background-color: #D5E2D8!important; box-shadow: 0px 0px 0px 0px #D5E2D8 !important;">
                         <thead>
                           <tr>
-                            <th scope="col"></th>
-                            <th scope="col">商品名稱</th>
-                            <th scope="col">價錢</th>
-                            <th scope="col">數量</th>
-                            <th scope="col">商品總金額</th>
-                            <th scope="col">特殊指示</th>
-                            <th scope="col"></th>
+                            <th scope="col" style="background-color: #D5E2D8!important;"></th>
+                            <th scope="col" style="background-color: #D5E2D8!important;">商品名稱</th>
+                            <th scope="col" style="background-color: #D5E2D8!important;">價錢</th>
+                            <th scope="col" style="background-color: #D5E2D8!important;">數量</th>
+                            <th scope="col" style="background-color: #D5E2D8!important;">商品總金額</th>
+                            <th scope="col" style="background-color: #D5E2D8!important;">特殊指示</th>
+                            <th scope="col" style="background-color: #D5E2D8!important;"></th>
                           </tr>
                         </thead>
                         <tbody>

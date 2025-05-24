@@ -25,7 +25,7 @@ switch ($role) {
         break;
     case 'd':
         $stmt = $conn->prepare("SELECT * FROM deliveryperson WHERE did = ?");
-        $bankStmt = $conn->prepare("SELECT * FROM mbank WHERE did = ?");
+        $bankStmt = $conn->prepare("SELECT * FROM dbank WHERE did = ?");
         break;
     default:
         die("Invalid role.");
@@ -199,30 +199,39 @@ switch ($role) {
                                     <th style="padding:10px;">Merchant</th>
                                     <th style="padding:10px;">Customer</th>
                                     <th style="padding:10px;">Rating</th>
-                                    <th style="padding:10px;width:50%;">Details</th>
+                                    <th style="padding:10px;width:50%;">Comments</th>
                                 </tr>
                             </thead>
                             <tbody style="font-size: 20px;">';
 
                             while ($row = $result->fetch_assoc()) {
                                 // 安全轉成數字
-                                $rating = isset($row['dRating']) ? (float)$row['dRating'] : 0;
-                                $rating = max(0, min(5, $rating)); // 👉 限制 rating 一定在 0～5 之間
-                        
-                                // 計算星星
-                                $fullStars = (int)floor($rating);
-                                $hasHalfStar = ($rating - $fullStars) >= 0.5;
-                                $emptyStars = 5 - $fullStars - ($hasHalfStar ? 1 : 0);
-                        
-                                $stars = str_repeat('⭐', $fullStars);
-                                if ($hasHalfStar) {
-                                    $stars .= '<img src="./image/half-star.png" alt="half star" style="width:20px; height:20px; margin:0px; padding:0px; vertical-align:middle; padding: 0px 2px 3px 2px;">'; // 半星
+                                $rating = isset($row['dRating']) ? (float)$row['dRating'] : NULL;
+                                if (is_null($rating)) {
+                                    $dStars = '<span style="color:gray;">no rating</span>';
+                                } else {
+                                    $rating = max(0, min(5, $rating)); // 👉 限制 rating 一定在 0～5 之間
+                            
+                                    // 計算星星
+                                    $fullStars = (int)floor($rating);
+                                    $hasHalfStar = ($rating - $fullStars) >= 0.5;
+                                    $emptyStars = 5 - $fullStars - ($hasHalfStar ? 1 : 0);
+                            
+                                    $stars = str_repeat('⭐', $fullStars);
+                                    if ($hasHalfStar) {
+                                        $stars .= '<img src="./image/half-star.png" alt="half star" style="width:20px; height:20px; margin:0px; padding:0px; vertical-align:middle; padding: 0px 2px 3px 2px;">'; // 半星
+                                    }
+                                    // $stars .= str_repeat('☆', $emptyStars);
+                                    $stars .= str_repeat('<img src="./image/star.png" alt="half star" style="width:20px; height:20px; margin:0px; padding:0px; vertical-align:middle; padding: 0px 2px 3px 2px;">', $emptyStars);
                                 }
-                                // $stars .= str_repeat('☆', $emptyStars);
-                                $stars .= str_repeat('<img src="./image/star.png" alt="half star" style="width:20px; height:20px; margin:0px; padding:0px; vertical-align:middle; padding: 0px 2px 3px 2px;">', $emptyStars);
+                                $comment = isset($row['dComment']) ? trim($row['dComment']) : '';
+                                if ($comment === '' || strtolower($comment) === 'null') {
+                                    $comment = 'No comment';
+                                }
+
                         
                                 // 安全處理 comment
-                                $comment = isset($row['dComment']) ? trim($row['dComment']) : '';
+                                // $comment = isset($row['dComment']) ? trim($row['dComment']) : '';
                                 $shortComment = mb_strimwidth($comment, 0, 100, '...');
                                 $safeFullComment = htmlspecialchars($comment, ENT_QUOTES, 'UTF-8'); // ENT_QUOTES 把單雙引號都轉換
                                 $safeShortComment = htmlspecialchars($shortComment, ENT_QUOTES, 'UTF-8');
