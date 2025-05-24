@@ -42,7 +42,7 @@ python face_recognition_login.py
 ```bash
 python app.py
 ```
-前往 `http://localhost:5000/face-login` 即可開始辨識。
+前往 `http://localhost:5050/face-login` 即可開始辨識。
 
 ## 📦 其他說明
 - `haarcascade_frontalface_default.xml` 為 OpenCV 提供的人臉偵測模型，需放在同一目錄。

@@ -232,11 +232,13 @@ function getQueryParam(name) {
   }
   
   // ✅ 更新小計與總金額
+  let platformFeeGlobal = 0;
   let appliedCoupon = null;
   function updateSummary(subtotal) {
 
     currentSubtotal = subtotal; // 儲存未打折前的小計
     let platformFee = Math.ceil(subtotal * 0.05);
+    platformFeeGlobal = platformFee;
     let deliveryFee = 30;
     let total = subtotal + platformFee + deliveryFee;
   
@@ -340,8 +342,8 @@ function getQueryParam(name) {
               cartItems,
               id: couponId,
               cartTime,
-              subtotal: currentSubtotal
-              
+              subtotal: currentSubtotal,
+              platformFee: platformFeeGlobal
             })
           })
           .then(res => {
