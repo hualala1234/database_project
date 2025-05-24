@@ -26,7 +26,7 @@ foreach ($requiredFields as $field) {
         exit;
     }
 }
-
+$platformFee = isset($data['platformFee']) ? intval($data['platformFee']) : 0;
 
 
 
@@ -42,7 +42,21 @@ $couponCode = $data['couponCode'] ?? null;
 $couponId = $data['id'] ?? null;
 $cartTime = $data['cartTime'];
 // ✅ 5. 開始資料庫交易
-
+if ($paymentMethod === 'walletBalance') {
+    $stmt = $conn->prepare("SELECT balance FROM wallet WHERE cid = ?");
+    $stmt->bind_param("i", $cid);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows === 0) {
+        echo json_encode(['success' => false, 'error' => '找不到錢包帳戶']);
+        exit;
+    }
+    $wallet = $result->fetch_assoc();
+    if ($wallet['balance'] < $totalPrice) {
+        echo json_encode(['success' => false, 'error' => '錢包餘額不足，無法完成訂單']);
+        exit;
+    }
+}
 // 先根據 paymentMethod 判斷 cardName 要帶什麼值
 if ($paymentMethod !== 'walletBalance' && $paymentMethod !== 'cashOnDelivery') {
     $cardName = $paymentMethod; // 直接用 paymentMethod 的值
@@ -97,6 +111,12 @@ try {
         $stmt4->bind_param("ii", $totalPrice, $cid);
         $stmt4->execute();
     }
+    // ✅ 9.1 公司帳戶 + 平台手續費
+    $type = 'transaction';  // 固定值
+
+    $stmt = $conn->prepare("INSERT INTO companyaccount (cid, type, increment, time) VALUES (?, ?, ?, CURRENT_TIMESTAMP())");
+    $stmt->bind_param("isi", $cid, $type, $platformFee);
+    $stmt->execute();
 
     // ✅ 10. 刪除該使用者該次時間點的購物車資料
    
