@@ -25,7 +25,7 @@ switch ($role) {
         break;
     case 'd':
         $stmt = $conn->prepare("SELECT * FROM deliveryperson WHERE did = ?");
-        $bankStmt = $conn->prepare("SELECT * FROM mbank WHERE did = ?");
+        $bankStmt = $conn->prepare("SELECT * FROM dbank WHERE did = ?");
         break;
     default:
         die("Invalid role.");

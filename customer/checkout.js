@@ -29,22 +29,22 @@ function getQueryParam(name) {
           subtotal += item.total;
           const tr = document.createElement("tr");
           tr.innerHTML = `
-            <th scope="row">
+            <th scope="row" style="background-color: #D5E2D8!important;">
               <div class="d-flex align-items-center">
                 <img src="../${item.pPicture}" class="img-fluid me-5 rounded-circle" style="width: 80px; height: 80px;" alt="">
               </div>
             </th>
-            <td><p class="my-2">${item.pName}</p></td>
-            <td><p class="my-2">$${item.price}</p></td>
-            <td class="text-center align-middle">
-                <div class="d-flex justify-content-center w-100">
-                    <div class="input-group quantity my-2" style="width: 100px;">
+            <td style="background-color: #D5E2D8!important;"><p class="my-2">${item.pName}</p></td>
+            <td style="background-color: #D5E2D8!important;"><p class="my-2">$${item.price}</p></td>
+            <td class="text-center align-middle" style="background-color: #D5E2D8!important;">
+                <div class="d-flex justify-content-center w-100" style="background-color: #D5E2D8!important;">
+                    <div class="input-group quantity my-2" style="width: 100px;" style="background-color: #D5E2D8!important;">
                         <div class="input-group-btn">
                             <button class="btn btn-sm btn-minus rounded-circle bg-white text-dark" data-pid="${item.pid}">
                             <i class="fa fa-minus"></i>
                             </button>
                         </div>
-                        <input type="text" style="background-color: #D5E2D8;" class="form-control form-control-sm text-center border-0 quantity-input text-dark" value="${item.quantity}" data-pid="${item.pid}">
+                        <input type="text" style="background-color: #D5E2D8;" class="form-control form-control-sm text-center border-0 quantity-input text-dark"  value="${item.quantity}" data-pid="${item.pid}">
                         <div class="input-group-btn">
                             <button class="btn btn-sm btn-plus rounded-circle bg-white text-dark" data-pid="${item.pid}">
                             <i class="fa fa-plus bg-white"></i>
@@ -53,12 +53,12 @@ function getQueryParam(name) {
                     </div>
                 </div>
             </td>
-            <td><p class="my-2 total-price" data-pid="${item.pid}">$${item.total}</p></td>
-            <td>
+            <td style="background-color: #D5E2D8!important;"><p class="my-2 total-price" data-pid="${item.pid}">$${item.total}</p></td>
+            <td style="background-color: #D5E2D8!important;">
               <textarea class="form-control form-control-sm my-1 special-note" 
                         placeholder="輸入備註..." data-pid="${item.pid}">${item.specialNote || ''}</textarea>
             </td>
-            <td>
+            <td style="background-color: #D5E2D8!important;">
               <button class="btn btn-md rounded-circle bg-white border my-2" data-remove="${item.pid}">
                 <i class="fa fa-trash text-danger"></i>
               </button>

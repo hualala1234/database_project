@@ -101,7 +101,6 @@ $result = $stmt->get_result();
                         </a>
                         <a href="../walletAndrecord/m_wallet.php?id=<?php echo $mid; ?>&role=m" class="nav-item nav-link active">接單紀錄</a>
                         <a href="merchant_reservations.php?mid=<?php echo $mid; ?>" class="nav-item nav-link" style="color:#ffb524">訂位管理</a>
-                        <a href="contact.html" class="nav-item nav-link">聯繫平台</a>
                     </div>
                     
                     <div class="d-flex m-3 me-0"> 
@@ -152,7 +151,7 @@ $result = $stmt->get_result();
     <!-- Navbar End -->
 
 <body class="p-4">
-    <h2 class="mb-4">所有訂位紀錄</h2>
+    <h2 class="mb-4" style="margin-top:150px">所有訂位紀錄</h2>
     <?php if ($result->num_rows > 0): ?>
         <table class="table table-bordered">
             <thead>
@@ -187,5 +186,21 @@ $result = $stmt->get_result();
     <?php else: ?>
         <p>目前沒有任何訂位。</p>
     <?php endif; ?>
+
+    <script>
+        function toggleDropdown() {
+
+            const dropdown = document.getElementById("myDropdown");
+            dropdown.classList.toggle("d-none");
+        }
+
+        window.onclick = function(event) {
+            const dropdown = document.getElementById("myDropdown");
+            if (!event.target.closest('.dropdown-custom') && dropdown && !dropdown.classList.contains("d-none")) {
+                dropdown.classList.add("d-none");
+
+            }
+        }
+    </script>
 </body>
 </html>

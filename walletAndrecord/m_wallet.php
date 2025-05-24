@@ -196,7 +196,7 @@ switch ($role) {
                                 <th style="padding:10px;width:15%;">Date</th>
                                 <th style="padding:10px;">Customer</th>
                                 <th style="padding:10px 15px;">Rating</th>
-                                <th style="padding:10px;width:50%;">Details</th>
+                                <th style="padding:10px;width:50%;">Comments</th>
                             </tr>
                         </thead>
                         <tbody style="font-size: 20px;">';
