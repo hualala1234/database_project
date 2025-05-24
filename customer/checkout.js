@@ -44,7 +44,7 @@ function getQueryParam(name) {
                             <i class="fa fa-minus"></i>
                             </button>
                         </div>
-                        <input type="text" style="background-color: #D5E2D8;" class="form-control form-control-sm text-center border-0 quantity-input text-dark"  value="${item.quantity}" data-pid="${item.pid}">
+                        <input type="text" style="background-color: #D5E2D8;" class="form-control form-control-sm text-center border-0 quantity-input text-dark" value="${item.quantity}" data-pid="${item.pid}">
                         <div class="input-group-btn">
                             <button class="btn btn-sm btn-plus rounded-circle bg-white text-dark" data-pid="${item.pid}">
                             <i class="fa fa-plus bg-white"></i>

@@ -1,8 +1,15 @@
 <?php
 include('connect.php');
-$id = $_GET['cid'] ?? null;
+session_start();
+// $id = $_GET['cid'] ?? null;
+$id = $_SESSION["cid"] ?? null;
+$role = $_SESSION["role"] ?? null;
 if (!$id) die("未提供 cid");
 ?>
+<script>
+    console.log("cid: <?php echo htmlspecialchars($id, ENT_QUOTES, 'UTF-8'); ?>");
+    console.log("role: <?php echo htmlspecialchars($role, ENT_QUOTES, 'UTF-8'); ?>");
+</script>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -101,38 +108,58 @@ if (!$id) die("未提供 cid");
                     SELECT t.transactionTime, t.cid, m.mName, t.mRating, t.mComment, d.dpName, t.dRating, t.dComment, t.tranId
                     FROM transaction t
                     LEFT JOIN merchant m ON t.mid = m.mid
-                    INNER JOIN deliveryperson d ON t.did = d.did
+                    LEFT JOIN deliveryperson d ON t.did = d.did
                     WHERE t.cid = $id
                     ORDER BY t.transactionTime DESC
                     ";
                     $result = $conn->query($sql);
                     if ($result && $result->num_rows > 0) {
                     while ($row = $result->fetch_assoc()) {
-                        $mrating = isset($row['mRating']) ? (float)$row['mRating'] : 0;
-                        $drating = isset($row['dRating']) ? (float)$row['dRating'] : 0;
-                        $mfullStars = floor($mrating);
-                        $mhasHalfStar = ($mrating - $mfullStars) >= 0.5;
-                        $memptyStars = 5 - $mfullStars - ($mhasHalfStar ? 1 : 0);
-                        $mStars = str_repeat('⭐', $mfullStars);
-                        if ($mhasHalfStar) $mStars .= '<img src="./image/half-star.png" style="width:20px;height:20px;vertical-align:middle;">';
-                        $mStars .= str_repeat('<img src="./image/star.png" style="width:20px;height:20px;vertical-align:middle;">', $memptyStars);
+                        $mrating = isset($row['mRating']) ? (float)$row['mRating'] : null;
+                        $drating = isset($row['dRating']) ? (float)$row['dRating'] : null;
+                        if($mrating === null) {
+                            $mStars = '<span style="color:gray;">no rating</span>';
+                        }else{
+                            $mfullStars = floor($mrating);
+                            $mhasHalfStar = ($mrating - $mfullStars) >= 0.5;
+                            $memptyStars = 5 - $mfullStars - ($mhasHalfStar ? 1 : 0);
+                            $mStars = str_repeat('⭐', $mfullStars);
+                            if ($mhasHalfStar) $mStars .= '<img src="./image/half-star.png" style="width:20px;height:20px;vertical-align:middle;">';
+                            $mStars .= str_repeat('<img src="./image/star.png" style="width:20px;height:20px;vertical-align:middle;">', $memptyStars);
+                        }
 
-                        $dfullStars = floor($drating);
-                        $dhasHalfStar = ($drating - $dfullStars) >= 0.5;
-                        $demptyStars = 5 - $dfullStars - ($dhasHalfStar ? 1 : 0);
-                        $dStars = str_repeat('⭐', $dfullStars);
-                        if ($dhasHalfStar) $dStars .= '<img src="./image/half-star.png" style="width:20px;height:20px;vertical-align:middle;">';
-                        $dStars .= str_repeat('<img src="./image/star.png" style="width:20px;height:20px;vertical-align:middle;">', $demptyStars);
+                        if ($drating === null) {
+                            $dStars = '<span style="color:gray;">no rating</span>';
+                        } else {
+                            $dfullStars = floor($drating);
+                            $dhasHalfStar = ($drating - $dfullStars) >= 0.5;
+                            $demptyStars = 5 - $dfullStars - ($dhasHalfStar ? 1 : 0);
+                            $dStars = str_repeat('⭐', $dfullStars);
+                            if ($dhasHalfStar) $dStars .= '<img src="./image/half-star.png" style="width:20px;height:20px;vertical-align:middle;">';
+                            $dStars .= str_repeat('<img src="./image/star.png" style="width:20px;height:20px;vertical-align:middle;">', $demptyStars);
+                        }
 
-                        $msafeComment = htmlspecialchars(trim($row['mComment']), ENT_QUOTES, 'UTF-8');
-                        $dsafeComment = htmlspecialchars(trim($row['dComment']), ENT_QUOTES, 'UTF-8');
+                        $mcomment = isset($row['mComment']) ? trim($row['mComment']) : '';
+                        if ($mcomment === '' || strtolower($mcomment) === 'null') {
+                            $mcomment = 'No comment';
+                        }
+                        $dcomment = isset($row['dComment']) ? trim($row['dComment']) : '';
+                        if ($dcomment === '' || strtolower($dcomment) === 'null') {
+                            $dcomment = 'No comment';
+                        }
+
+
+                        // $msafeComment = htmlspecialchars(trim($row['mComment']), ENT_QUOTES, 'UTF-8');
+                        // $dsafeComment = htmlspecialchars(trim($row['dComment']), ENT_QUOTES, 'UTF-8');
+                        $msafeComment = htmlspecialchars($mcomment, ENT_QUOTES, 'UTF-8'); // ✅ 用處理後的值
+                        $dsafeComment = htmlspecialchars($dcomment, ENT_QUOTES, 'UTF-8');
                         $msafeShort = mb_strimwidth($msafeComment, 0, 100, '...');
                         $dsafeShort = mb_strimwidth($dsafeComment, 0, 100, '...');
 
                         echo '<tr>
                                 <td>' . htmlspecialchars($row['tranId']) . '</td>
                                 <td>' . htmlspecialchars($row['transactionTime']) . '</td>
-                                <td>' . htmlspecialchars($row['mName']) . '</td>
+                                <td style="padding: 10px 5px;">' . htmlspecialchars($row['mName']) . '</td>
                                 <td>' . $mStars . '</td>
                                 <td class="comment-cell" style="padding:10px 0px;"
                                     data-full-comment="' . $msafeComment . '" 
@@ -185,87 +212,105 @@ if (!$id) die("未提供 cid");
               <?php
               $walletSql = "SELECT t.transactionTime, t.cid, m.mName, t.mRating, t.mComment, d.dpName, t.dRating, t.dComment, t.tranId
                             FROM transaction t
-                            INNER JOIN merchant m ON t.mId = m.mId
-                            INNER JOIN deliveryperson d ON t.did = d.did
+                            LEFT JOIN merchant m ON t.mId = m.mId
+                            LEFT JOIN deliveryperson d ON t.did = d.did
                             WHERE t.cid = $id AND paymentMethod = 'walletBalance'
                             ORDER BY t.transactionTime DESC";
               $walletResult = $conn->query($walletSql);
+              if (!$walletResult) {
+                            die("SQL Error: " . $conn->error);
+                        }
               if ($result && $result->num_rows > 0) {
                 while ($row = $walletResult->fetch_assoc()) {
                     // 安全轉成數字
-                $mrating = isset($row['mRating']) ? (float)$row['mRating'] : 0;
-                $mrating = max(0, min(5, $mrating));
-            
-                $drating = isset($row['dRating']) ? (float)$row['dRating'] : 0;
-                $drating = max(0, min(5, $drating)); // ⚠️ 原本這邊錯誤寫成使用 $mrating
-            
-                // ⭐ 商家星星計算
-                $mfullStars = (int)floor($mrating);
-                $mhasHalfStar = ($mrating - $mfullStars) >= 0.5;
-                $memptyStars = 5 - $mfullStars - ($mhasHalfStar ? 1 : 0);
-            
-                $mStars = str_repeat('⭐', $mfullStars);
-                if ($mhasHalfStar) {
-                    $mStars .= '<img src="./image/half-star.png" alt="half star" style="width:20px; height:20px; vertical-align:middle;">';
-                }
-                $mStars .= str_repeat('<img src="./image/star.png" alt="empty star" style="width:20px; height:20px; vertical-align:middle;">', $memptyStars);
-            
-                // ⭐ 外送員星星計算（如有需要顯示）
-                $dfullStars = (int)floor($drating);
-                $dhasHalfStar = ($drating - $dfullStars) >= 0.5;
-                $demptyStars = 5 - $dfullStars - ($dhasHalfStar ? 1 : 0);
-            
-                $dStars = str_repeat('⭐', $dfullStars);
-                if ($dhasHalfStar) {
-                    $dStars .= '<img src="./image/half-star.png" alt="half star" style="width:20px; height:20px; vertical-align:middle;">';
-                }
-                $dStars .= str_repeat('<img src="./image/star.png" alt="empty star" style="width:20px; height:20px; vertical-align:middle;">', $demptyStars);
-            
-                // 處理評論
-                $mcomment = isset($row['mComment']) ? trim($row['mComment']) : '';
-                $mshortComment = mb_strimwidth($mcomment, 0, 100, '...');
-                $msafeFullComment = htmlspecialchars($mcomment, ENT_QUOTES, 'UTF-8');
-                $msafeShortComment = htmlspecialchars($mshortComment, ENT_QUOTES, 'UTF-8');
+                    $mrating = isset($row['mRating']) ? (float)$row['mRating'] : NULL;
+                    if (is_null($mrating)) {
+                        $mStars = '<span style="color:gray;">no rating</span>';
+                    } else {
+                    $mrating = max(0, min(5, $mrating));
+                    // ⭐ 商家星星計算
+                    $mfullStars = (int)floor($mrating);
+                    $mhasHalfStar = ($mrating - $mfullStars) >= 0.5;
+                    $memptyStars = 5 - $mfullStars - ($mhasHalfStar ? 1 : 0);
+                
+                    $mStars = str_repeat('⭐', $mfullStars);
+                    if ($mhasHalfStar) {
+                        $mStars .= '<img src="./image/half-star.png" alt="half star" style="width:20px; height:20px; vertical-align:middle;">';
+                    }
+                    $mStars .= str_repeat('<img src="./image/star.png" alt="empty star" style="width:20px; height:20px; vertical-align:middle;">', $memptyStars);
+                    }
+                
+                    $drating = isset($row['dRating']) ? (float)$row['dRating'] : NULL;
+                    if (is_null($drating)) {
+                        $dStars = '<span style="color:gray;">no rating</span>';
+                    } else {
+                    $drating = max(0, min(5, $drating)); // ⚠️ 原本這邊錯誤寫成使用 $mrating
+                    // ⭐ 外送員星星計算（如有需要顯示）
+                    $dfullStars = (int)floor($drating);
+                    $dhasHalfStar = ($drating - $dfullStars) >= 0.5;
+                    $demptyStars = 5 - $dfullStars - ($dhasHalfStar ? 1 : 0);
+                
+                    $dStars = str_repeat('⭐', $dfullStars);
+                    if ($dhasHalfStar) {
+                        $dStars .= '<img src="./image/half-star.png" alt="half star" style="width:20px; height:20px; vertical-align:middle;">';
+                    }
+                    $dStars .= str_repeat('<img src="./image/star.png" alt="empty star" style="width:20px; height:20px; vertical-align:middle;">', $demptyStars);
+                    }
+                
+                    $mcomment = isset($row['mComment']) ? trim($row['mComment']) : '';
+                    if ($mcomment === '' || strtolower($mcomment) === 'null') {
+                        $mcomment = 'No comment';
+                    }
+                    $dcomment = isset($row['dComment']) ? trim($row['dComment']) : '';
+                    if ($dcomment === '' || strtolower($dcomment) === 'null') {
+                        $dcomment = 'No comment';
+                    }
 
-                $dcomment = isset($row['dComment']) ? trim($row['dComment']) : '';
-                $dshortComment = mb_strimwidth($dcomment, 0, 100, '...');
-                $dsafeFullComment = htmlspecialchars($dcomment, ENT_QUOTES, 'UTF-8');
-                $dsafeShortComment = htmlspecialchars($dshortComment, ENT_QUOTES, 'UTF-8');
-            
-                echo '<tr style="transition: background-color 0.3s;">
-                        <td>' . htmlspecialchars($row['tranId']) . '</td>
-                        <td>' . htmlspecialchars($row['transactionTime']) . '</td>
-                        <td>' . htmlspecialchars($row['mName']) . '</td>
-                        <td>' . $mStars . '</td>
-                        <td class="comment-cell" 
-                            style="cursor:pointer; text-decoration:;padding:20px;" 
-                            data-full-comment="' . $msafeFullComment . '" 
-                            data-tid="' . $row['tranId'] . '" 
-                            data-type="mComment">' . $msafeShortComment . '</td>
+                    // 處理評論
+                    // $mcomment = isset($row['mComment']) ? trim($row['mComment']) : '';
+                    $mshortComment = mb_strimwidth($mcomment, 0, 100, '...');
+                    $msafeFullComment = htmlspecialchars($mcomment, ENT_QUOTES, 'UTF-8');
+                    $msafeShortComment = htmlspecialchars($mshortComment, ENT_QUOTES, 'UTF-8');
 
-                        <td>' . htmlspecialchars($row['dpName']) . '</td>
-                        <td>' . $dStars . '</td>
-                        <td class="comment-cell" 
-                            style="cursor:pointer; text-decoration:;padding:20px;" 
-                            data-full-comment="' . $dsafeFullComment . '" 
-                            data-tid="' . $row['tranId'] . '" 
-                            data-type="dComment">' . $dsafeShortComment . '</td>
-                    </tr>';
-                echo '<script>console.log("mComment: ' . $msafeFullComment . '");</script>';
+                    // $dcomment = isset($row['dComment']) ? trim($row['dComment']) : '';
+                    $dshortComment = mb_strimwidth($dcomment, 0, 100, '...');
+                    $dsafeFullComment = htmlspecialchars($dcomment, ENT_QUOTES, 'UTF-8');
+                    $dsafeShortComment = htmlspecialchars($dshortComment, ENT_QUOTES, 'UTF-8');
+                
+                    echo '<tr style="transition: background-color 0.3s;">
+                            <td>' . htmlspecialchars($row['tranId']) . '</td>
+                            <td>' . htmlspecialchars($row['transactionTime']) . '</td>
+                            <td style="padding: 10px 5px;">' . htmlspecialchars($row['mName']) . '</td>
+                            <td>' . $mStars . '</td>
+                            <td class="comment-cell" 
+                                style="cursor:pointer; text-decoration:;padding:20px;" 
+                                data-full-comment="' . $msafeFullComment . '" 
+                                data-tid="' . $row['tranId'] . '" 
+                                data-type="mComment">' . $msafeShortComment . '</td>
+
+                            <td>' . htmlspecialchars($row['dpName']) . '</td>
+                            <td>' . $dStars . '</td>
+                            <td class="comment-cell" 
+                                style="cursor:pointer; text-decoration:;padding:20px;" 
+                                data-full-comment="' . $dsafeFullComment . '" 
+                                data-tid="' . $row['tranId'] . '" 
+                                data-type="dComment">' . $dsafeShortComment . '</td>
+                        </tr>';
+                    echo '<script>console.log("mComment: ' . $msafeFullComment . '");</script>';
+                    }
                 }
-            }
-            else {
-                $cName = 'this customer'; // 預設值（避免 null）
-                $custResult = $conn->query("SELECT cName FROM customer WHERE cid = $id");
-                if ($custResult && $row = $custResult->fetch_assoc()) {
-                    $cName = $row['cName'];
-                }
-                // ✅ 顯示在表格上方
-                echo '<tr><td colspan="8" style="text-align:center; color:gray; font-size:22px; padding:20px;">
-                No transactions found for ' . htmlspecialchars($cName) . '.<br>
-                <span style="font-size:18px;">Go place your order now! 😽 <a href="../customer/index.php">click to order</a></span>
-            </td></tr>';
-            }echo '</tbody></table>';
+                else {
+                    $cName = 'this customer'; // 預設值（避免 null）
+                    $custResult = $conn->query("SELECT cName FROM customer WHERE cid = $id");
+                    if ($custResult && $row = $custResult->fetch_assoc()) {
+                        $cName = $row['cName'];
+                    }
+                    // ✅ 顯示在表格上方
+                    echo '<tr><td colspan="8" style="text-align:center; color:gray; font-size:22px; padding:20px;">
+                    No transactions found for ' . htmlspecialchars($cName) . '.<br>
+                    <span style="font-size:18px;">Go place your order now! 😽 <a href="../customer/index.php">click to order</a></span>
+                </td></tr>';
+                }echo '</tbody></table>';
               ?>
             </tbody>
           </table>
@@ -294,49 +339,66 @@ if (!$id) die("未提供 cid");
                       <tbody style="font-size: 20px;">';
             $t_sql = "SELECT t.transactionTime, t.cid, m.mName, t.mRating, t.mComment, d.dpName, t.dRating, t.dComment, t.tranId
                         FROM transaction t
-                        INNER JOIN merchant m ON t.mId = m.mId
-                        INNER JOIN deliveryperson d ON t.did = d.did
+                        LEFT JOIN merchant m ON t.mId = m.mId
+                        LEFT JOIN deliveryperson d ON t.did = d.did
                         WHERE t.cid=$id AND t.cardName = '$cardId'
                         ORDER BY t.transactionTime DESC";
             $t_result = $conn->query($t_sql);
             if ($t_result && $t_result->num_rows > 0) {
                 while ($t = $t_result->fetch_assoc()) {
                     // 安全轉成數字
-                    $mrating = isset($t['mRating']) ? (float)$t['mRating'] : 0;
-                    $mrating = max(0, min(5, $mrating));
-                
-                    $drating = isset($t['dRating']) ? (float)$t['dRating'] : 0;
-                    $drating = max(0, min(5, $drating)); // ⚠️ 原本這邊錯誤寫成使用 $mrating
-                
-                    // ⭐ 商家星星計算
-                    $mfullStars = (int)floor($mrating);
-                    $mhasHalfStar = ($mrating - $mfullStars) >= 0.5;
-                    $memptyStars = 5 - $mfullStars - ($mhasHalfStar ? 1 : 0);
-                
-                    $mStars = str_repeat('⭐', $mfullStars);
-                    if ($mhasHalfStar) {
-                        $mStars .= '<img src="./image/half-star.png" alt="half star" style="width:20px; height:20px; vertical-align:middle;">';
+                    $mrating = isset($t['mRating']) ? (float)$t['mRating'] : NULL;
+                    if (is_null($mrating)) {
+                        $mStars = '<span style="color:gray;">no rating</span>';
+                    } else {
+                        $mrating = max(0, min(5, $mrating));
+                    
+                        // ⭐ 商家星星計算
+                        $mfullStars = (int)floor($mrating);
+                        $mhasHalfStar = ($mrating - $mfullStars) >= 0.5;
+                        $memptyStars = 5 - $mfullStars - ($mhasHalfStar ? 1 : 0);
+                    
+                        $mStars = str_repeat('⭐', $mfullStars);
+                        if ($mhasHalfStar) {
+                            $mStars .= '<img src="./image/half-star.png" alt="half star" style="width:20px; height:20px; vertical-align:middle;">';
+                        }
+                        $mStars .= str_repeat('<img src="./image/star.png" alt="empty star" style="width:20px; height:20px; vertical-align:middle;">', $memptyStars);
                     }
-                    $mStars .= str_repeat('<img src="./image/star.png" alt="empty star" style="width:20px; height:20px; vertical-align:middle;">', $memptyStars);
                 
-                    // ⭐ 外送員星星計算（如有需要顯示）
-                    $dfullStars = (int)floor($drating);
-                    $dhasHalfStar = ($drating - $dfullStars) >= 0.5;
-                    $demptyStars = 5 - $dfullStars - ($dhasHalfStar ? 1 : 0);
                 
-                    $dStars = str_repeat('⭐', $dfullStars);
-                    if ($dhasHalfStar) {
-                        $dStars .= '<img src="./image/half-star.png" alt="half star" style="width:20px; height:20px; vertical-align:middle;">';
+                    $drating = isset($t['dRating']) ? (float)$t['dRating'] : NULL;
+                    if (is_null($drating)) {
+                        $dStars = '<span style="color:gray;">no rating</span>';
+                    } else {
+                        $drating = max(0, min(5, $drating)); // ⚠️ 原本這邊錯誤寫成使用 $mrating
+                        // ⭐ 外送員星星計算（如有需要顯示）
+                        $dfullStars = (int)floor($drating);
+                        $dhasHalfStar = ($drating - $dfullStars) >= 0.5;
+                        $demptyStars = 5 - $dfullStars - ($dhasHalfStar ? 1 : 0);
+                    
+                        $dStars = str_repeat('⭐', $dfullStars);
+                        if ($dhasHalfStar) {
+                            $dStars .= '<img src="./image/half-star.png" alt="half star" style="width:20px; height:20px; vertical-align:middle;">';
+                        }
+                        $dStars .= str_repeat('<img src="./image/star.png" alt="empty star" style="width:20px; height:20px; vertical-align:middle;">', $demptyStars);
                     }
-                    $dStars .= str_repeat('<img src="./image/star.png" alt="empty star" style="width:20px; height:20px; vertical-align:middle;">', $demptyStars);
+                    $mcomment = isset($row['mComment']) ? trim($row['mComment']) : '';
+                    if ($mcomment === '' || strtolower($mcomment) === 'null') {
+                        $mcomment = 'No comment';
+                    }
+                    $dcomment = isset($row['dComment']) ? trim($row['dComment']) : '';
+                    if ($dcomment === '' || strtolower($dcomment) === 'null') {
+                        $dcomment = 'No comment';
+                    }
+
                 
                     // 處理評論
-                    $mcomment = isset($t['mComment']) ? trim($t['mComment']) : '';
+                    // $mcomment = isset($t['mComment']) ? trim($t['mComment']) : '';
                     $mshortComment = mb_strimwidth($mcomment, 0, 100, '...');
                     $msafeFullComment = htmlspecialchars($mcomment, ENT_QUOTES, 'UTF-8');
                     $msafeShortComment = htmlspecialchars($mshortComment, ENT_QUOTES, 'UTF-8');
 
-                    $dcomment = isset($t['dComment']) ? trim($t['dComment']) : '';
+                    // $dcomment = isset($t['dComment']) ? trim($t['dComment']) : '';
                     $dshortComment = mb_strimwidth($dcomment, 0, 100, '...');
                     $dsafeFullComment = htmlspecialchars($dcomment, ENT_QUOTES, 'UTF-8');
                     $dsafeShortComment = htmlspecialchars($dshortComment, ENT_QUOTES, 'UTF-8');
@@ -344,7 +406,7 @@ if (!$id) die("未提供 cid");
                     echo '<tr style="transition: background-color 0.3s;">
                             <td>' . htmlspecialchars($t['tranId']) . '</td>
                             <td>' . htmlspecialchars($t['transactionTime']) . '</td>
-                            <td>' . htmlspecialchars($t['mName']) . '</td>
+                            <td style="padding: 10px 5px;">' . htmlspecialchars($t['mName']) . '</td>
                             <td>' . $mStars . '</td>
                             <td class="comment-cell" 
                                 style="cursor:pointer; text-decoration:;padding:20px;" 

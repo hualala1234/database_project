@@ -203,23 +203,31 @@ switch ($role) {
 
                         while ($row = $result->fetch_assoc()) {
                             // 安全轉成數字
-                            $rating = isset($row['mRating']) ? (float)$row['mRating'] : 0;
-                            $rating = max(0, min(5, $rating)); // 👉 限制 rating 一定在 0～5 之間
-                    
-                            // 計算星星
-                            $fullStars = (int)floor($rating);
-                            $hasHalfStar = ($rating - $fullStars) >= 0.5;
-                            $emptyStars = 5 - $fullStars - ($hasHalfStar ? 1 : 0);
-                    
-                            $stars = str_repeat('⭐', $fullStars);
-                            if ($hasHalfStar) {
-                                $stars .= '<img src="./image/half-star.png" alt="half star" style="width:20px; height:20px; margin:0px; padding:0px; vertical-align:middle; padding: 0px 2px 3px 2px;">'; // 半星
+                            $rating = isset($row['mRating']) ? (float)$row['mRating'] : NULL;
+                            if (is_null($rating)) {
+                                $stars = '<span style="color:gray;">no rating</span>';
+                            } else {
+                                $rating = max(0, min(5, $rating)); // 👉 限制 rating 一定在 0～5 之間
+                        
+                                // 計算星星
+                                $fullStars = (int)floor($rating);
+                                $hasHalfStar = ($rating - $fullStars) >= 0.5;
+                                $emptyStars = 5 - $fullStars - ($hasHalfStar ? 1 : 0);
+                        
+                                $stars = str_repeat('⭐', $fullStars);
+                                if ($hasHalfStar) {
+                                    $stars .= '<img src="./image/half-star.png" alt="half star" style="width:20px; height:20px; margin:0px; padding:0px; vertical-align:middle; padding: 0px 2px 3px 2px;">'; // 半星
+                                }
+                                // $stars .= str_repeat('☆', $emptyStars);
+                                $stars .= str_repeat('<img src="./image/star.png" alt="half star" style="width:20px; height:20px; margin:0px; padding:0px; vertical-align:middle; padding: 0px 2px 3px 2px;">', $emptyStars);
                             }
-                            // $stars .= str_repeat('☆', $emptyStars);
-                            $stars .= str_repeat('<img src="./image/star.png" alt="half star" style="width:20px; height:20px; margin:0px; padding:0px; vertical-align:middle; padding: 0px 2px 3px 2px;">', $emptyStars);
+                            $comment = isset($row['mComment']) ? trim($row['mComment']) : '';
+                            if ($comment === '' || strtolower($comment) === 'null') {
+                                $comment = 'No comment';
+                            }
                     
                             // 安全處理 comment
-                            $comment = isset($row['mComment']) ? trim($row['mComment']) : '';
+                            // $comment = isset($row['mComment']) ? trim($row['mComment']) : '';
                             $shortComment = mb_strimwidth($comment, 0, 100, '...');
                             $safeFullComment = htmlspecialchars($comment, ENT_QUOTES, 'UTF-8'); // ENT_QUOTES 把單雙引號都轉換
                             $safeShortComment = htmlspecialchars($shortComment, ENT_QUOTES, 'UTF-8');
@@ -229,7 +237,7 @@ switch ($role) {
                                     <td>' . htmlspecialchars($row['cName']) . '</td>
                                     <td style="width:25%">' . $stars . '</td>
                                     <td class="comment-cell"  
-                                        style="cursor:pointer; text-decoration:;padding:20px;" 
+                                        style="cursor:pointer; text-decoration:;padding:15px 5px;" 
                                         data-full-comment=\'' . $safeFullComment . '\'>' . $safeShortComment . '</td>
                                 </tr>';
                                 

@@ -31,42 +31,42 @@ if ($platIdExists && $emailExists) {
     echo "
         <div style='border: 2px solid red; padding: 10px; color: red;'>
             <strong>此email已被註冊</strong>
-            <strong>4秒後返回登入頁面</strong>
+            <strong>返回登入頁面</strong>
         </div>
     ";
     echo "
             <script>
                 setTimeout(function() {
                     window.history.back();
-                }, 4000); // 4000 毫秒＝4 秒
+                }, 1500); // 1500 毫秒＝1.5 秒
             </script>
         ";
 } elseif ($platIdExists) {
     echo "
         <div style='border: 2px solid red; padding: 10px; color: red;'>
             <strong>此使用者id已被註冊</strong>
-            <strong>4秒後返回登入頁面</strong>
+            <strong>返回登入頁面</strong>
         </div>
     ";
     echo "
             <script>
                 setTimeout(function() {
                     window.history.back();
-                }, 4000); // 4000 毫秒＝4 秒
+                }, 1500); // 1500 毫秒＝1.5 秒
             </script>
         ";
 } elseif ($emailExists) {
     echo "
         <div style='border: 2px solid red; padding: 10px; color: red;'>
             <strong>此email已被註冊</strong>
-            <strong>4秒後返回登入頁面</strong>
+            <strong>返回登入頁面</strong>
         </div>
     ";
     echo "
             <script>
                 setTimeout(function() {
                     window.history.back();
-                }, 4000); // 4000 毫秒＝4 秒
+                }, 1500); // 1500 毫秒＝1.5 秒
             </script>
         ";
 } else {
@@ -103,11 +103,11 @@ if ($platIdExists && $emailExists) {
 
     if ($stmt->execute()) {
         echo "
-            <h2 style='color: green;'>註冊成功！2 秒後將自動跳轉到登入頁面。</h2>
+            <h2 style='color: green;'>註冊成功！1.5 秒後將自動跳轉到登入頁面。</h2>
             <script>
                 setTimeout(function() {
                     window.location.href = 'system_blog.php';
-                }, 2000); // 2000 毫秒＝2 秒
+                }, 1500); // 1500 毫秒＝1.5 秒
             </script>
         ";
         exit;

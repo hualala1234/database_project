@@ -122,7 +122,7 @@ if (!empty($row['businessHours'])) {
                                     </span>
                                 <?php endif; ?>
                             </a>
-                            <a href="../walletAndrecord/m_wallet.php?id=<?php echo $mid; ?>&role=m" class="nav-item nav-link ">接單紀錄</a>
+                            <a href="../walletAndrecord/m_wallet.php?id=<?php echo $mid; ?>&role=m" class="nav-item nav-link">接單紀錄</a>
 
                             <!-- <div class="nav-item dropdown">
                                 <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
@@ -134,6 +134,7 @@ if (!empty($row['businessHours'])) {
                                 </div>
                             </div> -->
                             <a href="merchant_reservations.php?mid=<?php echo $mid; ?>" class="nav-item nav-link" >訂位管理</a>
+                            <!-- <a href="contact.html" class="nav-item nav-link">聯繫平台</a> -->
                         </div>
                         
                         <div class="d-flex m-3 me-0"> 

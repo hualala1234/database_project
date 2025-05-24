@@ -636,7 +636,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['mid'])) {
 
 
         <!-- Vesitable Shop Start-->
-        <div class="container-fluid vesitable py-5">
+        <!-- <div class="container-fluid vesitable py-5">
             <div class="container py-5">
                 <h1 class="mb-0">Fresh Organic Vegetables</h1>
                 <div class="owl-carousel vegetable-carousel justify-content-center">
@@ -754,12 +754,12 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['mid'])) {
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
         <!-- Vesitable Shop End -->
 
 
         <!-- Banner Section Start-->
-        <div class="container-fluid banner bg-secondary my-5">
+        <!-- <div class="container-fluid banner bg-secondary my-5">
             <div class="container py-5">
                 <div class="row g-4 align-items-center">
                     <div class="col-lg-6">
@@ -784,12 +784,12 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['mid'])) {
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
         <!-- Banner Section End -->
 
 
         <!-- Bestsaler Product Start -->
-        <div class="container-fluid py-5">
+        <!-- <div class="container-fluid py-5">
             <div class="container py-5">
                 <div class="text-center mx-auto mb-5" style="max-width: 700px;">
                     <h1 class="display-4">Bestseller Products</h1>
@@ -992,12 +992,12 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['mid'])) {
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
         <!-- Bestsaler Product End -->
 
 
         <!-- Fact Start -->
-        <div class="container-fluid py-5">
+        <!-- <div class="container-fluid py-5">
             <div class="container">
                 <div class="bg-light p-5 rounded">
                     <div class="row g-4 justify-content-center">
@@ -1032,12 +1032,12 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['mid'])) {
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
         <!-- Fact Start -->
 
 
         <!-- Tastimonial Start -->
-        <div class="container-fluid testimonial py-5">
+        <!-- <div class="container-fluid testimonial py-5">
             <div class="container py-5">
                 <div class="testimonial-header text-center">
                     <h4 class="text-primary">Our Testimonial</h4>
@@ -1121,12 +1121,12 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['mid'])) {
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
         <!-- Tastimonial End -->
 
 
         <!-- Footer Start -->
-        <div class="container-fluid bg-dark text-white-50 footer pt-5 mt-5">
+        <!-- <div class="container-fluid bg-dark text-white-50 footer pt-5 mt-5">
             <div class="container py-5">
                 <div class="pb-4 mb-4" style="border-bottom: 1px solid rgba(226, 175, 24, 0.5) ;">
                     <div class="row g-4">
@@ -1195,7 +1195,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['mid'])) {
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
         <!-- Footer End -->
 
         
@@ -1523,15 +1523,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['mid'])) {
                     <button class="btn btn-outline-primary my-2 me-2" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOrder<?= $order['tranId'] ?>">
                         顯示訂單明細
                     </button>
-                    <?php if (
-                        ($deliveryStatus === 'accept' || $deliveryStatus === 'arrived' ||
-                        $status === 'takeaway') 
-                        // 配送中或已送達時顯示外送員名稱
-                    ): ?>
-                        <a href="generate_pdf.php?tranId=<?= $order['tranId'] ?>" target="_blank" class="btn btn-danger my-2">
-                        下載 PDF
-                        </a>
-                    <?php endif; ?>
+                    
                     
 
                     <div class="collapse" id="collapseOrder<?= $order['tranId'] ?>">

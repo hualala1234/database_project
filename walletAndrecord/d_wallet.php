@@ -81,7 +81,7 @@ switch ($role) {
                             if ($id) {
                                 // 查詢本月外送員收入（加總 totalPrice）
                                 $stmt = $conn->prepare("
-                                    SELECT COUNt(totalPrice) AS income
+                                    SELECT COUNt(totalPrice) AS orderCount
                                     FROM transaction
                                     WHERE did = ? 
                                     AND MONTH(transactionTime) = MONTH(CURDATE())
@@ -93,8 +93,9 @@ switch ($role) {
 
                                 $income = 0;
                                 if ($row = $result->fetch_assoc()) {
-                                    $income = $row['income'] ?? 0;
+                                    $orderCount = $row['orderCount'] ?? 0;
                                 }
+                                $income = $orderCount * 30; // 假設每筆訂單收入 30 NTD
 
                                 echo htmlspecialchars($income) . ' NTD';
                                 $stmt->close();
@@ -174,15 +175,21 @@ switch ($role) {
                 <?php
                 include('connect.php');
 
-                // 查詢 transaction + merchant 資料
+                // 查詢 transaction + dpman 資料
                 $sql = "
-                SELECT t.transactionTime, d.mName, d.dRating, t.dComment, t.cid, c.cName
+                SELECT t.transactionTime, d.dpName, t.dRating, t.dComment, t.cid, c.cName, m.mName
                 FROM transaction t
                 INNER JOIN deliveryperson d ON t.did = d.did
                 INNER JOIN customer c ON t.cid = c.cid
+                INNER JOIN merchant m ON t.mid = m.mid
                 WHERE d.did = $id
                 ORDER BY t.transactionTime DESC";
                 $result = $conn->query($sql);
+
+                if (!$result) {
+                    echo 'SQL Error: ' . $conn->error;
+                }
+
 
                 if ($result && $result->num_rows > 0) {
                     echo '<table style="width:100%; border-collapse:collapse;">
@@ -192,37 +199,46 @@ switch ($role) {
                                     <th style="padding:10px;">Merchant</th>
                                     <th style="padding:10px;">Customer</th>
                                     <th style="padding:10px;">Rating</th>
-                                    <th style="padding:10px;width:50%;">Details</th>
+                                    <th style="padding:10px;width:50%;">Comments</th>
                                 </tr>
                             </thead>
                             <tbody style="font-size: 20px;">';
 
                             while ($row = $result->fetch_assoc()) {
                                 // 安全轉成數字
-                                $rating = isset($row['dRating']) ? (float)$row['dRating'] : 0;
-                                $rating = max(0, min(5, $rating)); // 👉 限制 rating 一定在 0～5 之間
-                        
-                                // 計算星星
-                                $fullStars = (int)floor($rating);
-                                $hasHalfStar = ($rating - $fullStars) >= 0.5;
-                                $emptyStars = 5 - $fullStars - ($hasHalfStar ? 1 : 0);
-                        
-                                $stars = str_repeat('⭐', $fullStars);
-                                if ($hasHalfStar) {
-                                    $stars .= '<img src="./image/half-star.png" alt="half star" style="width:20px; height:20px; margin:0px; padding:0px; vertical-align:middle; padding: 0px 2px 3px 2px;">'; // 半星
+                                $rating = isset($row['dRating']) ? (float)$row['dRating'] : NULL;
+                                if (is_null($rating)) {
+                                    $dStars = '<span style="color:gray;">no rating</span>';
+                                } else {
+                                    $rating = max(0, min(5, $rating)); // 👉 限制 rating 一定在 0～5 之間
+                            
+                                    // 計算星星
+                                    $fullStars = (int)floor($rating);
+                                    $hasHalfStar = ($rating - $fullStars) >= 0.5;
+                                    $emptyStars = 5 - $fullStars - ($hasHalfStar ? 1 : 0);
+                            
+                                    $stars = str_repeat('⭐', $fullStars);
+                                    if ($hasHalfStar) {
+                                        $stars .= '<img src="./image/half-star.png" alt="half star" style="width:20px; height:20px; margin:0px; padding:0px; vertical-align:middle; padding: 0px 2px 3px 2px;">'; // 半星
+                                    }
+                                    // $stars .= str_repeat('☆', $emptyStars);
+                                    $stars .= str_repeat('<img src="./image/star.png" alt="half star" style="width:20px; height:20px; margin:0px; padding:0px; vertical-align:middle; padding: 0px 2px 3px 2px;">', $emptyStars);
                                 }
-                                // $stars .= str_repeat('☆', $emptyStars);
-                                $stars .= str_repeat('<img src="./image/star.png" alt="half star" style="width:20px; height:20px; margin:0px; padding:0px; vertical-align:middle; padding: 0px 2px 3px 2px;">', $emptyStars);
+                                $comment = isset($row['dComment']) ? trim($row['dComment']) : '';
+                                if ($comment === '' || strtolower($comment) === 'null') {
+                                    $comment = 'No comment';
+                                }
+
                         
                                 // 安全處理 comment
-                                $comment = isset($row['dComment']) ? trim($row['dComment']) : '';
+                                // $comment = isset($row['dComment']) ? trim($row['dComment']) : '';
                                 $shortComment = mb_strimwidth($comment, 0, 100, '...');
                                 $safeFullComment = htmlspecialchars($comment, ENT_QUOTES, 'UTF-8'); // ENT_QUOTES 把單雙引號都轉換
                                 $safeShortComment = htmlspecialchars($shortComment, ENT_QUOTES, 'UTF-8');
 
                                 echo '<tr style="transition: background-color 0.3s;">
                                         <td>' . htmlspecialchars($row['transactionTime']) . '</td>
-                                        <td>' . htmlspecialchars($row['dName']) . '</td>
+                                        <td>' . htmlspecialchars($row['mName']) . '</td>
                                         <td>' . htmlspecialchars($row['cName']) . '</td>
                                         <td>' . $stars . '</td>
                                         <td class="comment-cell"  

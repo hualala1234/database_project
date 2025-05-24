@@ -99,7 +99,7 @@ $stmt->close()
                         <div class="collapse navbar-collapse bg-white" id="navbarCollapse">
                             <div class="navbar-nav mx-auto">
                                 <a href="delivery_index.php?did=<?php echo $did; ?>" class="nav-item nav-link">現有訂單</a>
-                                <a href="delivery_order.php?did=<?php echo $did; ?>" class="nav-item nav-link position-relative">
+                                <a href="delivery_order.php?did=<?php echo $did; ?>" class="nav-item nav-link position-relative active" >
                                     已接單
                                     <?php if ($newOrderCount > 0): ?>
                                         <span class="position-absolute bg-warning rounded-circle d-flex align-items-center justify-content-center text-dark fw-bold"
