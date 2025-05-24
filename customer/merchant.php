@@ -11,6 +11,9 @@ if ($cid !== '') {
     $sql = "SELECT * FROM Customer WHERE cid = $cid";
     $result = mysqli_query($conn, $sql);
     $userRow = mysqli_fetch_array($result);
+
+    // --- 新增這行，存一下預設地址
+    $defaultAddress = $row['address'] ?? '尚未設定預設';
 }
 
 $storeCount = 0;
@@ -2830,17 +2833,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                     <div class="modal-body">
                         <select class="form-select" name="selected_address_id" id="addressSelect">
-                            <?php
-                            $sql = "SELECT address_id, address_text FROM caddress WHERE cid = ?";
-                            $stmt = $conn->prepare($sql);
-                            $stmt->bind_param("i", $cid); // 假設有 cid session
-                            $stmt->execute();
-                            $result = $stmt->get_result();
-                            while ($row = $result->fetch_assoc()) {
-                            echo '<option value="' . $row['address_id'] . '">' . htmlspecialchars($row['address_text']) . '</option>';
-                            }
-                            ?>
-                        </select>
+                          <?php
+                          // 1) 先顯示 customer table 裡的預設地址 (value 0)
+                          $sql0 = "SELECT address FROM customer WHERE cid = ?";
+                          $stmt0 = $conn->prepare($sql0);
+                          $stmt0->bind_param("i", $cid);
+                          $stmt0->execute();
+                          $res0 = $stmt0->get_result();
+                          if ($row0 = $res0->fetch_assoc()) {
+                              echo '<option value="0">'
+                                  . htmlspecialchars($row0['address'])
+                                  . '（預設地址）'
+                                  . '</option>';
+                          }
+                          $stmt0->close();
+
+                          // 2) 再跑原本的子地址
+                          $sql = "SELECT address_id, address_text FROM caddress WHERE cid = ?";
+                          $stmt = $conn->prepare($sql);
+                          $stmt->bind_param("i", $cid);
+                          $stmt->execute();
+                          $result = $stmt->get_result();
+                          while ($row = $result->fetch_assoc()) {
+                              echo '<option value="'
+                                  . $row['address_id']
+                                  . '">'
+                                  . htmlspecialchars($row['address_text'])
+                                  . '</option>';
+                          }
+                          $stmt->close();
+                          ?>
+                      </select>
                     </div>
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-primary">使用此地址</button>
