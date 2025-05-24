@@ -107,7 +107,7 @@ $stmt->close();
                                         </span>
                                     <?php endif; ?>
                                 </a>
-                                <a href="../walletAndrecord/d_wallet.php?id=<?php echo $did; ?>&role=d" class="nav-item nav-link active">接單紀錄</a>
+                                <a href="../walletAndrecord/d_wallet.php?id=<?php echo $did; ?>&role=d" class="nav-item nav-link">接單紀錄</a>
                                 <!-- <a href="menu.php?mid=<?php echo $mid; ?>" class="nav-item nav-link">菜單管理</a>
                                 <a href="order.php?mid=<?= $mid; ?>" class="nav-item nav-link position-relative">
                                     訂單
