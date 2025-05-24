@@ -206,3 +206,6 @@ if __name__ == '__main__':
 # py -m pip install tf-keras
 # python -m site
 # py -m pip install pymysql
+
+
+# C:\Users\clair\AppData\Local\Programs\Python\Python311\python.exe app.py

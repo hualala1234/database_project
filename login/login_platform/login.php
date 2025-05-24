@@ -28,7 +28,7 @@ if ($_SERVER["REQUEST_METHOD"]=="POST"){
             $platid = $user['platId'];
 
             // 跳回原本頁面
-            header("Location: ../../customer/index.php?platid=$platid");
+            header("Location: ../../walletAndrecord/all_record.php?platid=$platid");
             exit();
         } 
         else {
