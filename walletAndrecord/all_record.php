@@ -15,7 +15,7 @@
     </div>
     <!-- 右半部 -->
     <div id="right_container">
-        <h2 class="word" style="font-size:28px; letter-spacing:2px; text-align: center; ">Fulfill Order</h2>
+        <h2 class="word" style="font-size:28px; letter-spacing:2px; text-align: center; ">All Order</h2>
         <div id="transaction_list" style="display:flex; justify-content:flex-start;">
 
         <?php
@@ -25,10 +25,9 @@
         $sql = "
             SELECT t.transactionTime, m.mName, t.mRating, t.mComment, d.dpName, t.dRating, t.dComment, t.tranId, t.orderStatus
             FROM transaction t
-            INNER JOIN merchant m ON t.mId = m.mId
-            INNER JOIN deliveryperson d ON t.did = d.did
+            LEFT JOIN merchant m ON t.mId = m.mId
+            LEFT JOIN deliveryperson d ON t.did = d.did
             ORDER BY t.transactionTime DESC
-            WHERE t.orderStatus = 'done'
         ";
         $result = $conn->query($sql);
 
