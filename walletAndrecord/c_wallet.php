@@ -4,6 +4,17 @@ session_start();
 $id = $_SESSION['cid'] ?? 0;
 $role = $_GET['role'] ?? null;
 
+// 檢查該使用者是否已有錢包
+$walletCheckSql = "SELECT * FROM wallet WHERE cid = '$id' AND role = 'c'";
+$walletCheckResult = $conn->query($walletCheckSql);
+
+if ($walletCheckResult->num_rows == 0) {
+    // 若不存在，則建立 wallet 資料（初始餘額為 0）
+    $createWalletSql = "INSERT INTO wallet (cid,role, balance) VALUES ('$id','c', 0)";
+    $conn->query($createWalletSql);
+    echo "create wallet";
+}
+
 // 查詢餘額
 $balance = 0;
 if ($id) {
@@ -49,6 +60,12 @@ while ($row = $res->fetch_assoc()) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./c_wallet.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,710;1,710&family=Poetsen+One&family=Raleway:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100..900;1,100..900&family=Poetsen+One&family=Raleway:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Raleway:wght@600;800&display=swap" rel="stylesheet"> 
     <script src="./c_wallet.js" defer></script>
     <title>Customer Wallet</title>
@@ -56,9 +73,24 @@ while ($row = $res->fetch_assoc()) {
 <body>
     <div id="out_block">
         <div class="block1">
+            <style>
+                body{
+                    /* font-family: "Poetsen One", sans-serif;
+                    font-weight: 300;
+                    font-style: normal; */
+                }
+                .logo{
+                    margin-left: 10px;
+                }
+                .logo:hover{
+                    scale: 1.1;
+                }
+            </style>
+            <!-- <a href="../customer/index.php" class="navbar-brand"><img class="logo" src="./image/logo.png" alt="logo"  height="100"></a> -->
             <a href="../customer/index.php" class="logo" style="text-decoration:none;"><h1>Junglebite</h1></a>
-            <img id="wallet" src="./image/wallet.png" alt="wallet icon" width="30" height="30">
-            <h1>Wallet</h1><span style="font-size: 22px; margin: 0px; margin-left: 30px;">Welcome to your wallet!</span>
+            <!-- <img id="wallet" src="./image/wallet.png" alt="wallet icon" width="30" height="30"> -->
+            <!-- <h1>Wallet</h1> -->
+            <span style="font-size: 22px; margin: 0px; margin-left: 30px;">Welcome to your wallet!</span>
         </div>
         <div class="balance" data-card-id="balance" style="margin-top: 30px;">
             <img id="piggy" src="./image/piggy.png" alt="piggy icon" width="40px" height="40px">
@@ -256,9 +288,9 @@ if (savedDepositSelect.value === '') newDepositFields.style.display = 'block';
 if (savedWithdrawSelect.value === '') newWithdrawFields.style.display = 'block';
 
 limitInputDigits(document.getElementById('deposit-bankCode'), 3);
-limitInputDigits(document.getElementById('deposit-accountNumber'), 12);
+limitInputDigits(document.getElementById('deposit-accountNumber'), 16);
 limitInputDigits(document.getElementById('withdraw-bankCode'), 3);
-limitInputDigits(document.getElementById('withdraw-accountNumber'), 12);
+limitInputDigits(document.getElementById('withdraw-accountNumber'), 16);
 
 updateFormattedAccount(
     document.getElementById('deposit-bankCode'),

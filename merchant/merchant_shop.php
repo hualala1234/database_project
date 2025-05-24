@@ -111,10 +111,8 @@ if (!empty($row['businessHours'])) {
                     <div class="collapse navbar-collapse bg-white" id="navbarCollapse">
                         <div class="navbar-nav mx-auto">
                             <!-- <a href="index.php" class="nav-item nav-link active">Home</a> -->
-                            <a href="merchant_shop.php?mid=<?php echo $mid; ?>" class="nav-item nav-link">店面資訊</a>
+                            <a href="merchant_shop.php?mid=<?php echo $mid; ?>" class="nav-item nav-link" style="color:#ffb524">店面資訊</a>
                             <a href="menu.php?mid=<?php echo $mid; ?>" class="nav-item nav-link">菜單管理</a>
-
-
                             <a href="order.php?mid=<?= $mid; ?>" class="nav-item nav-link position-relative">
                                 訂單
                                 <?php if ($newOrderCount > 0): ?>
@@ -124,6 +122,7 @@ if (!empty($row['businessHours'])) {
                                     </span>
                                 <?php endif; ?>
                             </a>
+                            <a href="../walletAndrecord/m_wallet.php?id=<?php echo $mid; ?>&role=m" class="nav-item nav-link active">接單紀錄</a>
 
                             <!-- <div class="nav-item dropdown">
                                 <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
@@ -134,6 +133,7 @@ if (!empty($row['businessHours'])) {
                                     <a href="404.html" class="dropdown-item">404 Page</a>
                                 </div>
                             </div> -->
+                            <a href="merchant_reservations.php?mid=<?php echo $mid; ?>" class="nav-item nav-link" >訂位管理</a>
                             <a href="contact.html" class="nav-item nav-link">聯繫平台</a>
                         </div>
                         
@@ -217,30 +217,10 @@ if (!empty($row['businessHours'])) {
                                 $resultCategories = mysqli_query($conn, $sqlCategories);
                                 ?>
 
-                                <div class="form-group py-3">
-                                    <div class="text-center mb-2">
-                                        <label class="form-label text-dark" style="font-size: 1.75rem; font-weight:bold;">選擇類別</label>
-                                        <span style="color: red;">*</span>
-                                    </div>
+                                
 
-                                    <div style="display:flex; flex-wrap: wrap;">
-                                    <?php
-                                        // 抓所有可用的類別
-                                        while ($category = mysqli_fetch_assoc($resultCategories)):
-                                            $categoryId = $category['categoryId'];
-                                            $categoryName = $category['categoryName'];
-                                            $checked = in_array($categoryId, $currentCategories) ? "checked" : "";
-                                    ?>
-                                        <div class="col-md-2 form-check" style=" display:flex; flex-wrap: wrap; gap:0.3rem; justify-content: center;">
-                                            <input class="form-check-input"  type="checkbox" name="restaurantCategories[]" value="<?= $categoryId ?>" id="cat_<?= $categoryId ?>" <?= $checked ?>>
-                                            <label class="form-check-label" for="cat_<?= $categoryId ?>"><?= $categoryName ?></label>
-                                        </div>
-                                    <?php endwhile; ?>
-                                    </div>
-                                </div>
-
-
-
+<div id="block" style="display: flex;justify-content: space-evenly;margin-bottom: 60px;">
+    <div id="block1" style="width: 600px;padding: 0 60px;">
                                 <div class="py-3">
                                     <div style="display:flex; justify-content: center;">
                                         <h3>商店名稱</h3>
@@ -275,6 +255,28 @@ if (!empty($row['businessHours'])) {
                                     <input style="font-size: 1.5em; font-weight: bold;" type="file" class="form-control" name="ImageUpload">
                                 </div>
               
+</div><div id="block2" style="width: 650px;">
+                                <div class="form-group py-3">
+                                    <div class="text-center mb-2">
+                                        <label class="form-label text-dark" style="font-size: 1.75rem; font-weight:bold;">選擇類別</label>
+                                        <span style="color: red;">*</span>
+                                    </div>
+
+                                    <div style="display:flex; flex-wrap: wrap;font-size: 20px;">
+                                    <?php
+                                        // 抓所有可用的類別
+                                        while ($category = mysqli_fetch_assoc($resultCategories)):
+                                            $categoryId = $category['categoryId'];
+                                            $categoryName = $category['categoryName'];
+                                            $checked = in_array($categoryId, $currentCategories) ? "checked" : "";
+                                    ?>
+                                        <div class="col-md-2 form-check" style=" display:flex; flex-wrap: wrap; gap:0.3rem; justify-content: center;">
+                                            <input class="form-check-input"  type="checkbox" name="restaurantCategories[]" value="<?= $categoryId ?>" id="cat_<?= $categoryId ?>" <?= $checked ?>>
+                                            <label class="form-check-label" for="cat_<?= $categoryId ?>"><?= $categoryName ?></label>
+                                        </div>
+                                    <?php endwhile; ?>
+                                    </div>
+                                </div>
 
                                
                                 <div class="container mt-5">
@@ -324,7 +326,7 @@ if (!empty($row['businessHours'])) {
                                                 </div>
                                                 <?php endforeach; ?>
                                             </div>
-
+</div></div>
                                             <div class="modal-footer">
                                                 <!-- 關鍵：這裡不要用 submit，Modal 關閉即可 -->
                                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>

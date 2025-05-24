@@ -161,7 +161,7 @@ body {
     </div>
     <div class="container px-0">
         <nav class="navbar navbar-light bg-white navbar-expand-xl">
-            <a href="../../customer/index.php?cid=<?php echo $cid; ?>" class="navbar-brand"><h1 class="text-primary display-6">Junglebite過敏設定</h1></a>
+            <a href="../../customer/index.php?cid=<?php echo $cid; ?>" class="navbar-brand"><h1 class="text-primary display-6">Junglebite個人設定</h1></a>
 
             <!-- <a href="merchant_shop.php?mid=< ?php echo $mid; ?>" class="navbar-brand"><h1 class="text-primary display-6">Junglebite 個人設定</h1></a> -->
             <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
@@ -192,7 +192,9 @@ body {
                                 <a href="../walletAndrecord/c_wallet.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">錢包</a>
                                 <a href="../walletAndrecord/c_record.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">交易紀錄</a>
                                 <a href="../customer/friends.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">我的好友</a>
-                                <a href="/database_project/customer/reservation.php" class="dropdown-item">我要訂位</a>
+                                <a href="../wheel/wheel.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">命運轉盤</a>
+                                <a href="../customer/myfavorite.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item text-decoration-none">我的愛店</a>
+                                    
                             <?php elseif ($_SESSION['role'] === 'd'): ?>
                                 <a href="/database/customer/setting.php" class="dropdown-item">外送員設定</a>
                             <?php elseif ($_SESSION['role'] === 'platform'): ?>

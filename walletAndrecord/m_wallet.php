@@ -1,8 +1,10 @@
 <?php
 include('connect.php'); // 連線資料庫
-
+session_start();
+$id = $_SESSION['mid'] ?? NULL;
+// $role = $_SESSION['role'] ?? null;
 // 抓取 URL 中的 id 和 role
-$id = $_GET['id'] ?? null;
+// $id = $_GET['id'] ?? null;
 $role = $_GET['role'] ?? null;
 
 if (!$id || !$role) {
@@ -56,11 +58,28 @@ switch ($role) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./m_wallet.css">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Raleway:wght@600;800&display=swap" rel="stylesheet"> 
     <script src="./m_wallet.js" type="text/javascript"></script>
     <title>Wallet</title>
 </head>
+<style>
+    .logo h1{
+    margin-left: 30px;
+    text-decoration: none !important;
+    color: black !important;
+    font-size: calc(1.375rem + 1.5vw);
+    font-weight: 800;
+    line-height: 1.2;
+    font-size: calc(1.375rem + 1.5vw);
+    margin-top: 0;
+    margin-bottom: .5rem;
+    font-family: "Raleway", sans-serif;
+    border-bottom: none;
+}
+</style>
 <body>
 <div class="block1">
+    <a href="../merchant/merchant_shop.php" class="logo" style="text-decoration:none;"><h1>Junglebite</h1></a>
         <img id="wallet" src="./image/wallet.png" alt="wallet icon" width="30" height="30">
         <h1>Marchent Wallet</h1>
         <!-- <span style="font-size: 22px; margin: 0px; margin-left: 30px;">Welcome to your wallet!</span> -->
@@ -122,7 +141,14 @@ switch ($role) {
                         echo '<p style="margin:0;">Number: ' . htmlspecialchars($row['accountNumber']) . '</p>';
                         echo '</div>';
                     } else {
-                        echo '<p>No bank info found.</p>';
+                        // echo '<p>No bank info found.</p>';
+                        echo '<a href="addBank.php?id=' . htmlspecialchars(urlencode($id)) . '&role=' . htmlspecialchars(urlencode($role)) . '" style="text-decoration: none;text-align: center;">
+                                <div class="bank-info card" style="background-color: #f0f0f0; color: #333;">
+                                    <p class="c_title" style="font-size: 22px; margin: 0;margin-top:10px; font-weight: bold;padding-top:25px;">
+                                        Click to Add<br> Salary Account
+                                    </p>
+                                </div>
+                            </a>';
                     }
                     ?>
                 </div>

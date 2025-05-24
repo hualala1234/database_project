@@ -76,7 +76,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['face_login']) && isse
         $_SESSION['email'] = $user['email'];
         $_SESSION['login_success'] = "登入成功！";
         $_SESSION['role'] = 'c';
+        $cid = $user['cid']; // ← 加上這行
+        
+        // 檢查該使用者是否已有錢包
+        $walletCheckSql = "SELECT * FROM wallet WHERE cid = '$cid' AND role = 'c'";
+        $walletCheckResult = $conn->query($walletCheckSql);
+
+        if ($walletCheckResult->num_rows == 0) {
+            // 若不存在，則建立 wallet 資料（初始餘額為 0）
+            $createWalletSql = "INSERT INTO wallet (cid,role, balance) VALUES ('$cid','c', 0)";
+            $conn->query($createWalletSql);
+            echo "create wallet";
+        }
+
         echo "face login success";
+        
         exit();
     } else {
         http_response_code(401);

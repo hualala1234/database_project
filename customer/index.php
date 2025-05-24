@@ -13,23 +13,7 @@ if ($cid !== '') {
     $row = mysqli_fetch_array($result);
     
 }
-// ✅ 預設不是 VIP
-$isVIP = false;
-$vipImage = './vip.png';
 
-if (!empty($cid)) {
-    $sql = "SELECT vipTime FROM customer WHERE cid = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $cid);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if ($row = $result->fetch_assoc()) {
-        if (!is_null($row['vipTime'])) {
-            $isVIP = true;
-            $vipImage = './is_vip.png';
-        }
-    }
-}
 
 $storeCount = 0;
 if (isset($_SESSION['cid'], $_SESSION['cartTime'])) {
@@ -56,12 +40,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_address_id']
         $_SESSION['current_address'] = $row['address_text']; // 更新 session 地址
     }
     // 重定向回 index.php，讓頁面更新
-    header("Location: merchant.php");
+
+    header("Location: index.php?cid=<?=$cid?>");
+
     exit;
+    $stmt->close();
 }
 
 // 取得目前使用的地址（如果有從 modal 選擇過）
 $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選擇地址');
+
+// ✅ 預設不是 VIP
+$isVIP = false;
+$vipImage = './vip.png';
+
+if (!empty($cid)) {
+    $sql = "SELECT vipTime FROM customer WHERE cid = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $cid);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($row = $result->fetch_assoc()) {
+        if (!is_null($row['vipTime'])) {
+            $isVIP = true;
+            $vipImage = './is_vip.png';
+        }
+    }
+}
+// echo $row['vipTime'];
+// echo "cid",$cid;
 
 //訂單進度
 $sql = "
@@ -154,7 +161,16 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['mid'])) {
             </div>
             <div class="container px-0">
                 <nav class="navbar navbar-light bg-white navbar-expand-xl">
-                    <a href="index.php?cid=<?php echo $cid; ?>" class="navbar-brand"><h1 class="text-primary display-6">Junglebite</h1></a>
+                    <style>
+                        .logo{
+                            margin-left: 10px;
+                        }
+                        .logo:hover{
+                            scale: 1.1;
+                        }
+                    </style>
+                    <a href="index.php?cid=<?php echo $cid; ?>" class="navbar-brand"><img class="logo" src="../image/logo.png" alt="logo"  height="100"></a>
+                    <!-- <a href="index.php?cid=<?php echo $cid; ?>" class="navbar-brand"><h1 class="text-primary display-6">Junglebite</h1></a> -->
                     <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                         <span class="fa fa-bars text-primary"></span>
                     </button>
@@ -252,6 +268,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['mid'])) {
                                         <a href="../walletAndrecord/c_record.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">交易紀錄</a>
                                         <a href="../customer/friends.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">我的好友</a>
                                         <a href="../wheel/wheel.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">命運轉盤</a>
+                                        <a href="../customer/myfavorite.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item text-decoration-none">我的愛店</a>
                                         <a href="/database_project/customer/reservation.php" class="dropdown-item">我要訂位</a>
                                     <?php elseif ($_SESSION['role'] === 'd'): ?>
                                         <a href="/database/customer/setting.php" class="dropdown-item">外送員設定</a>
@@ -349,6 +366,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['mid'])) {
                    
                 </div>
 
+                
                 <div class="tab-content">
                     <!-- 所有商品 -->
                      <?php
