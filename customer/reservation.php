@@ -124,9 +124,7 @@ $months   = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','
                         <?php if (isset($_SESSION['login_success'])): ?>
                         <!-- ✅ 已登入的顯示 -->
                         <div class="dropdown" style="position: relative; display: inline-block;">
-                            <a href="<?php echo $mid === 0 ? 'index.php' : 'merchant.php?mid=' . $mid; ?>">
-                                <img src="shop.png" width="40" height="40" alt="shop" style="margin-right:10px">
-                            </a>
+                            
                             <a href="javascript:void(0);" class="my-auto" onclick="toggleDropdown()">
                                 <img src="  ../login/success.png" alt="Success" style="width: 40px; height: 40px; filter: brightness(0) saturate(100%) invert(42%) sepia(91%) saturate(356%) hue-rotate(71deg) brightness(94%) contrast(92%);">
                             </a>

@@ -244,7 +244,7 @@ function getQueryParam(name) {
   let platformFeeGlobal = 0;
   let appliedCoupon = null;
   // 把 platformFee 變成全域變數，或傳給 SubmitOrder 函式
-  let platformFeeGlobal = 0;
+
   function updateSummary(subtotal) {
 
     currentSubtotal = subtotal; // 儲存未打折前的小計
