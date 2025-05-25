@@ -47,7 +47,7 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>FoodMart - Free eCommerce Grocery Store HTML Website Template</title>
+        <title>JungleBite</title>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -103,8 +103,7 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
         </div>
         <div class="container px-0">
             <nav class="navbar navbar-light bg-white navbar-expand-xl">
-                <a href="index.php?cid=<?php echo $cid; ?>" class="navbar-brand"><img class="logo" src="../image/logo.png" alt="logo"  height="100"></a>
-            <!-- <a href="index.php?cid=<?php echo $cid; ?>" class="navbar-brand"><h1 class="text-primary display-6">Junglebite</h1></a> -->
+            <a href="index.php?cid=<?php echo $cid; ?>" class="navbar-brand"><h1 class="text-primary display-6">Junglebite</h1></a>
             <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                 <span class="fa fa-bars text-primary"></span>
             </button>
@@ -194,13 +193,13 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
                     <table class="table" style="background-color: #D5E2D8!important; box-shadow: 0px 0px 0px 0px #D5E2D8 !important;">
                         <thead>
                           <tr>
-                            <th scope="col" style="background-color: #D5E2D8!important;"></th>
-                            <th scope="col" style="background-color: #D5E2D8!important;">商品名稱</th>
-                            <th scope="col" style="background-color: #D5E2D8!important;">價錢</th>
-                            <th scope="col" style="background-color: #D5E2D8!important;">數量</th>
-                            <th scope="col" style="background-color: #D5E2D8!important;">商品總金額</th>
-                            <th scope="col" style="background-color: #D5E2D8!important;">特殊指示</th>
-                            <th scope="col" style="background-color: #D5E2D8!important;"></th>
+                            <th style="background-color: #D5E2D8!important;" scope="col"></th>
+                            <th style="background-color: #D5E2D8!important;" scope="col">商品名稱</th>
+                            <th style="background-color: #D5E2D8!important;" scope="col">價錢</th>
+                            <th style="background-color: #D5E2D8!important;" scope="col">數量</th>
+                            <th style="background-color: #D5E2D8!important;" scope="col">商品總金額</th>
+                            <th style="background-color: #D5E2D8!important;" scope="col">特殊指示</th>
+                            <th style="background-color: #D5E2D8!important;" scope="col"></th>
                           </tr>
                         </thead>
                         <tbody>
@@ -228,7 +227,7 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
                                 <ul class="dropdown-menu" aria-labelledby="couponDropdown">
                                     <?php
                                     // 撈出該使用者的所有優惠券
-                                    $query = "SELECT coupon_id, message, code FROM coupon WHERE cid = ? AND used = 1";
+                                    $query = "SELECT coupon_id, message, code FROM coupon WHERE cid = ? AND used = 0 AND qualified = 1 AND is_expired = 0";
                                     $stmt = $conn->prepare($query);
                                     $stmt->bind_param("i", $cid);
                                     $stmt->execute();
