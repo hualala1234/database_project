@@ -8,8 +8,8 @@ session_start();
 
 // 取得商家 ID 並撈取商家資訊
 $mid = isset($_SESSION['mid']) ? intval($_SESSION['mid']) : 0;
-$restaurantName     = '示例飯店';
-$address            = '臺北市中正區示例路123號';
+$restaurantName     = '您尚未選擇店家';
+$address            = '未知店家地址';
 $deposit            = 500;
 $businessHours      = '無資料';
 if ($mid) {
@@ -124,8 +124,8 @@ $months   = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','
                         <?php if (isset($_SESSION['login_success'])): ?>
                         <!-- ✅ 已登入的顯示 -->
                         <div class="dropdown" style="position: relative; display: inline-block;">
-                            <a href="merchant.php?mid=<?php echo $mid; ?>">
-                                <img src="shop.png" width="40" height="40" alt="shop">
+                            <a href="<?php echo $mid === 0 ? 'index.php' : 'merchant.php?mid=' . $mid; ?>">
+                                <img src="shop.png" width="40" height="40" alt="shop" style="margin-right:10px">
                             </a>
                             <a href="javascript:void(0);" class="my-auto" onclick="toggleDropdown()">
                                 <img src="  ../login/success.png" alt="Success" style="width: 40px; height: 40px; filter: brightness(0) saturate(100%) invert(42%) sepia(91%) saturate(356%) hue-rotate(71deg) brightness(94%) contrast(92%);">
@@ -151,9 +151,6 @@ $months   = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','
                                     <a href="/database/customer/setting.php" class="dropdown-item">平台設定</a>
                                 <?php endif; ?>
                                     <a href="/database_project/login/login_customer/logout.php" class="dropdown-item">Logout</a>
-
-
-
                             </div>
                         </div>
                         <?php else: ?>

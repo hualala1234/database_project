@@ -141,7 +141,8 @@ $result = $stmt->get_result();
                                     <a href="../walletAndrecord/c_record.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">交易紀錄</a>
                                     <a href="friends.php" class="dropdown-item">我的好友</a>
                                     <a href="../wheel/wheel.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item text-decoration-none">命運轉盤</a>
-                                    <a href="/database_project/customer/reservation.php" class="dropdown-item">我要訂位</a>
+                                    <a href="/database_project/customer/reservation.php?panel=history" class="dropdown-item">我的訂位</a>
+
                                 <?php elseif ($_SESSION['role'] === 'd'): ?>
                                     <a href="/database/customer/setting.php" class="dropdown-item">外送員設定</a>
                                 <?php elseif ($_SESSION['role'] === 'platform'): ?>

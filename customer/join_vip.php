@@ -30,10 +30,14 @@ $setVip = $conn->prepare("UPDATE customer SET vipTime = NOW() WHERE cid = ?");
 $setVip->bind_param("i", $cid);
 $setVip->execute();
 
+
 // 4. companyaccount +499
 $addrecord = $conn->prepare("INSERT INTO companyaccount (cid, type, increment, time) VALUES (?, 'vip', 499, NOW())");
 $addrecord->bind_param("i", $cid);
 $addrecord->execute();
+
+
+// 4. 回傳成功
 
 // 5. 新增交易紀錄
 // $addtrans = $conn->prepare("INSERT INTO transaction (cid, type, amount, time) VALUES (?, 'vip', 499, NOW())");
@@ -41,4 +45,5 @@ $addrecord->execute();
 // $addtrans->execute();
 
 // 6. 回傳成功
+
 echo json_encode(['success' => true, 'message' => 'VIP 加入成功']);
