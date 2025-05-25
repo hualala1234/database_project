@@ -233,12 +233,15 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
                                     <?php if ($_SESSION['role'] === 'merchant'): ?>
                                         <a href="/database/merchant/setting.php" class="dropdown-item">商家設定</a>
                                     <?php elseif ($_SESSION['role'] === 'c'): ?>
-                                        <a href="/database/customer/setting.php" class="dropdown-item">個人設定</a>
-                                        <a href="/database_project/allergy/allergy.php" class="dropdown-item">過敏設定</a>
-                                        <a href="../claw_machine/claw.php" class="dropdown-item">優惠券活動</a>
+                                        <a href="../login/login_customer/setting.php?cid=<?php echo $cid; ?>" class="dropdown-item">個人設定</a>
+                                        <a href="/database_project/allergy/allergy.php?cid=<?php echo $cid; ?>" class="dropdown-item">過敏設定</a>
+                                        <a href="../claw_machine/claw.php?cid=<?php echo $cid; ?>" class="dropdown-item">優惠券活動</a>
                                         <a href="../walletAndrecord/c_wallet.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">錢包</a>
                                         <a href="../walletAndrecord/c_record.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">交易紀錄</a>
-                                        <a href="friends.php" class="dropdown-item">我的好友</a>
+                                        <a href="../customer/friends.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">我的好友</a>
+                                        <a href="../wheel/wheel.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">命運轉盤</a>
+                                        <a href="../customer/myfavorite.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item text-decoration-none">我的愛店</a>
+                                        <a href="/database_project/customer/reservation.php?panel=history" class="dropdown-item">我的訂位</a>
                                     <?php elseif ($_SESSION['role'] === 'delivery_person'): ?>
                                         <a href="/database/customer/setting.php" class="dropdown-item">外送員設定</a>
                                     <?php elseif ($_SESSION['role'] === 'platform'): ?>
