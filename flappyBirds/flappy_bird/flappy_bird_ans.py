@@ -51,9 +51,9 @@ def record_score(score):
     message = f"{discount}% 折扣優惠" if discount > 0 else "未獲得優惠"
 
     cursor.execute("""
-        INSERT INTO Coupon (cid, discount, created_at, game_score, qualified, used,game, message)
-        VALUES (%s, %s, NOW(), %s, %s, FALSE,%s, %s)
-    """, (cid, discount, score, qualified,2,message))
+        INSERT INTO Coupon (cid, discount, created_at, game_score, qualified, used,game, message, code)
+        VALUES (%s, %s, NOW(), %s, %s, FALSE,%s, %s, %s)
+    """, (cid, discount, score, qualified,2,message,discount))
     conn.commit()
 
     if qualified and score > 0:
