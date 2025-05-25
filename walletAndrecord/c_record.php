@@ -87,7 +87,7 @@ if (!$id) die("未提供 cid");
       <div id="transaction_list">
 
         <!-- 全部交易 -->
-        <div id="transaction_all" style="display:block;">
+        <div id="transaction_all" style="display:block; overflow-y:auto;padding-bottom: 10px;height: 500px;">
             <h2 class="word" style="text-align:center;">History Transactions ( <span>All Transactions</span> )</h2>
             <table>
                 <thead style="font-size: 22px;">
@@ -195,7 +195,7 @@ if (!$id) die("未提供 cid");
 
 
         <!-- 錢包交易 -->
-        <div class="transaction_group" id="transaction_balance" style="display:none;">
+        <div class="transaction_group" id="transaction_balance" style="display:none;overflow-y:auto;padding-bottom: 10px;height: 500px;">
             <h2 class="word" style="text-align:center;">History Transactions ( <span>Wallet Balance</span> )</h2>
           <table>
             <thead style="font-size: 22px;">
@@ -325,7 +325,7 @@ if (!$id) die("未提供 cid");
         $cardResult = $conn->query("SELECT DISTINCT cardName FROM card WHERE cid = $id");
         while ($card = $cardResult->fetch_assoc()) {
             $cardId = $card['cardName'];
-            echo '<div class="transaction_group" id="transaction_' . $cardId . '" style="display:none;">
+            echo '<div class="transaction_group" id="transaction_' . $cardId . '" style="display:none;overflow-y:auto;padding-bottom: 10px;height: 500px;">
                     <h2 class="word" style="text-align:center;">History Transactions ( <span> ' . htmlspecialchars($cardId) . '</span> )</h2>
                     <table>
                       <thead style="font-size: 22px;">
