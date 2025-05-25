@@ -116,7 +116,10 @@ function getQueryParam(name) {
     
     let deliveryFee = 30;
     let discountRate = 1;
-    
+    if (!code) {
+        console.warn("⚠️ applyCoupon 被呼叫但沒有收到有效的 code！");
+        return;
+    }
     if (code === "CLAWWIN15") {
         discountRate = 0.85;
     } else if (code === "CLAWWIN30") {
@@ -125,8 +128,15 @@ function getQueryParam(name) {
         discountRate = 0.8;
     } else if (code === "CLAWSHIP") {
         deliveryFee = 0;
+    } else {
+      const parsed = parseInt(code); // 嘗試將 code 轉成整數
+      if (!isNaN(parsed)) {
+          discountRate = 1 - (parsed / 100); // 例如 15 => 0.85
+      }
     }
     
+    
+    console.log("Code input:", code, "Type:", typeof code);  // 檢查是字串還是數字
     const discountedSubtotal = Math.round(currentSubtotal * discountRate);
     const platformFee = Math.ceil(discountedSubtotal * 0.05);  // 使用打折後的小計計算平台費
     const total = discountedSubtotal + platformFee + deliveryFee;
@@ -134,7 +144,7 @@ function getQueryParam(name) {
     // ✅ 顯示原價與折扣價
     const subtotalSpan = document.querySelector(".subtotal");
     const originalSubtotalSpan = document.querySelector(".original-subtotal");
-    if (discountRate !== 1) {
+    if (discountRate < 1) {
         originalSubtotalSpan.textContent = `$${currentSubtotal}`;
         originalSubtotalSpan.classList.remove("d-none");  // 顯示原價並劃掉
         originalSubtotalSpan.style.textDecoration = "line-through"; // 加上劃線效果

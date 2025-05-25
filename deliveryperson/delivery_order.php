@@ -407,7 +407,7 @@ $stmt->close()
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
     <script src="search_order.js"></script>
     <!-- 引入 google map API -->
-    <!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBTVTFQCTTjWiWW9w0OmIE5_OfyfrekW6E"></script> -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBTVTFQCTTjWiWW9w0OmIE5_OfyfrekW6E"></script>
     <script>
     function initMapForOrder(tranId, origin, destination) {
         const mapElement = document.getElementById("map_" + tranId);

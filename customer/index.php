@@ -1757,7 +1757,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['mid'])) {
     <script src="../js/main.js"></script>
     <script src="cart.js"></script>
     <!-- google map api -->
-    <!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBTVTFQCTTjWiWW9w0OmIE5_OfyfrekW6E"></script> -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBTVTFQCTTjWiWW9w0OmIE5_OfyfrekW6E"></script>
     <script>
     function geocodeAddress(address, callback) {
         const geocoder = new google.maps.Geocoder();
