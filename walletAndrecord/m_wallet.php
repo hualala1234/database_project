@@ -6,10 +6,8 @@ $id = $_SESSION['mid'] ?? NULL;
 // 抓取 URL 中的 id 和 role
 // $id = $_GET['id'] ?? null;
 $role = $_GET['role'] ?? null;
-
-if (!$id || !$role) {
-    die("Missing ID or role in URL.");
-}
+$id = $_GET['id'];
+$role = $_GET['role'];
 
 $user = null;
 $wallet = null;
@@ -22,6 +20,7 @@ switch ($role) {
     case 'm':
         $stmt = $conn->prepare("SELECT * FROM merchant WHERE mid = ?");
         $bankStmt = $conn->prepare("SELECT * FROM mbank WHERE mid = ?");
+        $_SESSION['mid'] = $id;
         break;
     case 'd':
         $stmt = $conn->prepare("SELECT * FROM deliveryperson WHERE did = ?");
@@ -153,8 +152,11 @@ switch ($role) {
                     ?>
                 </div>
                 
-                <h3>今年收入表</h3>
-                <div class="visualize_graph"></div>
+                <h3>收入狀況</h3>
+                <div class="visualize_graph" style="background-color: #ffffff;">
+                    <canvas id="merchantChart" width="120%" height="100%"></canvas>
+                </div>
+                <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> -->
             </div>  
 
         <!-- 右半部 -->
@@ -173,7 +175,7 @@ switch ($role) {
                 echo "Welcome, " . $merchant . "!";
             ?>
             </h2>
-            <div id="transaction_list" style="display:flex; justify-content:flex-start;">
+            <div id="transaction_list" style="display:flex; justify-content:flex-start; overflow-y:auto;padding-bottom: 10px;height: 750px;">
 
             <?php
             include('connect.php');
@@ -361,5 +363,85 @@ switch ($role) {
         });
     });
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        const mid = urlParams.get('id');  // ← 從網址參數抓 mid
+
+        if (!mid) {
+            alert("找不到商家 ID");
+            return;
+        }
+
+        fetch("get_merchant_data.php?mid=" + mid)
+            .then(response => response.json())
+            .then(data => {
+            console.log("回傳資料", data);
+            
+            if (!Array.isArray(data) || data.length === 0) {
+                console.warn("No data returned");
+                return;
+            }
+
+        const labels = data.map(row => row.date);
+        const transactionCounts = data.map(row => parseInt(row.transaction_count));
+        const ratings = data.map(row => parseFloat(row.avg_rating));
+
+        const ctx = document.getElementById('merchantChart');
+        if (!ctx) {
+            console.error("Canvas element not found");
+            return;
+        }
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+            labels: labels,
+            datasets: [
+                {
+                type: 'bar',
+                label: '交易次數',
+                data: transactionCounts,
+                yAxisID: 'y'
+                },
+                {
+                type: 'line',
+                label: '平均評分',
+                data: ratings,
+                yAxisID: 'y1'
+                }
+            ]
+            },
+            options: {
+            responsive: true,
+            scales: {
+                y: {
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: '交易次數'
+                }
+                },
+                y1: {
+                beginAtZero: true,
+                position: 'right',
+                min: 0,
+                max: 5,
+                title: {
+                    display: true,
+                    text: '平均評分'
+                },
+                grid: {
+                    drawOnChartArea: false
+                }
+                }
+            }
+            }
+        });
+        });
+    });
+</script>
+
 </body>
 </html>

@@ -138,7 +138,9 @@ switch ($role) {
                 
                 
                 <h3>今年收入表</h3>
-                <div class="visualize_graph"></div>
+                <div class="visualize_graph" style="background-color: #ffffff;">
+                    <canvas id="deliveryChart" width="120%" height="100%"></canvas>
+                </div>
                 
                 <!-- <div class="cards"> -->
                     <!-- <div id="card1" class="card">
@@ -171,7 +173,7 @@ switch ($role) {
                 echo "Welcome, " . $deliveryName . "!";
             ?>
             </h2> 
-            <div id="transaction_list" style="display:flex; justify-content:flex-start;">
+            <div id="transaction_list" style="display:flex; justify-content:flex-start; overflow-y:auto;">
                 <?php
                 include('connect.php');
 
@@ -324,5 +326,76 @@ switch ($role) {
         });
     });
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    const did = urlParams.get('id');  // 抓取外送員 id（從 URL 的 ?id=...）
+
+    if (!did) {
+        alert("找不到外送員 ID");
+        return;
+    }
+
+    fetch("get_delivery_data.php?did=" + did)
+        .then(res => res.json())
+        .then(data => {
+        if (!Array.isArray(data) || data.length === 0) {
+            document.querySelector(".visualize_graph").innerHTML += "<p style='color:red;'>⚠️ 查無評分或配送紀錄</p>";
+            return;
+        }
+
+        const labels = data.map(d => d.date);
+        const deliveryCounts = data.map(d => parseInt(d.delivery_count));
+        const ratings = data.map(d => parseFloat(d.avg_rating));
+
+        const ctx = document.getElementById("deliveryChart").getContext("2d");
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+            labels: labels,
+            datasets: [
+                {
+                label: '配送次數',
+                data: deliveryCounts,
+                yAxisID: 'y'
+                },
+                {
+                label: '平均評分',
+                data: ratings,
+                yAxisID: 'y1',
+                type: 'line'
+                }
+            ]
+            },
+            options: {
+            responsive: true,
+            scales: {
+                y: {
+                beginAtZero: true,
+                title: { display: true, text: '配送次數' }
+                },
+                y1: {
+                beginAtZero: true,
+                position: 'right',
+                min: 0,
+                max: 5,
+                title: { display: true, text: '平均評分' },
+                grid: { drawOnChartArea: false }
+                }
+            },
+            plugins: {
+                title: {
+                display: true,
+                text: '每日配送與評分統計'
+                }
+            }
+            }
+        });
+        });
+    });
+    </script>
+
 </body>
 </html>
