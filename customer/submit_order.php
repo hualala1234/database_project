@@ -2,6 +2,8 @@
 session_start();
 require_once '../dbh.php';
 header('Content-Type: application/json');
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 
 // ✅ 1. 檢查是否登入
 if (!isset($_SESSION['cid'])) {
@@ -27,7 +29,7 @@ foreach ($requiredFields as $field) {
     }
 }
 
-
+$platformFee = isset($data['platformFee']) ? intval($data['platformFee']) : 0;
 
 
 
@@ -41,8 +43,23 @@ $cartItems = $data['cartItems']; // 購物車項目
 $couponCode = $data['couponCode'] ?? null;
 $couponId = $data['id'] ?? null;
 $cartTime = $data['cartTime'];
-// ✅ 5. 開始資料庫交易
 
+// ✅ 5. 開始資料庫交易
+if ($paymentMethod === 'walletBalance') {
+    $stmt = $conn->prepare("SELECT balance FROM wallet WHERE cid = ?");
+    $stmt->bind_param("i", $cid);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows === 0) {
+        echo json_encode(['success' => false, 'error' => '找不到錢包帳戶']);
+        exit;
+    }
+    $wallet = $result->fetch_assoc();
+    if ($wallet['balance'] < $totalPrice) {
+        echo json_encode(['success' => false, 'error' => '錢包餘額不足，無法完成訂單']);
+        exit;
+    }
+}
 // 先根據 paymentMethod 判斷 cardName 要帶什麼值
 if ($paymentMethod !== 'walletBalance' && $paymentMethod !== 'cashOnDelivery') {
     $cardName = $paymentMethod; // 直接用 paymentMethod 的值
@@ -51,6 +68,7 @@ if ($paymentMethod !== 'walletBalance' && $paymentMethod !== 'cashOnDelivery') {
     $cardName = null; // 其他狀況給 null
 }
 $conn->begin_transaction();
+
 
 
 try {
@@ -98,14 +116,22 @@ try {
         $stmt4->execute();
     }
 
-    // ✅ 10. 刪除該使用者該次時間點的購物車資料
+    
+    // ✅ 10. 插入 companyaccount 表
+    $type = 'transaction';  // 固定值
+
+    $stmt = $conn->prepare("INSERT INTO companyaccount (cid, type, increment, time) VALUES (?, ?, ?, CURRENT_TIMESTAMP())");
+    $stmt->bind_param("isi", $cid, $type, $platformFee);
+    $stmt->execute();
+
+    // ✅ 11. 刪除該使用者該次時間點的購物車資料
    
     $stmt = $conn->prepare("DELETE FROM CartItem WHERE cid = ? AND cartTime = ? AND mid = ?");
     $stmt->bind_param("isi", $cid, $cartTime, $mid);
     $stmt->execute();
 
 
-    // ✅ 11. 提交交易
+    // ✅ 10. 提交交易
     $conn->commit();
     echo json_encode(['success' => true]);
 

@@ -81,7 +81,8 @@ $cid = $_SESSION['cid'] ?? null;
                                     <a href="../customer/friends.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">我的好友</a>
                                     <!-- <a href="../wheel/wheel.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">命運轉盤</a> -->
                                     <a href="../customer/myfavorite.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item text-decoration-none">我的愛店</a>
-                                    <a href="/database_project/customer/reservation.php" class="dropdown-item">我要訂位</a>
+                                    <a href="/database_project/customer/reservation.php?panel=history" class="dropdown-item">我的訂位</a>
+
                                 <?php elseif ($_SESSION['role'] === 'd'): ?>
                                     <a href="/database/customer/setting.php" class="dropdown-item">外送員設定</a>
                                 <?php elseif ($_SESSION['role'] === 'platform'): ?>
@@ -107,7 +108,7 @@ $cid = $_SESSION['cid'] ?? null;
     <!-- Navbar End -->
 
     <div class="header">
-        <h1>WINNER</h1>
+        <h1>今天我想來點</h1>
         <p id="winner">NONE</p>
     </div>
     <div class="wheel">

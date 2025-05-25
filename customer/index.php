@@ -29,24 +29,34 @@ if (isset($_SESSION['cid'], $_SESSION['cartTime'])) {
 
 // 處理表單提交更新地址
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_address_id'])) {
+    $selected = $_POST['selected_address_id'];
 
-    $selected_address_id = $_POST['selected_address_id'];
-    // 根據選擇的地址 ID 更新 session 中的地址
-    $sql = "SELECT address_text FROM caddress WHERE address_id = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $selected_address_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if ($row = $result->fetch_assoc()) {
-        $_SESSION['current_address'] = $row['address_text']; // 更新 session 地址
+    if ($selected === '0') {
+        // 讀預設地址（customer.address）
+        $stmt = $conn->prepare("SELECT address FROM customer WHERE cid = ?");
+        $stmt->bind_param("i", $cid);
+        $stmt->execute();
+        $stmt->bind_result($addr);
+        $stmt->fetch();
+        $_SESSION['current_address'] = $addr;
+        $stmt->close();
+    } else {
+        // 讀子地址（caddress.address_text）
+        $aid = intval($selected);
+        $stmt = $conn->prepare("SELECT address_text FROM caddress WHERE address_id = ?");
+        $stmt->bind_param("i", $aid);
+        $stmt->execute();
+        $stmt->bind_result($addr);
+        $stmt->fetch();
+        $_SESSION['current_address'] = $addr;
+        $stmt->close();
     }
-    // 重定向回 index.php，讓頁面更新
 
-    header("Location: index.php?cid=<?=$cid?>");
-
+    // 重導回去，請注意要用 PHP 拼變數
+    header("Location: index.php?cid=" . $cid);
     exit;
-    $stmt->close();
 }
+
 
 // 取得目前使用的地址（如果有從 modal 選擇過）
 $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選擇地址');
@@ -270,7 +280,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['mid'])) {
                                         <a href="../customer/friends.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">我的好友</a>
                                         <a href="../wheel/wheel.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item">命運轉盤</a>
                                         <a href="../customer/myfavorite.php?cid=<?php echo $cid; ?>&role=c" class="dropdown-item text-decoration-none">我的愛店</a>
-                                        <a href="/database_project/customer/reservation.php" class="dropdown-item">我要訂位</a>
+                                        <a href="/database_project/customer/reservation.php?panel=history" class="dropdown-item">我的訂位</a>
                                     <?php elseif ($_SESSION['role'] === 'd'): ?>
                                         <a href="/database/customer/setting.php" class="dropdown-item">外送員設定</a>
                                     <?php elseif ($_SESSION['role'] === 'platform'): ?>
