@@ -376,7 +376,7 @@ $orders = $result->fetch_all(MYSQLI_ASSOC);
                                         $sqlAll = "
                                             SELECT 
                                                 m.*, 
-                                                GROUP_CONCAT(rcl.categoryName SEPARATOR ', ') AS categoryNames,
+                                                GROUP_CONCAT(DISTINCT rcl.categoryName SEPARATOR ', ') AS categoryNames,
                                                 COUNT(DISTINCT t.tranId) AS additionalRatingCount,
                                                 COALESCE(AVG(t.mRating), 0) AS additionalRatingAvg,
                                                 (
