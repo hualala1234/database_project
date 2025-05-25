@@ -173,7 +173,7 @@ switch ($role) {
                 echo "Welcome, " . $deliveryName . "!";
             ?>
             </h2> 
-            <div id="transaction_list" style="display:flex; justify-content:flex-start; overflow-y:auto;">
+            <div id="transaction_list" style="display:flex; justify-content:flex-start; overflow-y:auto;padding-bottom: 10px;height: 750px;">
                 <?php
                 include('connect.php');
 
