@@ -36,16 +36,15 @@ function getQueryParam(name) {
             </th>
             <td style="background-color: #D5E2D8!important;"><p class="my-2">${item.pName}</p></td>
             <td style="background-color: #D5E2D8!important;"><p class="my-2">$${item.price}</p></td>
-            <td class="text-center align-middle" style="background-color: #D5E2D8!important;">
-                <div class="d-flex justify-content-center w-100" style="background-color: #D5E2D8!important;">
-                    <div class="input-group quantity my-2" style="width: 100px;" style="background-color: #D5E2D8!important;">
-                        <div class="input-group-btn">
+            <td style="background-color: #D5E2D8!important;" class="text-center align-middle">
+                <div style="background-color: #D5E2D8!important;"  class="d-flex justify-content-center w-100">
+                    <div style="background-color: #D5E2D8!important;" class="input-group quantity my-2" style="width: 100px;">
+                        <div  class="input-group-btn">
                             <button class="btn btn-sm btn-minus rounded-circle bg-white text-dark" data-pid="${item.pid}">
                             <i class="fa fa-minus"></i>
                             </button>
                         </div>
-                        <input type="text" style="background-color: #D5E2D8;" class="form-control form-control-sm text-center border-0 quantity-input text-dark" value="${item.quantity}" data-pid="${item.pid}">
-                        <div class="input-group-btn">
+                            <input type="text" style="background-color: #D5E2D8; width:10px" class="form-control form-control-sm text-center border-0 quantity-input text-dark" value="${item.quantity}" data-pid="${item.pid}">                        <div class="input-group-btn">
                             <button class="btn btn-sm btn-plus rounded-circle bg-white text-dark" data-pid="${item.pid}">
                             <i class="fa fa-plus bg-white"></i>
                             </button>
@@ -244,11 +243,15 @@ function getQueryParam(name) {
   // ✅ 更新小計與總金額
   let platformFeeGlobal = 0;
   let appliedCoupon = null;
+  // 把 platformFee 變成全域變數，或傳給 SubmitOrder 函式
+  let platformFeeGlobal = 0;
   function updateSummary(subtotal) {
 
     currentSubtotal = subtotal; // 儲存未打折前的小計
     let platformFee = Math.ceil(subtotal * 0.05);
-    platformFeeGlobal = platformFee;
+
+    platformFeeGlobal = platformFee;  // 儲存起來
+
     let deliveryFee = 30;
     let total = subtotal + platformFee + deliveryFee;
   
@@ -353,7 +356,10 @@ function getQueryParam(name) {
               id: couponId,
               cartTime,
               subtotal: currentSubtotal,
-              platformFee: platformFeeGlobal
+
+              platformFee: platformFeeGlobal  // 新增傳送 platformFee
+              
+
             })
           })
           .then(res => {
@@ -370,20 +376,10 @@ function getQueryParam(name) {
               alert("❌ 訂單失敗：" + result.error);
             }
           })
-          .catch(error => {
-            console.error('錯誤:', error);
-            alert("❌ 伺服器錯誤，請稍後再試！");
+          .catch(async error => {
+            const errorText = await error.text?.();
+            console.error("❌ 錯誤內容：", errorText);
           });
         });
     });
   }
-
-
-  
-  
-  
-
-
-
-  
-  
