@@ -100,12 +100,13 @@ if (!$id) die("未提供 cid");
                     <th style="padding:10px;width:6%;">Delivery Man</th>
                     <th style="padding:10px;width:13%;">Rating</th>
                     <th style="padding:10px;">Comment</th>
+                    <th style="padding:10px;">Spend</th>
                 </tr>
                 </thead>
                 <tbody style="font-size: 20px;">
                 <?php
                     $sql = "
-                    SELECT t.transactionTime, t.cid, m.mName, t.mRating, t.mComment, d.dpName, t.dRating, t.dComment, t.tranId
+                    SELECT t.transactionTime, t.cid, m.mName, t.mRating, t.mComment, d.dpName, t.dRating, t.dComment, t.tranId, t.totalPrice
                     FROM transaction t
                     LEFT JOIN merchant m ON t.mid = m.mid
                     LEFT JOIN deliveryperson d ON t.did = d.did
@@ -171,6 +172,7 @@ if (!$id) die("未提供 cid");
                                     data-full-comment="' . $dsafeComment . '"
                                     data-tid="' . $row['tranId'] . '"  
                                     data-type="dComment">' . $dsafeShort . '</td>
+                                <td>' . htmlspecialchars($row['totalPrice']) . ' NTD</td>
                             </tr>';
                     }
                     } else {
@@ -206,6 +208,7 @@ if (!$id) die("未提供 cid");
                 <th style="padding:10px;width:6%;">Delivery Man</th>
                 <th style="padding:10px 0px;width:13%;">Rating</th>
                 <th style="padding:10px;">Comment</th>
+                    <th style="padding:10px;">Spend</th>
               </tr>
             </thead>
             <tbody style="font-size: 20px;">
@@ -295,6 +298,7 @@ if (!$id) die("未提供 cid");
                                 data-full-comment="' . $dsafeFullComment . '" 
                                 data-tid="' . $row['tranId'] . '" 
                                 data-type="dComment">' . $dsafeShortComment . '</td>
+                                <td>' . htmlspecialchars($row['totalPrice']) . ' NTD</td>
                         </tr>';
                     echo '<script>console.log("mComment: ' . $msafeFullComment . '");</script>';
                     }
@@ -334,6 +338,7 @@ if (!$id) die("未提供 cid");
                             <th style="padding:10px;width:6%;">Delivery Man</th>
                             <th style="padding:10px 0px;width:13%;">Rating</th>
                             <th style="padding:10px;">Comment</th>
+                            <th style="padding:10px;">Spend</th>
                         </tr>
                       </thead>
                       <tbody style="font-size: 20px;">';
@@ -421,6 +426,7 @@ if (!$id) die("未提供 cid");
                                 data-full-comment="' . $dsafeFullComment . '" 
                                 data-tid="' . $t['tranId'] . '" 
                                 data-type="dComment">' . $dsafeShortComment . '</td>
+                                <td>' . htmlspecialchars($row['totalPrice']) . ' NTD</td>
                         </tr>';
                     echo '<script>console.log("mComment: ' . $msafeFullComment . '");</script>';
                 }
