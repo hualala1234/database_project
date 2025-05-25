@@ -235,9 +235,9 @@ switch ($role) {
                             echo '<tr style="transition: background-color 0.3s;">
                                     <td>' . htmlspecialchars($row['transactionTime']) . '</td>
                                     <td>' . htmlspecialchars($row['cName']) . '</td>
-                                    <td style="width:25%">' . $stars . '</td>
+                                    <td style="width:25%;padding:0px 15px;">' . $stars . '</td>
                                     <td class="comment-cell"  
-                                        style="cursor:pointer; text-decoration:;padding:15px 5px;" 
+                                        style="cursor:pointer; text-decoration:;padding:5px 15px;" 
                                         data-full-comment=\'' . $safeFullComment . '\'>' . $safeShortComment . '</td>
                                 </tr>';
                                 

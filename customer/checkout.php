@@ -63,7 +63,7 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>FoodMart - Free eCommerce Grocery Store HTML Website Template</title>
+        <title>JungleBite</title>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -246,7 +246,9 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
                                 <ul class="dropdown-menu" aria-labelledby="couponDropdown">
                                     <?php
                                     // 撈出該使用者的所有優惠券
-                                    $query = "SELECT coupon_id, message, code FROM coupon WHERE cid = ? AND used = 0";
+
+                                    $query = "SELECT coupon_id, message, code FROM coupon WHERE cid = ? AND used = 0 AND qualified = 1 AND is_expired = 0";
+
                                     $stmt = $conn->prepare($query);
                                     $stmt->bind_param("i", $cid);
                                     $stmt->execute();

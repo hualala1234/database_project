@@ -240,9 +240,9 @@ switch ($role) {
                                         <td>' . htmlspecialchars($row['transactionTime']) . '</td>
                                         <td>' . htmlspecialchars($row['mName']) . '</td>
                                         <td>' . htmlspecialchars($row['cName']) . '</td>
-                                        <td>' . $stars . '</td>
+                                        <td style="width:25%;">' . $stars . '</td>
                                         <td class="comment-cell"  
-                                            style="cursor:pointer; text-decoration:;padding:20px;" 
+                                            style="cursor:pointer; text-decoration:;padding:5px 15px;" 
                                             data-full-comment=\'' . $safeFullComment . '\'>' . $safeShortComment . '</td>
                                     </tr>';
                                     

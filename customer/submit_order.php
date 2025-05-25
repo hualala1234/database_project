@@ -33,6 +33,8 @@ $platformFee = isset($data['platformFee']) ? intval($data['platformFee']) : 0;
 
 
 
+
+
 // ✅ 4. 變數準備
 $mid = intval($data['mid']);
 $totalPrice = intval($data['totalPrice']);
@@ -115,6 +117,12 @@ try {
         $stmt4->bind_param("ii", $totalPrice, $cid);
         $stmt4->execute();
     }
+    // ✅ 9.1 公司帳戶 + 平台手續費
+    $type = 'transaction';  // 固定值
+
+    $stmt = $conn->prepare("INSERT INTO companyaccount (cid, type, increment, time) VALUES (?, ?, ?, CURRENT_TIMESTAMP())");
+    $stmt->bind_param("isi", $cid, $type, $platformFee);
+    $stmt->execute();
 
     
     // ✅ 10. 插入 companyaccount 表

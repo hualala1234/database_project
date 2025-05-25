@@ -193,7 +193,7 @@ def face_login_image():
         return jsonify({'status': 'fail', 'message': f'錯誤：{str(e)}'})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5050)
 
 
 

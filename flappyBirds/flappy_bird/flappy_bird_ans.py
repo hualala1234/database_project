@@ -35,17 +35,25 @@ state = "ready"  # "ready" / "playing" / "gameover"
 # 記錄分數與優惠券
 def record_score(score):
     today = date.today()
+    cursor.execute("""
+    UPDATE coupon
+    SET is_expired = TRUE
+    WHERE created_at < CURDATE() AND is_expired = FALSE
+    """)
+    conn.commit()
+
     cursor.execute("SELECT COUNT(*) FROM Coupon WHERE cid = %s AND game=2 AND DATE(created_at) = %s", (cid, today))
     count = cursor.fetchone()[0]
     # qualified = count < 3
     print(f"Count: {count}")
     qualified = (count + 1) <= 3
     discount = min(score, 30) if qualified and score > 0 else 0
+    message = f"{discount}% 折扣優惠" if discount > 0 else "未獲得優惠"
 
     cursor.execute("""
-        INSERT INTO Coupon (cid, discount, created_at, game_score, qualified, used,game)
-        VALUES (%s, %s, NOW(), %s, %s, FALSE,%s)
-    """, (cid, discount, score, qualified,2))
+        INSERT INTO Coupon (cid, discount, created_at, game_score, qualified, used,game, message, code)
+        VALUES (%s, %s, NOW(), %s, %s, FALSE,%s, %s, %s)
+    """, (cid, discount, score, qualified,2,message,discount))
     conn.commit()
 
     if qualified and score > 0:
