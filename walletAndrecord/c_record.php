@@ -87,7 +87,7 @@ if (!$id) die("未提供 cid");
       <div id="transaction_list">
 
         <!-- 全部交易 -->
-        <div id="transaction_all" style="display:block;">
+        <div id="transaction_all" style="display:block; overflow-y:auto;padding-bottom: 10px;height: 500px;">
             <h2 class="word" style="text-align:center;">History Transactions ( <span>All Transactions</span> )</h2>
             <table>
                 <thead style="font-size: 22px;">
@@ -195,7 +195,7 @@ if (!$id) die("未提供 cid");
 
 
         <!-- 錢包交易 -->
-        <div class="transaction_group" id="transaction_balance" style="display:none;">
+        <div class="transaction_group" id="transaction_balance" style="display:none;overflow-y:auto;padding-bottom: 10px;height: 500px;">
             <h2 class="word" style="text-align:center;">History Transactions ( <span>Wallet Balance</span> )</h2>
           <table>
             <thead style="font-size: 22px;">
@@ -213,7 +213,7 @@ if (!$id) die("未提供 cid");
             </thead>
             <tbody style="font-size: 20px;">
               <?php
-              $walletSql = "SELECT t.transactionTime, t.cid, m.mName, t.mRating, t.mComment, d.dpName, t.dRating, t.dComment, t.tranId
+              $walletSql = "SELECT t.transactionTime, t.cid, m.mName, t.mRating, t.mComment, d.dpName, t.dRating, t.dComment, t.tranId, t.totalPrice
                             FROM transaction t
                             LEFT JOIN merchant m ON t.mId = m.mId
                             LEFT JOIN deliveryperson d ON t.did = d.did
@@ -325,7 +325,7 @@ if (!$id) die("未提供 cid");
         $cardResult = $conn->query("SELECT DISTINCT cardName FROM card WHERE cid = $id");
         while ($card = $cardResult->fetch_assoc()) {
             $cardId = $card['cardName'];
-            echo '<div class="transaction_group" id="transaction_' . $cardId . '" style="display:none;">
+            echo '<div class="transaction_group" id="transaction_' . $cardId . '" style="display:none;overflow-y:auto;padding-bottom: 10px;height: 500px;">
                     <h2 class="word" style="text-align:center;">History Transactions ( <span> ' . htmlspecialchars($cardId) . '</span> )</h2>
                     <table>
                       <thead style="font-size: 22px;">
@@ -342,7 +342,7 @@ if (!$id) die("未提供 cid");
                         </tr>
                       </thead>
                       <tbody style="font-size: 20px;">';
-            $t_sql = "SELECT t.transactionTime, t.cid, m.mName, t.mRating, t.mComment, d.dpName, t.dRating, t.dComment, t.tranId
+            $t_sql = "SELECT t.transactionTime, t.cid, m.mName, t.mRating, t.mComment, d.dpName, t.dRating, t.dComment, t.tranId, t.totalPrice
                         FROM transaction t
                         LEFT JOIN merchant m ON t.mId = m.mId
                         LEFT JOIN deliveryperson d ON t.did = d.did
@@ -387,11 +387,11 @@ if (!$id) die("未提供 cid");
                         }
                         $dStars .= str_repeat('<img src="./image/star.png" alt="empty star" style="width:20px; height:20px; vertical-align:middle;">', $demptyStars);
                     }
-                    $mcomment = isset($row['mComment']) ? trim($row['mComment']) : '';
+                    $mcomment = isset($t['mComment']) ? trim($t['mComment']) : '';
                     if ($mcomment === '' || strtolower($mcomment) === 'null') {
                         $mcomment = 'No comment';
                     }
-                    $dcomment = isset($row['dComment']) ? trim($row['dComment']) : '';
+                    $dcomment = isset($t['dComment']) ? trim($t['dComment']) : '';
                     if ($dcomment === '' || strtolower($dcomment) === 'null') {
                         $dcomment = 'No comment';
                     }
@@ -426,7 +426,7 @@ if (!$id) die("未提供 cid");
                                 data-full-comment="' . $dsafeFullComment . '" 
                                 data-tid="' . $t['tranId'] . '" 
                                 data-type="dComment">' . $dsafeShortComment . '</td>
-                                <td>' . htmlspecialchars($row['totalPrice']) . ' NTD</td>
+                            <td>' . htmlspecialchars($t['totalPrice']) . ' NTD</td>
                         </tr>';
                     echo '<script>console.log("mComment: ' . $msafeFullComment . '");</script>';
                 }
