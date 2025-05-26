@@ -247,7 +247,7 @@ $defaultAddress = $_SESSION['current_address'] ?? ($row['address'] ?? '尚未選
                                     <?php
                                     // 撈出該使用者的所有優惠券
 
-                                    $query = "SELECT coupon_id, message, code FROM coupon WHERE cid = ? AND used = 0 AND qualified = 1 AND is_expired = 0";
+                                    $query = "SELECT coupon_id, message, code FROM coupon WHERE cid = ? AND used = 0 AND qualified = 1 AND is_expired = 0 AND discount > 0";
 
                                     $stmt = $conn->prepare($query);
                                     $stmt->bind_param("i", $cid);
