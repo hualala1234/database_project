@@ -34,7 +34,7 @@ file_put_contents(__DIR__ . '/log.txt', "[PHP] 匯出 CSV 完成\n", FILE_APPEND
 $py_script_path = realpath(__DIR__ . '/score_data.py');
 echo $py_script_path;
 if ($py_script_path && $cid) {
-    $python = "C:\\xampp\\htdocs\\database_project\\.venv\\Scripts\\python.exe";
+    $python = "C:\\Users\\clair\\AppData\\Local\\Programs\\Python\\Python311\\python.exe";
     $command = $python . " " . escapeshellarg($py_script_path) . " " . escapeshellarg($cid) . " 2>&1";
     echo $command;
     file_put_contents(__DIR__ . '/log.txt', "[CMD] $command\n", FILE_APPEND);
