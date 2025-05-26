@@ -183,7 +183,7 @@ $cid = isset($_SESSION["cid"]) ? $_SESSION["cid"] : '';
               <a href="${item.merchant_url}">
                 <img src="${item.image_url}" alt="${item.name}">
               </a>
-              <p>${item.name}</p>
+              <p>${item.label}</p>
             </div>
           `;
         });

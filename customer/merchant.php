@@ -545,7 +545,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                   }
 
                   echo '
-                  <div class="card shadow-sm flex-shrink-0" style="width: 300px;">
+                  <div class="card shadow-sm flex-shrink-0" style="width: 300px;margin-bottom: 10px;"> 
                     <div class="card-body card-scrollable overflow-auto" style="height: 12.5em; display: flex; flex-direction: column; justify-content: space-between;">
                       <h6 class="card-text mb-2">' . $comment . '</h6>
                       <div>
