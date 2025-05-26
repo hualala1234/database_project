@@ -125,6 +125,15 @@ def search_image():
         mid_part = filename.split('-')[0]
         mid = mid_part[1:]
         item['merchant_url'] = f"http://localhost/database_project/customer/merchant.php?mid={mid}"
+
+        # 預測每張圖片的分類（用它的原始圖）
+        try:
+            image_path = os.path.join("static", filename)  # 你上傳圖的實體路徑
+            simg = Image.open(image_path).convert("RGB")
+            item['label'] = predict_label(simg)  # 新增：分類名稱
+        except:
+            item['label'] = '未知'
+
         results.append(item)
 
     # 食物分類
